@@ -1,0 +1,12 @@
+{
+  "appId": "ocean.grow.companion",
+  "appName": "gROW Ocean",
+  "webDir": "www",
+  "backgroundColor": "#0a2e44",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#0a2e44"
+    }
+  }
+}

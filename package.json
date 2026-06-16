@@ -1,0 +1,26 @@
+{
+  "name": "grow-ocean",
+  "version": "1.0.0",
+  "private": true,
+  "description": "gROW Ocean — offline companion for an Atlantic row. Web PWA + Capacitor native shell for reliable background alarms.",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build-www.mjs",
+    "serve": "node tools/build-www.mjs && npx --yes http-server www -p 8080 -c-1",
+    "cap:sync": "node tools/build-www.mjs && cap sync",
+    "android:add": "node tools/build-www.mjs && cap add android",
+    "android:open": "cap open android",
+    "ios:add": "node tools/build-www.mjs && cap add ios",
+    "ios:open": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6",
+    "@capacitor/app": "^6",
+    "@capacitor/core": "^6",
+    "@capacitor/ios": "^6",
+    "@capacitor/local-notifications": "^6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6"
+  }
+}
