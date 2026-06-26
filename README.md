@@ -24,7 +24,7 @@ notes, checklist ticks, reminder settings — is stored **on the device** in its
 
 | # | Function | What it does | Source "Type" |
 |---|----------|--------------|---------------|
-| 1 | **Quick Wiki** | Searchable safety & how-to reference (MOB, EPIRB, VHF Mayday, anchor, life raft, epoxy repair, first aid, stars…). "Read aloud" for hands-free use. | Document |
+| 1 | **Quick Wiki** | Searchable safety & how-to reference (MOB, EPIRB, VHF Mayday, anchor, life raft, epoxy repair, first aid, stars…). "Read aloud" for hands-free use. **Editable in-app** — the rowers can change pages, reset to original, add new pages, and export/import to sync both phones. | Document |
 | 2 | **Scheduled reminders** | Recurring prompts (sun cream, hydration, meds, battery/bilge/solar checks, stretching). Toggle on/off, snooze, mark done. | Scheduled notification |
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
@@ -32,8 +32,24 @@ notes, checklist ticks, reminder settings — is stored **on the device** in its
 | 6 | **Morale & Media** | Games & prompts (Would-You-Rather, jokes, trivia, the full game list), a working **white-noise generator**, awe prompts, star guide, and on-demand media placeholders. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
-and one-tap emergency access, and a **Live race data** page (race/VMG/weather routing via
-"Dorado") shown as **mocked placeholders** ready to wire to a real tracker later.
+and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
+"Dorado") shown as **mocked placeholders** ready to wire to a real tracker later, and an
+**App feedback** screen where the crew can capture ideas/issues offline and export them to
+share when back in range.
+
+### Editing the wiki & giving feedback (no code, works offline)
+
+- **Edit a page:** open any wiki page → **✏️ Edit** → change the text → **Save**. Changes
+  store on that phone and survive offline/restarts.
+- **Reset / delete:** the editor has **↩︎ Reset to original** (built-in pages) or **🗑 Delete**
+  (pages they added).
+- **Add a page:** Wiki list → **➕ New page**.
+- **Sync both phones:** **⤓ Export** writes a `grow-ocean-wiki-*.json` file (shared via the iOS
+  Share sheet / AirDrop); the other rower uses **⤒ Import** to apply it. This also protects
+  edits against a reinstall.
+- **Feedback:** Home → **📝 App feedback** → type and **Save** (offline) → **⤓ Export all**
+  to send a `.txt` summary to whoever maintains the app. On land, feedback can also be raised
+  on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
 
 ---
 
@@ -68,12 +84,15 @@ grow-ocean-app/
 │  ├─ app.js                  Router, navigation, shared helpers (toast, read-aloud)
 │  ├─ db.js                   IndexedDB wrapper (on-device storage)
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
+│  ├─ wikiStore.js            Editable wiki layer (overrides, new pages, export/import)
 │  ├─ data/content.js         ALL seeded content — edit here to change the app
-│  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain
+│  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain, feedback
 └─ icons/                     App icons (192, 512, maskable)
 ```
 
-**To change content** (wiki text, reminders, checklists, games), edit `js/data/content.js`.
+**To change the built-in defaults** (wiki text, reminders, checklists, games), edit
+`js/data/content.js`. **The rowers themselves change wiki content in-app** (see above) — those
+edits live on the device, not in this file.
 
 ---
 

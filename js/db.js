@@ -4,8 +4,8 @@
    audio, reminder on/off state) so everything survives offline and app restarts. */
 
 const DB_NAME = 'grow-ocean';
-const DB_VERSION = 1;
-const STORES = ['logs', 'voiceNotes', 'checkState', 'reminderState', 'settings'];
+const DB_VERSION = 2;
+const STORES = ['logs', 'voiceNotes', 'checkState', 'reminderState', 'settings', 'wiki', 'feedback'];
 
 let _db = null;
 
@@ -25,6 +25,11 @@ function open() {
         db.createObjectStore('reminderState', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('settings'))
         db.createObjectStore('settings', { keyPath: 'key' });
+      // v2: on-device wiki edits (overrides + new pages) and app feedback notes.
+      if (!db.objectStoreNames.contains('wiki'))
+        db.createObjectStore('wiki', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('feedback'))
+        db.createObjectStore('feedback', { keyPath: 'id' }).createIndex('ts', 'ts');
     };
     req.onsuccess = () => { _db = req.result; resolve(_db); };
     req.onerror = () => reject(req.error);

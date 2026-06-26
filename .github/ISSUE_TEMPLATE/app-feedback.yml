@@ -1,0 +1,47 @@
+name: "📱 App feedback"
+description: "Tell us how to improve the gROW Ocean app — what's confusing, missing, or broken."
+title: "[Feedback]: "
+labels: ["app-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the app! Answer whatever's relevant — no technical detail needed.
+        (For feedback while you're at sea with no signal, use the in-app **App feedback** screen and export it later.)
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      options:
+        - General
+        - Quick Wiki (content)
+        - Reminders
+        - Checklists
+        - Logging / voice notes
+        - Morale / Media
+        - A bug (something broke)
+        - An idea / new feature
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like changed or added?
+      description: Describe it in your own words. Be as specific as you like.
+      placeholder: "e.g. The water-maker checklist is missing the filter-flush step…"
+    validations:
+      required: true
+  - type: textarea
+    id: confusing
+    attributes:
+      label: Was anything confusing or hard to find?
+      placeholder: "Optional"
+    validations:
+      required: false
+  - type: input
+    id: priority
+    attributes:
+      label: How important is this to you? (nice-to-have / important / urgent)
+      placeholder: "important"
+    validations:
+      required: false

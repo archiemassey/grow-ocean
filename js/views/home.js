@@ -102,6 +102,7 @@ export async function renderHome(view) {
     ['#/log', '🎙', 'Log', 'Shift, watch, voice'],
     ['#/entertain', '★', 'Morale', 'Games, music, awe'],
     ['#/log/journal', '💬', 'Voice journal', 'Message home'],
+    ['#/feedback', '📝', 'App feedback', 'Ideas & fixes'],
   ];
   const grid = h('div', { class: 'grid' }, tiles.map(([href, ico, tt, td]) =>
     h('a', { class: 'tile', href }, [h('span', { class: 'ti' }, ico), h('span', { class: 'tt' }, tt), h('span', { class: 'td' }, td)])));
