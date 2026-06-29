@@ -33,9 +33,25 @@ notes, checklist ticks, reminder settings — is stored **on the device** in its
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
-"Dorado") shown as **mocked placeholders** ready to wire to a real tracker later, and an
+"Dorado") shown as **mocked placeholders** ready to wire to a real tracker later, an
 **App feedback** screen where the crew can capture ideas/issues offline and export them to
-share when back in range.
+share when back in range, and a **Siri setup** page (Home → 🗣 **Siri setup**) that gives
+hands-free voice phrases (see below).
+
+### Hands-free with Siri (e.g. "Hey Siri, Man Overboard")
+
+iOS PWAs can't register Siri directly, so the app uses the built-in **Shortcuts** app with
+deep links — each app page has its own URL (`…/grow-ocean/#/wiki/mob`). One-time setup per
+phrase (the in-app **Siri setup** page has Copy-link buttons and step-by-step instructions):
+
+1. Open the **Shortcuts** app → **+** → **Add Action** → **Open URLs**.
+2. Paste the link (e.g. `https://archiemassey.github.io/grow-ocean/#/wiki/mob`).
+3. Rename the shortcut to the spoken phrase (e.g. *Man Overboard*) and **Done**.
+4. Say **"Hey Siri, Man Overboard"** — it opens straight to that page (works offline once the
+   app has been opened on the phone, thanks to the service-worker cache).
+
+The Home-screen icon also exposes **long-press quick actions** (MOB, Mayday, EPIRB, Log)
+via the manifest `shortcuts`.
 
 ### Editing the wiki & giving feedback (no code, works offline)
 
