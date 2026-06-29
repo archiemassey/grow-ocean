@@ -10,6 +10,7 @@ import { renderChecklists } from './views/checklists.js';
 import { renderLog } from './views/log.js';
 import { renderEntertain } from './views/entertain.js';
 import { renderFeedback } from './views/feedback.js';
+import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
 
 const view = document.getElementById('view');
@@ -27,7 +28,8 @@ const routes = {
   checklists: { title: 'Checklists', tab: 'checklists', render: renderChecklists },
   log: { title: 'Event Log', tab: 'log', render: renderLog },
   entertain: { title: 'Morale & Media', tab: 'entertain', render: renderEntertain },
-  feedback: { title: 'App Feedback', tab: 'home', render: renderFeedback }
+  feedback: { title: 'App Feedback', tab: 'home', render: renderFeedback },
+  shortcuts: { title: 'Siri Setup', tab: 'home', render: renderShortcuts }
 };
 
 /* ---------- shared UI helpers, exported for views ---------- */
