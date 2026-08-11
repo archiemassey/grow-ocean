@@ -15,6 +15,7 @@ const APP_SHELL = [
   './js/log-export.js',
   './js/reminders.js',
   './js/notify.js',
+  './js/wikiStore.js',
   './js/data/content.js',
   './js/views/home.js',
   './js/views/wiki.js',
@@ -22,6 +23,8 @@ const APP_SHELL = [
   './js/views/checklists.js',
   './js/views/log.js',
   './js/views/entertain.js',
+  './js/views/feedback.js',
+  './js/views/shortcuts.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png'
