@@ -6,6 +6,7 @@
 import { h, go, toast } from '../app.js';
 import { db, uid } from '../db.js';
 import { CONTENT } from '../data/content.js';
+import { runLogExport } from '../log-export.js';
 
 /* ---- shared voice recorder widget ---- */
 function voiceRecorder(onSaved) {
@@ -94,6 +95,29 @@ async function renderForm(view, typeId) {
 /* ---- list + history ---- */
 async function renderList(view) {
   view.append(h('p', { class: 'sub' }, 'Record what happens — with optional voice notes. Everything is saved on the device.'));
+
+  const exportStatus = h('div', { class: 'hint export-status', role: 'status', 'aria-live': 'polite' });
+  const exportButton = h('button', { class: 'btn secondary', onclick: async () => {
+    exportButton.disabled = true;
+    const originalLabel = exportButton.textContent;
+    const result = await runLogExport({
+      loadLogs: () => db.all('logs'),
+      loadVoiceNote: (id) => db.get('voiceNotes', id),
+      onStatus: ({ kind, message, error }) => {
+        exportStatus.textContent = message;
+        exportStatus.className = 'hint export-status ' + kind;
+        if (kind !== 'working') toast(message);
+        if (error) console.error('Log export failed:', error);
+      }
+    });
+    exportButton.disabled = false;
+    exportButton.textContent = originalLabel;
+    if (result.status === 'exported') exportButton.focus();
+  } }, '⬇ Export logs');
+  view.append(h('div', { class: 'export-actions' }, [
+    exportButton,
+    exportStatus
+  ]));
 
   view.append(h('div', { class: 'cat-head' }, 'New entry'));
   const grid = h('div', { class: 'grid' }, CONTENT.logTypes.map((t) =>

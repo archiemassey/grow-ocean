@@ -35,6 +35,15 @@ Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap
 and one-tap emergency access, and a **Live race data** page (race/VMG/weather routing via
 "Dorado") shown as **mocked placeholders** ready to wire to a real tracker later.
 
+### Export logs
+
+Open **Log** and tap **Export logs** to download every saved log entry as a timestamped
+JSON file (for example, `grow-ocean-logs-2026-08-11T08-07-21Z.json`). The export is
+self-contained: linked voice notes are included as Base64 audio with their MIME type,
+while checklist state, reminders, settings, and other app data are excluded. If there
+are no logs, or an export cannot be completed, the Log screen shows a visible status
+and leaves the on-device data unchanged.
+
 ---
 
 ## Run it locally (to try it now)
@@ -67,6 +76,7 @@ grow-ocean-app/
 ├─ js/
 │  ├─ app.js                  Router, navigation, shared helpers (toast, read-aloud)
 │  ├─ db.js                   IndexedDB wrapper (on-device storage)
+│  ├─ log-export.js           Portable JSON log + linked voice-note export
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
 │  ├─ data/content.js         ALL seeded content — edit here to change the app
 │  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain

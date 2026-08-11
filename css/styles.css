@@ -94,6 +94,7 @@ body{
   border:0;border-radius:14px;padding:0 18px;height:var(--tap);font-size:16px;font-weight:700;
   background:var(--teal);color:#fff;box-shadow:var(--shadow);cursor:pointer;width:100%}
 .btn:active{filter:brightness(.95)}
+.btn:disabled{opacity:.55;cursor:wait}
 .btn.secondary{background:var(--card);color:var(--teal);border:1.5px solid var(--teal)}
 .btn.ghost{background:transparent;color:var(--muted);box-shadow:none}
 .btn.crit{background:var(--crit)}
@@ -162,3 +163,7 @@ audio{width:100%;margin-top:6px}
 .empty{text-align:center;color:var(--muted);padding:30px 10px}
 .hr{height:1px;background:var(--line);margin:14px 0;border:0}
 .hint{font-size:13px;color:var(--muted);margin-top:4px}
+.export-actions{margin:0 0 18px}
+.export-status{min-height:20px;margin-top:8px;text-align:center}
+.export-status.success{color:var(--ok)}
+.export-status.error{color:var(--crit)}
