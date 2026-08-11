@@ -4,7 +4,7 @@
    the device. After that, the app loads from the device — so it works with no
    internet at all (essential mid-Atlantic). Bump CACHE_VERSION to push updates. */
 
-const CACHE_VERSION = 'grow-ocean-v4';
+const CACHE_VERSION = 'grow-ocean-v5';
 const APP_SHELL = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const APP_SHELL = [
   './css/styles.css',
   './js/app.js',
   './js/db.js',
+  './js/log-export.js',
   './js/reminders.js',
   './js/notify.js',
   './js/wikiStore.js',

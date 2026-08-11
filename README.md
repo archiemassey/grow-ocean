@@ -67,6 +67,16 @@ via the manifest `shortcuts`.
   to send a `.txt` summary to whoever maintains the app. On land, feedback can also be raised
   on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
 
+### Export logs
+
+Open **Log** and tap **Export CSV** beside the History heading to download every saved
+log entry as a timestamped CSV file (for example,
+`grow-ocean-logs-2026-08-11T08-07-21Z.csv`). The spreadsheet includes stable columns
+for every log type and compact linked voice-note metadata (availability, timestamp,
+MIME type, and size); audio itself is not embedded. Checklist state, reminders,
+settings, and other app data are excluded. If there are no logs, or an export cannot
+be completed, the Log screen shows a visible status and leaves on-device data unchanged.
+
 ---
 
 ## Run it locally (to try it now)
@@ -99,6 +109,7 @@ grow-ocean-app/
 ├─ js/
 │  ├─ app.js                  Router, navigation, shared helpers (toast, read-aloud)
 │  ├─ db.js                   IndexedDB wrapper (on-device storage)
+│  ├─ log-export.js           Excel-compatible CSV log export
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
 │  ├─ wikiStore.js            Editable wiki layer (overrides, new pages, export/import)
 │  ├─ data/content.js         ALL seeded content — edit here to change the app

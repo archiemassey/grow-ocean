@@ -5,6 +5,7 @@
   "description": "gROW Ocean — offline companion for an Atlantic row. Web PWA + Capacitor native shell for reliable background alarms.",
   "type": "module",
   "scripts": {
+    "test": "node --test",
     "build": "node tools/build-www.mjs",
     "serve": "node tools/build-www.mjs && npx --yes http-server www -p 8080 -c-1",
     "cap:sync": "node tools/build-www.mjs && cap sync",
