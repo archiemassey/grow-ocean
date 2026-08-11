@@ -37,12 +37,13 @@ and one-tap emergency access, and a **Live race data** page (race/VMG/weather ro
 
 ### Export logs
 
-Open **Log** and tap **Export logs** to download every saved log entry as a timestamped
-JSON file (for example, `grow-ocean-logs-2026-08-11T08-07-21Z.json`). The export is
-self-contained: linked voice notes are included as Base64 audio with their MIME type,
-while checklist state, reminders, settings, and other app data are excluded. If there
-are no logs, or an export cannot be completed, the Log screen shows a visible status
-and leaves the on-device data unchanged.
+Open **Log** and tap **Export CSV** beside the History heading to download every saved
+log entry as a timestamped CSV file (for example,
+`grow-ocean-logs-2026-08-11T08-07-21Z.csv`). The spreadsheet includes stable columns
+for every log type and compact linked voice-note metadata (availability, timestamp,
+MIME type, and size); audio itself is not embedded. Checklist state, reminders,
+settings, and other app data are excluded. If there are no logs, or an export cannot
+be completed, the Log screen shows a visible status and leaves on-device data unchanged.
 
 ---
 
@@ -76,7 +77,7 @@ grow-ocean-app/
 ├─ js/
 │  ├─ app.js                  Router, navigation, shared helpers (toast, read-aloud)
 │  ├─ db.js                   IndexedDB wrapper (on-device storage)
-│  ├─ log-export.js           Portable JSON log + linked voice-note export
+│  ├─ log-export.js           Excel-compatible CSV log export
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
 │  ├─ data/content.js         ALL seeded content — edit here to change the app
 │  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain

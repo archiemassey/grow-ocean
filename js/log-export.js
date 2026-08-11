@@ -1,15 +1,42 @@
-/* Log export helpers. The export deliberately includes only log fields and
-   voice notes linked from those logs; other on-device app data stays private. */
+/* Log export helpers. The CSV deliberately includes only known log fields and
+   compact metadata for linked voice notes; other on-device app data stays private. */
 
-const EXPORT_SCHEMA_VERSION = 1;
-const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const DATA_COLUMNS = [
+  ['Rower', 'rower'],
+  ['Physical State', 'state'],
+  ['Sleep Minutes', 'sleep'],
+  ['Notes', 'notes'],
+  ['Weather', 'weather'],
+  ['Wind / Wave Direction', 'wind'],
+  ['Bearing / Heading', 'bearing'],
+  ['Hazards / Traffic', 'hazards'],
+  ['Patient', 'who'],
+  ['Symptom / Injury', 'symptom'],
+  ['Vitals', 'vitals'],
+  ['Medication Given', 'meds'],
+  ['Review Hours', 'review'],
+  ['Journal Title', 'title'],
+  ['Audience', 'audience']
+];
+
+export const CSV_HEADERS = [
+  'Timestamp (UTC)',
+  'Log ID',
+  'Log Type',
+  'Log Title',
+  ...DATA_COLUMNS.map(([header]) => header),
+  'Voice Note',
+  'Voice Note ID',
+  'Voice Note Timestamp (UTC)',
+  'Voice Note MIME Type',
+  'Voice Note Bytes'
+];
 
 /**
  * @typedef {Object} StoredLog
  * @property {string} id
  * @property {string} type
  * @property {string} typeTitle
- * @property {string} icon
  * @property {Record<string, string>} data
  * @property {string|null} voiceId
  * @property {number} ts
@@ -33,96 +60,88 @@ function requireString(value, label) {
   return value;
 }
 
-function cleanData(data, logId) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    throw new TypeError('Log ' + logId + ' data must be an object');
+function logField(log, key) {
+  if (!log.data || typeof log.data !== 'object' || Array.isArray(log.data)) {
+    throw new TypeError('Log ' + log.id + ' data must be an object');
   }
-
-  return Object.fromEntries(Object.entries(data).map(([key, value]) => {
-    if (typeof value !== 'string') {
-      throw new TypeError('Log ' + logId + ' field ' + key + ' must be a string');
-    }
-    return [key, value];
-  }));
+  const value = log.data[key];
+  if (value == null) return '';
+  if (typeof value !== 'string') {
+    throw new TypeError('Log ' + log.id + ' field ' + key + ' must be a string');
+  }
+  return value;
 }
 
-function bytesToBase64(bytes) {
-  let output = '';
-  for (let i = 0; i < bytes.length; i += 3) {
-    const first = bytes[i];
-    const second = i + 1 < bytes.length ? bytes[i + 1] : 0;
-    const third = i + 2 < bytes.length ? bytes[i + 2] : 0;
-    const combined = (first << 16) | (second << 8) | third;
+function formulaSafe(value) {
+  const text = String(value ?? '');
+  return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
 
-    output += BASE64_ALPHABET[(combined >> 18) & 63];
-    output += BASE64_ALPHABET[(combined >> 12) & 63];
-    output += i + 1 < bytes.length ? BASE64_ALPHABET[(combined >> 6) & 63] : '=';
-    output += i + 2 < bytes.length ? BASE64_ALPHABET[combined & 63] : '=';
+export function escapeCsvCell(value) {
+  const text = formulaSafe(value);
+  return /[",\r\n]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
+}
+
+function csvRow(values) {
+  return values.map(escapeCsvCell).join(',');
+}
+
+async function voiceColumns(log, loadVoiceNote) {
+  if (log.voiceId == null) return ['no', '', '', '', ''];
+
+  const voiceId = requireString(log.voiceId, 'Log ' + log.id + ' voice id');
+  const note = await loadVoiceNote(voiceId);
+  if (!note) return ['missing', voiceId, '', '', ''];
+  if (!note.blob || typeof note.blob.size !== 'number' || typeof note.blob.type !== 'string') {
+    throw new TypeError('Voice note ' + voiceId + ' has invalid audio data');
   }
-  return output;
+
+  return [
+    'yes',
+    requireString(note.id, 'Voice note id'),
+    toIsoTimestamp(note.ts, 'Voice note timestamp'),
+    note.blob.type || 'application/octet-stream',
+    note.blob.size
+  ];
 }
 
 /**
- * Builds a portable export while selecting an explicit allowlist of fields.
+ * Creates an Excel-compatible CSV from an explicit allowlist of log fields.
  * @param {StoredLog[]} logs
  * @param {(id: string) => Promise<StoredVoiceNote|undefined>} loadVoiceNote
- * @param {Date} exportedAt
  */
-export async function createLogExport(logs, loadVoiceNote, exportedAt = new Date()) {
+export async function createLogCsv(logs, loadVoiceNote) {
   if (!Array.isArray(logs)) throw new TypeError('Logs must be an array');
 
+  const rows = [csvRow(CSV_HEADERS)];
   const orderedLogs = [...logs].sort((a, b) => a.ts - b.ts);
-  const exportedLogs = [];
 
   for (const log of orderedLogs) {
     if (!log || typeof log !== 'object') throw new TypeError('Each log must be an object');
     const id = requireString(log.id, 'Log id');
-    let voiceNote = null;
-
-    if (log.voiceId != null) {
-      const voiceId = requireString(log.voiceId, 'Log ' + id + ' voice id');
-      const note = await loadVoiceNote(voiceId);
-      if (!note || !(note.blob instanceof Blob)) {
-        throw new Error('Voice note ' + voiceId + ' linked from log ' + id + ' is unavailable');
-      }
-      const audioBytes = new Uint8Array(await note.blob.arrayBuffer());
-      voiceNote = {
-        id: requireString(note.id, 'Voice note id'),
-        timestamp: toIsoTimestamp(note.ts, 'Voice note timestamp'),
-        mimeType: note.blob.type || 'application/octet-stream',
-        byteLength: note.blob.size,
-        dataBase64: bytesToBase64(audioBytes)
-      };
-    }
-
-    exportedLogs.push({
+    const row = [
+      toIsoTimestamp(log.ts, 'Log ' + id + ' timestamp'),
       id,
-      type: requireString(log.type, 'Log ' + id + ' type'),
-      title: requireString(log.typeTitle, 'Log ' + id + ' title'),
-      icon: requireString(log.icon, 'Log ' + id + ' icon'),
-      timestamp: toIsoTimestamp(log.ts, 'Log ' + id + ' timestamp'),
-      data: cleanData(log.data, id),
-      voiceNote
-    });
+      requireString(log.type, 'Log ' + id + ' type'),
+      requireString(log.typeTitle, 'Log ' + id + ' title'),
+      ...DATA_COLUMNS.map(([, key]) => logField(log, key)),
+      ...await voiceColumns(log, loadVoiceNote)
+    ];
+    rows.push(csvRow(row));
   }
 
-  return {
-    application: 'gROW Ocean',
-    schemaVersion: EXPORT_SCHEMA_VERSION,
-    exportedAt: toIsoTimestamp(exportedAt, 'Export timestamp'),
-    logs: exportedLogs
-  };
+  return '\uFEFF' + rows.join('\r\n') + '\r\n';
 }
 
 export function makeLogExportFilename(date = new Date()) {
   const timestamp = toIsoTimestamp(date, 'Export timestamp')
     .replace(/\.\d{3}Z$/, 'Z')
     .replaceAll(':', '-');
-  return 'grow-ocean-logs-' + timestamp + '.json';
+  return 'grow-ocean-logs-' + timestamp + '.csv';
 }
 
-export function downloadLogExport({ json, filename }) {
-  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+export function downloadLogExport({ csv, filename }) {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -139,7 +158,7 @@ export function downloadLogExport({ json, filename }) {
  * @param {Object} options
  * @param {() => Promise<StoredLog[]>} options.loadLogs
  * @param {(id: string) => Promise<StoredVoiceNote|undefined>} options.loadVoiceNote
- * @param {(download: {json: string, filename: string}) => void|Promise<void>} [options.download]
+ * @param {(download: {csv: string, filename: string}) => void|Promise<void>} [options.download]
  * @param {() => Date} [options.now]
  * @param {(state: {kind: string, message: string, error?: unknown}) => void} [options.onStatus]
  */
@@ -158,17 +177,17 @@ export async function runLogExport({
       return { status: 'empty', count: 0 };
     }
 
-    onStatus({ kind: 'working', message: 'Preparing export…' });
+    onStatus({ kind: 'working', message: 'Preparing CSV...' });
     const exportDate = now();
-    const payload = await createLogExport(logs, loadVoiceNote, exportDate);
+    const csv = await createLogCsv(logs, loadVoiceNote);
     const filename = makeLogExportFilename(exportDate);
-    await download({ json: JSON.stringify(payload, null, 2), filename });
+    await download({ csv, filename });
 
-    const message = 'Exported ' + logs.length + (logs.length === 1 ? ' log.' : ' logs.');
+    const message = 'Exported ' + logs.length + (logs.length === 1 ? ' log to CSV.' : ' logs to CSV.');
     onStatus({ kind: 'success', message });
     return { status: 'exported', count: logs.length, filename };
   } catch (error) {
-    const message = 'Export failed. Your logs are still stored on this device.';
+    const message = 'CSV export failed. Your logs are still stored on this device.';
     onStatus({ kind: 'error', message, error });
     return { status: 'error', error };
   }

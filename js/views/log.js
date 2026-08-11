@@ -96,29 +96,6 @@ async function renderForm(view, typeId) {
 async function renderList(view) {
   view.append(h('p', { class: 'sub' }, 'Record what happens — with optional voice notes. Everything is saved on the device.'));
 
-  const exportStatus = h('div', { class: 'hint export-status', role: 'status', 'aria-live': 'polite' });
-  const exportButton = h('button', { class: 'btn secondary', onclick: async () => {
-    exportButton.disabled = true;
-    const originalLabel = exportButton.textContent;
-    const result = await runLogExport({
-      loadLogs: () => db.all('logs'),
-      loadVoiceNote: (id) => db.get('voiceNotes', id),
-      onStatus: ({ kind, message, error }) => {
-        exportStatus.textContent = message;
-        exportStatus.className = 'hint export-status ' + kind;
-        if (kind !== 'working') toast(message);
-        if (error) console.error('Log export failed:', error);
-      }
-    });
-    exportButton.disabled = false;
-    exportButton.textContent = originalLabel;
-    if (result.status === 'exported') exportButton.focus();
-  } }, '⬇ Export logs');
-  view.append(h('div', { class: 'export-actions' }, [
-    exportButton,
-    exportStatus
-  ]));
-
   view.append(h('div', { class: 'cat-head' }, 'New entry'));
   const grid = h('div', { class: 'grid' }, CONTENT.logTypes.map((t) =>
     h('a', { class: 'tile', href: '#/log/' + t.id }, [
@@ -129,7 +106,37 @@ async function renderList(view) {
   view.append(grid);
 
   const logs = (await db.all('logs')).sort((a, b) => b.ts - a.ts);
-  view.append(h('div', { class: 'cat-head' }, 'History (' + logs.length + ')'));
+  const exportStatus = h('div', { class: 'hint history-export-status', role: 'status', 'aria-live': 'polite' });
+  const exportButton = h('button', {
+    class: 'btn small ghost history-export',
+    'aria-label': 'Export log history as CSV',
+    onclick: async () => {
+      exportButton.disabled = true;
+      let result;
+      try {
+        result = await runLogExport({
+          loadLogs: () => db.all('logs'),
+          loadVoiceNote: (id) => db.get('voiceNotes', id),
+          onStatus: ({ kind, message, error }) => {
+            exportStatus.textContent = message;
+            exportStatus.className = 'hint history-export-status ' + kind;
+            if (kind !== 'working') toast(message);
+            if (error) console.error('Log export failed:', error);
+          }
+        });
+      } finally {
+        exportButton.disabled = false;
+      }
+      if (result.status === 'exported') exportButton.focus();
+    }
+  }, 'Export CSV');
+  view.append(
+    h('div', { class: 'cat-head history-head' }, [
+      h('span', {}, 'History (' + logs.length + ')'),
+      exportButton
+    ]),
+    exportStatus
+  );
   if (!logs.length) { view.append(h('div', { class: 'empty' }, 'No entries yet.')); return; }
 
   for (const lg of logs.slice(0, 50)) {

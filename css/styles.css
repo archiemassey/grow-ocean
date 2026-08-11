@@ -163,7 +163,9 @@ audio{width:100%;margin-top:6px}
 .empty{text-align:center;color:var(--muted);padding:30px 10px}
 .hr{height:1px;background:var(--line);margin:14px 0;border:0}
 .hint{font-size:13px;color:var(--muted);margin-top:4px}
-.export-actions{margin:0 0 18px}
-.export-status{min-height:20px;margin-top:8px;text-align:center}
-.export-status.success{color:var(--ok)}
-.export-status.error{color:var(--crit)}
+.history-head{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.history-export{height:44px;min-width:88px;padding:0 10px;font-size:12px}
+.history-export-status{margin:-6px 0 8px;text-align:right}
+.history-export-status:empty{display:none}
+.history-export-status.success{color:var(--ok)}
+.history-export-status.error{color:var(--crit)}
