@@ -5,6 +5,7 @@ import { cp, rm, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import './validate-content.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const www = join(root, 'www');
@@ -15,7 +16,8 @@ const ITEMS = [
   'service-worker.js',
   'css',
   'js',
-  'icons'
+  'icons',
+  'references'
 ];
 
 await rm(www, { recursive: true, force: true });

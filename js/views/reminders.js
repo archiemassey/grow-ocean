@@ -71,6 +71,7 @@ function drawEvents(wrap) {
 }
 
 export async function renderReminders(view) {
+  view.append(h('p', { class: 'callout crit' }, CONTENT.meta.disclaimer));
   const scheduledWrap = h('div', {});
   const eventsWrap = h('div', {});
 

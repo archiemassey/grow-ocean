@@ -2,31 +2,10 @@
    live race/weather sub-page. The white-noise generator and game prompts work
    fully offline. Music/podcasts/audiobooks are placeholders for side-loaded files. */
 
-import { h, go, toast, speak } from '../app.js';
+import { h, go, toast, speak, stopSpeaking } from '../app.js';
 import { CONTENT } from '../data/content.js';
-
-const WOULD_YOU_RATHER = [
-  'a hot shower or a full night’s sleep?',
-  'flat calm for a week or a 3-knot tailwind for a day?',
-  'unlimited chocolate or unlimited coffee on board?',
-  'see a whale or see another boat?',
-  'always row at dawn or always row at dusk?',
-  'one big storm now or constant light headwinds?'
-];
-const JOKES = [
-  'Why don’t oceans ever get bored? They’re full of current events.',
-  'What did the sea say to the rower? Nothing — it just waved.',
-  'I’m reading a book about anti-gravity. It’s impossible to put down.',
-  'Why did the sailor bring a ladder? To reach the high seas.',
-  'What’s a pirate’s favourite letter? You’d think R… but it’s the C.'
-];
-const TRIVIA = [
-  ['The Atlantic is the world’s ___-largest ocean.', 'Second'],
-  ['Roughly how wide (nm) is a mid-Atlantic row, La Gomera→Antigua?', '~2,600–3,000 nm'],
-  ['What does VMG stand for?', 'Velocity Made Good'],
-  ['Polaris sits above which celestial point?', 'The North Celestial Pole'],
-  ['What colour is a boat’s port nav light?', 'Red']
-];
+import { db } from '../db.js';
+import { CATEGORIES, createDeck } from '../entertainment.js';
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -58,21 +37,92 @@ function noisePlayer() {
   return h('div', { class: 'card' }, [h('h3', {}, '🌊 White noise / Calm'), label, btn, h('label', { class: 'field' }, 'Volume'), vol]);
 }
 
-function gamesCard() {
-  const out = h('div', { class: 'callout', style: 'min-height:46px' }, 'Tap a generator below 👇');
-  const card = h('div', { class: 'card' }, [
-    h('h3', {}, '🎲 Quick games & prompts'),
-    out,
-    h('div', { class: 'btnrow', style: 'flex-wrap:wrap;gap:8px' }, [
-      h('button', { class: 'btn small secondary', onclick: () => out.textContent = 'Would you rather… ' + pick(WOULD_YOU_RATHER) }, 'Would you rather?'),
-      h('button', { class: 'btn small secondary', onclick: () => { const j = pick(JOKES); out.textContent = j; } }, 'Joke'),
-      h('button', { class: 'btn small secondary', onclick: () => { const t = pick(TRIVIA); out.innerHTML = '<strong>Q:</strong> ' + t[0] + '<br><em>Tap “Reveal”…</em>'; out.dataset.a = t[1]; } }, 'Trivia'),
-      h('button', { class: 'btn small ghost', onclick: () => { if (out.dataset.a) out.innerHTML += '<br><strong>A:</strong> ' + out.dataset.a; } }, 'Reveal'),
-    ]),
-    h('div', { class: 'btnrow' }, [
-      h('button', { class: 'btn small', onclick: () => { const g = pick(CONTENT.games); out.textContent = '🎮 ' + g; speak(g); } }, '✨ Surprise us (read aloud)')
-    ])
-  ]);
+async function gamesCard() {
+  const card = h('div', { class: 'card' }, h('h3', {}, '🎲 Games & prompts'));
+  try {
+    const response = await fetch(new URL('../data/entertainment-pack.json', import.meta.url));
+    if (!response.ok) throw new Error('Content pack unavailable');
+    const pack = await response.json();
+    const deck = createDeck(pack, db);
+    const selector = h('select', { id: 'entertainment-category', 'aria-label': 'Entertainment category' },
+      Object.entries(CATEGORIES).map(([id, label]) => h('option', { value: id },
+        `${label} (${pack.items.filter(item => item.category === id).length})`)));
+    const progress = h('p', { class: 'hint', role: 'status', 'aria-live': 'polite' });
+    const prompt = h('p', { 'aria-live': 'polite' });
+    const instructions = h('p', { style: 'white-space:pre-line' });
+    const answer = h('p', { 'aria-live': 'polite' });
+    const source = h('p', { class: 'hint', style: 'overflow-wrap:anywhere' });
+    const next = h('button', { class: 'btn', onclick: () => act(() => deck.next()) }, 'Next');
+    const reveal = h('button', { class: 'btn secondary', onclick: () => draw(deck.reveal()) }, 'Reveal answer');
+    const read = h('button', { class: 'btn small secondary', onclick: () => {
+      const state = deck.snapshot();
+      speak([state.prompt, state.instructions, state.answer].filter(Boolean).join('. '));
+    } }, '🔊 Read aloud');
+    const reset = h('button', { class: 'btn small ghost', onclick: () => {
+      if (window.confirm('Start a new cycle for this category? Previously seen items may repeat.'))
+        act(() => deck.reset());
+    } }, 'Reset this category');
+    let busy = false;
+    function draw(state) {
+      prompt.textContent = state.total ? state.prompt : 'No items published in this category yet. Choose another category.';
+      instructions.textContent = state.instructions;
+      instructions.hidden = !state.instructions;
+      answer.textContent = state.answer;
+      answer.hidden = !state.answer;
+      source.textContent = state.item
+        ? (state.canReveal ? 'Source shown with the answer to avoid spoilers.' : 'Source: ' + state.item.source) : '';
+      progress.textContent = `${state.seen} of ${state.total} seen · cycle ${state.cycle}` +
+        (!state.total ? ' · No items available.' :
+          state.exhausted ? ' · All seen. Reset when you want another round.' : ' · No repeats until all seen.');
+      next.disabled = state.exhausted;
+      reveal.disabled = !state.canReveal;
+      read.disabled = !state.item;
+      reset.disabled = !state.seen;
+    }
+    async function act(action) {
+      if (busy) return;
+      busy = true;
+      stopSpeaking();
+      answer.hidden = true;
+      source.textContent = '';
+      [selector, next, reveal, read, reset].forEach(control => control.disabled = true);
+      try { await action(); }
+      catch { toast('Could not save progress on this device. Please try again.'); }
+      finally {
+        busy = false; selector.disabled = false;
+        selector.value = deck.snapshot().category;
+        draw(deck.snapshot());
+      }
+    }
+    selector.addEventListener('change', () => act(() => deck.select(selector.value)));
+    card.append(
+      h('p', { class: 'hint' }, `${pack.items.length.toLocaleString()} offline items for your 44-day crossing. Choose freely; no daily lock.`),
+      h('p', { class: 'hint' }, 'Optional entertainment for two. Pause whenever either rower needs to attend to the boat; no physical or timed safety drills.'),
+      h('label', { class: 'field', for: 'entertainment-category' }, 'Category'), selector, progress,
+      h('div', { class: 'callout', style: 'min-height:46px' }, [prompt, instructions, answer]),
+      h('div', { class: 'btnrow', style: 'flex-wrap:wrap;gap:8px' }, [next, reveal, read,
+        h('button', { class: 'btn small ghost', onclick: stopSpeaking }, '⏹ Stop'), reset]), source,
+      h('p', { class: 'hint' }, 'Progress saves on this device only. Read-aloud needs an installed offline voice; test in aeroplane mode before departure.')
+    );
+    if (pack.schedule) {
+      const day = h('select', { 'aria-label': 'Optional crossing day' }, [...pack.schedule]
+        .sort((a, b) => a.day - b.day).map(entry => h('option', { value: entry.day }, `Day ${entry.day} · ${entry.title}`)));
+      const note = h('p', { style: 'white-space:pre-line', 'aria-live': 'polite' });
+      function showDay() {
+        const entry = pack.schedule.find(entry => entry.day === Number(day.value));
+        note.textContent = entry.note + '\nSource: ' + entry.source;
+      }
+      day.addEventListener('change', showDay);
+      showDay();
+      card.append(h('details', {}, [
+        h('summary', {}, 'Optional 44-day plan'), day, note,
+        h('p', { class: 'hint' }, 'Suggestions only. Use the category picker and Next for unseen items; this plan never advances or resets your progress.')
+      ]));
+    }
+    draw(await deck.select('jokes'));
+  } catch {
+    card.append(h('p', { role: 'alert' }, 'Entertainment could not load. Open once online to finish downloading the app, then try again. Other morale features remain available.'));
+  }
   return card;
 }
 
@@ -126,10 +176,11 @@ export async function renderEntertain(view, param) {
   view.innerHTML = '';
   if (param === 'live') { renderLive(view); return; }
 
+  const loading = h('div', { class: 'card', role: 'status' }, 'Loading entertainment...');
   view.append(
     h('p', { class: 'sub' }, 'Distraction, morale and a moment of awe — plus on-demand media and live race data.'),
     h('button', { class: 'btn secondary', style: 'margin-bottom:12px', onclick: () => go('#/entertain/live') }, '📡 Live race & weather'),
-    gamesCard(),
+    loading,
     noisePlayer(),
     mediaCard(),
     aweCard(),
@@ -139,4 +190,6 @@ export async function renderEntertain(view, param) {
       h('button', { class: 'btn small', onclick: () => go('#/log/journal') }, '🎙 Open voice journal')
     ])
   );
+  const games = await gamesCard();
+  if (view.contains(loading)) loading.replaceWith(games);
 }

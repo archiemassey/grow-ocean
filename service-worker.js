@@ -4,7 +4,7 @@
    the device. After that, the app loads from the device — so it works with no
    internet at all (essential mid-Atlantic). Bump CACHE_VERSION to push updates. */
 
-const CACHE_VERSION = 'grow-ocean-v5';
+const CACHE_VERSION = 'grow-ocean-v7';
 const APP_SHELL = [
   './',
   './index.html',
@@ -16,7 +16,14 @@ const APP_SHELL = [
   './js/reminders.js',
   './js/notify.js',
   './js/wikiStore.js',
+  './js/entertainment.js',
+  './js/safety.js',
+  './js/rules.js',
   './js/data/content.js',
+  './js/data/entertainment-pack.json',
+  './js/data/entertainment-base.json',
+  './js/data/rules-data.js',
+  './references/race-rules-wtr-atlantic-2025-v1.0.pdf',
   './js/views/home.js',
   './js/views/wiki.js',
   './js/views/reminders.js',
@@ -40,7 +47,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k.startsWith('grow-ocean-') && k !== CACHE_VERSION).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -64,7 +71,14 @@ self.addEventListener('fetch', (event) => {
           }
           return resp;
         })
-        .catch(() => caches.match('./index.html')); // offline navigation fallback
+        .catch(() => {
+          // Never substitute app HTML for a missing PDF, JSON pack or module.
+          if (request.mode === 'navigate' && !new URL(request.url).pathname.match(/\.[a-z0-9]+$/i))
+            return caches.match('./index.html');
+          return new Response('Not available offline. Download the app before departure.', {
+            status: 503, headers: { 'Content-Type': 'text/plain' }
+          });
+        });
     })
   );
 });

@@ -15,7 +15,7 @@ A PWA is a website that behaves like an installed app. You open it once (while y
 have wifi/signal on land) and tap **"Add to Home Screen"**. A small background helper called
 a **service worker** downloads the entire app onto the device. After that it opens full-screen
 from its own icon and runs **completely offline**. All data the rowers create — logs, voice
-notes, checklist ticks, reminder settings — is stored **on the device** in its local database
+notes, checklist ticks, reminder settings, wiki edits and entertainment progress — is stored **on the device** in its local database
 (IndexedDB). Nothing needs the internet.
 
 ---
@@ -24,12 +24,12 @@ notes, checklist ticks, reminder settings — is stored **on the device** in its
 
 | # | Function | What it does | Source "Type" |
 |---|----------|--------------|---------------|
-| 1 | **Quick Wiki** | Searchable safety & how-to reference (MOB, EPIRB, VHF Mayday, anchor, life raft, epoxy repair, first aid, stars…). "Read aloud" for hands-free use. **Editable in-app** — the rowers can change pages, reset to original, add new pages, and export/import to sync both phones. | Document |
+| 1 | **Quick Wiki** | Full-text search, unchanged offline Atlantic 2025 v1.0 rules PDF and 11 read-only, page-referenced extracts. Prototype safety notes have explicit two-person review warnings. Crew notes remain editable, exportable and importable without changing official rules. | Document |
 | 2 | **Scheduled reminders** | Recurring prompts (sun cream, hydration, meds, battery/bilge/solar checks, stretching). Toggle on/off, snooze, mark done. | Scheduled notification |
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
-| 6 | **Morale & Media** | Games & prompts (Would-You-Rather, jokes, trivia, the full game list), a working **white-noise generator**, awe prompts, star guide, and on-demand media placeholders. | Media + Games |
+| 6 | **Morale & Media** | Offline content pack: jokes/riddles, Would You Rather, trivia, playable games, conversation and challenges. Per-category no-repeat progress survives restarts; answers reveal separately. Read-aloud, **white noise**, awe prompts, star guide and media placeholders. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
@@ -55,7 +55,7 @@ via the manifest `shortcuts`.
 
 ### Editing the wiki & giving feedback (no code, works offline)
 
-- **Edit a page:** open any wiki page → **✏️ Edit** → change the text → **Save**. Changes
+- **Edit a crew/prototype page:** open the page → **✏️ Edit** → change the text → **Save**. Official rules and their extracts are read-only; use a separate crew note for annotations. Changes
   store on that phone and survive offline/restarts.
 - **Reset / delete:** the editor has **↩︎ Reset to original** (built-in pages) or **🗑 Delete**
   (pages they added).
@@ -63,6 +63,9 @@ via the manifest `shortcuts`.
 - **Sync both phones:** **⤓ Export** writes a `grow-ocean-wiki-*.json` file (shared via the iOS
   Share sheet / AirDrop); the other rower uses **⤒ Import** to apply it. This also protects
   edits against a reinstall.
+- Built-in updates **preserve crew edits**. In particular, an existing MOB edit may still contain
+  the withdrawn generic sequence: a separate, non-editable review warning stays visible.
+  Wiki imports validate text fields and reject attempts to replace official rule pages.
 - **Feedback:** Home → **📝 App feedback** → type and **Save** (offline) → **⤓ Export all**
   to send a `.txt` summary to whoever maintains the app. On land, feedback can also be raised
   on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
@@ -112,14 +115,101 @@ grow-ocean-app/
 │  ├─ log-export.js           Excel-compatible CSV log export
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
 │  ├─ wikiStore.js            Editable wiki layer (overrides, new pages, export/import)
-│  ├─ data/content.js         ALL seeded content — edit here to change the app
+│  ├─ entertainment.js        Content validation and persisted no-repeat deck logic
+│  ├─ safety.js               Two-person review notices (separate from crew edits)
+│  ├─ rules.js                Read-only official reference and page links
+│  ├─ data/content.js         Prototype wiki, reminders, checklists and legacy game titles
+│  ├─ data/entertainment-pack.json  Versioned built-in entertainment with provenance
+│  ├─ data/rules-data.js      Page-exact text and SHA-256 of the original PDF
 │  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain, feedback
+├─ references/                Original crew-provided rules PDF (unchanged)
+├─ tools/                     Static build, content validation and manual PDF extraction
 └─ icons/                     App icons (192, 512, maskable)
 ```
 
 **To change the built-in defaults** (wiki text, reminders, checklists, games), edit
 `js/data/content.js`. **The rowers themselves change wiki content in-app** (see above) — those
 edits live on the device, not in this file.
+
+### Manual content publishing — no SharePoint backend
+
+The bundled release contains **2,569 items**: **2,005 trivia**, **125 jokes/riddles**,
+**166 Would You Rather prompts**, **77 playable games**, **122 conversation prompts**
+and **74 challenges**, plus the original **44-day plan** as optional theme/category suggestions.
+This combines the content agent's 2,000-question / 120-joke upgrade, the original library's
+other categories, and the retained app seeds with newly written two-person instructions.
+
+SharePoint is **only the crew's review/upload library**. This Copilot session or a maintainer
+manually curates approved material into the static app. There is no SharePoint authentication,
+automatic sync, AI endpoint, backend or runtime Excel import. The MIP-protected entertainment
+workbook is not unlocked or used as a runtime data source; independently supplied, legitimate
+content exports are curated separately. The unrelated `artifacts/` workbook is not app content.
+
+`js/data/entertainment-pack.json` uses `schemaVersion: 1`, a release `version`, and an `items`
+array. Each item has a permanent `id`, `category` (`jokes`, `wyr`, `trivia`, `games`,
+`conversation`, `challenges`), plain-text `prompt` and `source`. Optional fields are `answer`,
+`instructions` and `topic`; trivia requires an answer and games require complete instructions.
+Do not reuse IDs for different content. Pack text is rendered as text, never executable HTML.
+An optional `schedule` contains 44 distinct `{ day, title, note, source }` records. The included
+plan appears as a collapsed day picker: its original themes and source references are preserved,
+but actual draws use category progress rather than replaying fixed IDs. It is never a daily lock
+or a second deck. Sources for answer-bearing items appear only after Reveal to avoid spoilers.
+
+Choose categories freely across the 44-day crossing; there is no forced daily pack. **Next**
+draws unseen items only. On-device IndexedDB settings save seen IDs and the current item for
+each category. Returning to a category restores that item with its answer hidden. At exhaustion,
+the last item remains readable and **Reset this category** (with confirmation) starts a new
+cycle. Added IDs become available without replaying old ones; retired IDs are dropped from
+progress. Storage failures do not advance a draw. Progress is local to each device and is lost
+if site data is cleared; it is not included in wiki exports. Offline read-aloud depends on an
+installed device voice: test it before departure.
+
+For updates: curate/validate the pack, keep source attribution, bump the service-worker cache
+version, run `npm test` and `npm run build`, then use the existing static/native publishing
+process. The build validates the pack and PDF hash before copying `js/` and `references/`
+into `www/`. New content assets must also be listed in `service-worker.js`.
+The original app seeds and newly written two-person instructions/prompts are retained in
+`js/data/entertainment-base.json`. To compose them with a reviewed supplement using the same
+schema, run `node tools/publish-entertainment.mjs <reviewed-supplement.json>`; exact duplicate
+prompts are skipped, base IDs are retained, and the output is the built-in pack. This is a
+maintainer operation, not an in-app import.
+The tool also accepts the content agent's v1.1 `payload.json` (attributed trivia/joke rows).
+An optional second input, `original-library-export.json`, supplies the other original categories
+and Daily Packs as plain JSON. For this release the inputs were
+`content-upgrade/payload.json` and `content-upgrade/remote-original.json`; input hashes and the
+reference bibliography are retained in the pack's provenance. Do not obtain these by unlocking
+protected files. Reference links are subject/topic sources, not a claim of independent
+question-by-question fact verification; tone, factual quality and suitability still need crew review.
+
+### Official rules reference
+
+Wiki → **Official rules · Atlantic 2025 v1.0** opens the authoritative, unchanged
+`references/race-rules-wtr-atlantic-2025-v1.0.pdf`. Downloaded through the crew's authorised
+SharePoint browser session on 9 September 2026, it is 257,956 bytes / 11 PDF pages.
+SHA-256: `d1cfd9056383d3e2bc6955234e7c0f46b1ffe67412997c2fcca1e815b416646d`.
+The source URL and copyright attribution are in `js/data/rules-data.js`.
+
+The crew **must confirm this edition applies to their crossing**; it is not described as the
+latest verified race rules. Full-text wiki search includes all 11 extracted pages (for example,
+“jackstays”, “medical kit” or “20 LITRES”). Links use exact 1-based **PDF page numbers**, not
+invented section pagination. Extraction can lose layout, including tables: verify requirements
+against the original PDF. Some phone PDF viewers ignore `#page=`; select that page manually.
+Do not treat these rules as a single-rescuer emergency procedure.
+Referenced appendices (including mandatory equipment and medical-kit lists) are not bundled
+as separate documents; obtain the applicable versions from the organiser. The prototype
+grab-bag and medical checklists are not substitutes for those requirements.
+
+The PDF and searchable text are precached for offline use and copied into the native build.
+Open the app online to complete its initial download, then test the PDF, search and entertainment
+after restarting in aeroplane mode. A missing offline PDF/JSON returns an explicit error rather
+than the app shell disguised as the document. Preserve Atlantic Campaigns' copyright and verify
+distribution rights before publishing the crew reference beyond the intended audience.
+
+For an authorised PDF replacement, review the edition/source and page descriptions in
+`tools/extract-rules.py`, then run `python tools/extract-rules.py` (maintainer-only, requires
+existing `pypdf`). It refuses encrypted PDFs and never modifies the source. This source emits
+non-fatal cross-reference warnings in pypdf; all 11 pages extract successfully and the original
+bytes are retained. Re-review page text and test the build after extraction.
 
 ---
 
@@ -139,3 +229,9 @@ edits live on the device, not in this file.
 ## ⚠️ Safety disclaimer
 The wiki drills and medical content are a **prototype aide-memoire** and **must be reviewed and
 approved by the crew's safety and medical advisers** before being relied upon at sea.
+These are **two-person crew** notes: one casualty leaves **one rescuer**, not a third rower or
+separate simultaneous lookout/helmsman/communicator. The generic MOB sequence has been withdrawn,
+not replaced with an invented emergency procedure. That page now records approval/rehearsal
+requirements for the actual boat and equipment. Other legacy technical notes remain explicitly
+unapproved, with topic-specific pair review flags. Official race rules remain authoritative;
+crew notes, checklist ticks or an app update do not constitute safety approval.

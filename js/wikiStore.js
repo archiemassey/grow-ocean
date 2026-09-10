@@ -10,6 +10,7 @@
 
 import { db, uid } from './db.js';
 import { CONTENT } from './data/content.js';
+import { RULES_ARTICLES } from './rules.js';
 
 const STORE = 'wiki';
 export const WIKI_EXPORT_TYPE = 'grow-ocean-wiki';
@@ -64,7 +65,7 @@ function merge(base, ov) {
     ...base,
     title: ov.title ?? base.title,
     summary: ov.summary ?? base.summary,
-    body: ov.plain ? plainToHtml(ov.body) : (ov.body ?? base.body),
+    body: ov.plain ? plainToHtml(ov.body) : plainToHtml(htmlToPlain(ov.body ?? base.body)),
     category: ov.category ?? base.category,
     _edited: true, _new: false, _plain: !!ov.plain,
     _rawBody: ov.plain ? ov.body : htmlToPlain(ov.body ?? base.body)
@@ -75,7 +76,7 @@ function fromNew(ov) {
   return {
     id: ov.id, title: ov.title || 'Untitled', summary: ov.summary || '',
     body: plainToHtml(ov.body), category: ov.category || 'Notes',
-    priority: ov.priority || 3, voice: !!ov.voice, ref: ov.ref || '',
+    priority: ov.priority || 3, voice: !!ov.voice, ref: /^https?:\/\//i.test(ov.ref || '') ? ov.ref : '',
     _edited: true, _new: true, _plain: true, _rawBody: ov.body || ''
   };
 }
@@ -83,7 +84,8 @@ function fromNew(ov) {
 export async function getAllWiki() {
   const overrides = await db.all(STORE);
   const map = new Map(overrides.map((o) => [o.id, o]));
-  const result = [];
+  const result = RULES_ARTICLES.map(base => merge(base));
+  for (const base of RULES_ARTICLES) map.delete(base.id);
   for (const base of CONTENT.wiki) {
     const o = map.get(base.id);
     map.delete(base.id);
@@ -103,7 +105,7 @@ export async function getArticle(id) {
 // Returns the plain-text body suitable for the editor textarea.
 export async function getEditable(id) {
   const a = await getArticle(id);
-  if (!a) return null;
+  if (!a || a.readOnly) return null;
   return { id: a.id, title: a.title, summary: a.summary, body: a._rawBody,
            category: a.category, _new: a._new };
 }
@@ -111,6 +113,7 @@ export async function getEditable(id) {
 /* ---------- writes ---------- */
 
 export async function saveArticle(id, fields) {
+  if (RULES_ARTICLES.some(article => article.id === id)) throw new Error('Official rules are read-only. Add a separate crew note.');
   const isBuiltIn = CONTENT.wiki.some((w) => w.id === id);
   const existing = await db.get(STORE, id);
   const rec = {
@@ -139,6 +142,7 @@ export async function addArticle(fields) {
 
 // Built-in page → revert to original. New page → remove it.
 export async function resetArticle(id) {
+  if (RULES_ARTICLES.some(article => article.id === id)) throw new Error('Official rules are read-only.');
   const isBuiltIn = CONTENT.wiki.some((w) => w.id === id);
   if (isBuiltIn) await db.delete(STORE, id);
   else await db.delete(STORE, id);
@@ -167,11 +171,23 @@ export async function importWiki(text) {
   let data;
   try { data = JSON.parse(text); }
   catch { throw new Error('That file isn’t readable. Make sure it’s a gROW Ocean wiki file.'); }
-  if (!data || data.type !== WIKI_EXPORT_TYPE || !Array.isArray(data.overrides))
+  if (!data || data.type !== WIKI_EXPORT_TYPE || data.version !== WIKI_EXPORT_VERSION || !Array.isArray(data.overrides))
     throw new Error('That doesn’t look like a gROW Ocean wiki file.');
+  const records = data.overrides;
+  const ids = new Set();
+  for (const o of records) {
+    if (!o || typeof o.id !== 'string' || !/^[a-z0-9-]+$/i.test(o.id) || ids.has(o.id))
+      throw new Error('Invalid or duplicate wiki page ID.');
+    ids.add(o.id);
+    if (RULES_ARTICLES.some(article => article.id === o.id))
+      throw new Error('Official rules cannot be replaced by a wiki import. Import crew notes separately.');
+    for (const key of ['title', 'summary', 'body', 'category', 'ref']) {
+      if (o[key] !== undefined && (typeof o[key] !== 'string' || o[key].length > 100000))
+        throw new Error('Invalid wiki text field.');
+    }
+  }
   let added = 0;
-  for (const o of data.overrides) {
-    if (!o || !o.id) continue;
+  for (const o of records) {
     await db.put(STORE, o);
     added++;
   }

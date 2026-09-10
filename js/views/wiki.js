@@ -9,6 +9,8 @@ import {
   getAllWiki, getArticle, getEditable, saveArticle, addArticle,
   resetArticle, exportWiki, importWiki
 } from '../wikiStore.js';
+import { SAFETY_NOTICE, PAIR_REVIEW } from '../safety.js';
+import { RULES_NOTICE, RULES_DOCUMENT } from '../rules.js';
 
 function stripHtml(html) {
   const d = document.createElement('div'); d.innerHTML = html; return d.textContent || '';
@@ -36,12 +38,21 @@ async function renderArticle(view, id) {
     h('h2', {}, a.title),
     h('p', { class: 'sub' }, a.summary),
     h('div', { class: 'btnrow', style: 'margin-bottom:8px' }, [
-      h('button', { class: 'btn small', onclick: () => { speak(a.title + '. ' + stripHtml(a.body)); toast('Reading aloud…'); } }, '🔊 Read aloud'),
+      h('button', { class: 'btn small', onclick: () => { speak((a.readOnly ? RULES_NOTICE : SAFETY_NOTICE) + ' ' + (PAIR_REVIEW[a.id] || '') + ' ' + a.title + '. ' + stripHtml(a.body)); toast('Reading aloud…'); } }, '🔊 Read aloud'),
       h('button', { class: 'btn small ghost', onclick: stopSpeaking }, '⏹ Stop'),
-      h('button', { class: 'btn small secondary', onclick: () => go('#/wiki/edit/' + a.id) }, '✏️ Edit')
+      a.readOnly ? '' : h('button', { class: 'btn small secondary', onclick: () => go('#/wiki/edit/' + a.id) }, '✏️ Edit')
     ]),
+    h('p', { class: 'callout crit' }, a.readOnly ? RULES_NOTICE : SAFETY_NOTICE),
+    PAIR_REVIEW[a.id] ? h('p', { class: 'callout' }, PAIR_REVIEW[a.id]) : '',
     h('div', { class: 'article card', html: a.body }),
-    a.ref ? h('p', { class: 'ref' }, ['Reference: ', h('a', { href: a.ref, target: '_blank', rel: 'noopener' }, a.ref)]) : '',
+    a.ref ? h('p', { class: 'ref' }, ['Reference: ', h('a', { href: a.ref, target: '_blank', rel: 'noopener' },
+      a.readOnly ? 'Open unchanged offline PDF' : a.ref)]) : '',
+    a.readOnly ? h('a', { class: 'btn small secondary', href: RULES_DOCUMENT.file,
+      download: 'Race Rules WTR - Atlantic 2025 V1.0.pdf' }, '⤓ Save original PDF') : '',
+    a.readOnly ? h('p', { class: 'hint' }, RULES_DOCUMENT.copyright + ' Page links use 1-based PDF page numbers. PDF viewers may require manual page selection.') : '',
+    a.id === 'official-rules' ? h('div', {}, RULES_DOCUMENT.pages.map(page =>
+      h('a', { class: 'listrow', href: '#/wiki/official-rules-page-' + page.page },
+        `PDF page ${page.page} — ${page.topic}`))) : '',
     h('button', { class: 'btn secondary', style: 'margin-top:10px', onclick: () => go('#/wiki') }, '← All topics')
   );
 }
@@ -123,7 +134,9 @@ async function renderList(view) {
   _listView = view;
   view.innerHTML = '';
   view.append(h('p', { class: 'sub' }, 'Tap a topic. Critical drills are flagged Priority 1. Use search if you’re in a hurry.'));
+  view.append(h('p', { class: 'callout crit' }, SAFETY_NOTICE));
   view.append(toolbar());
+  view.append(h('a', { class: 'btn secondary', href: '#/wiki/official-rules' }, '📄 Official rules · Atlantic 2025 v1.0'));
 
   const search = h('input', { type: 'text', placeholder: '🔍 Search the wiki…', 'aria-label': 'Search wiki' });
   const listWrap = h('div', {});
@@ -136,7 +149,7 @@ async function renderList(view) {
     listWrap.innerHTML = '';
     const f = filter.trim().toLowerCase();
     const matches = all.filter((w) =>
-      !f || w.title.toLowerCase().includes(f) || w.summary.toLowerCase().includes(f) || w.category.toLowerCase().includes(f));
+      !f || [w.title, w.summary, w.category, stripHtml(w.body)].some(text => text.toLowerCase().includes(f)));
     if (!matches.length) { listWrap.append(h('div', { class: 'empty' }, 'No topics match.')); return; }
     cats.forEach((cat) => {
       const items = matches.filter((w) => w.category === cat).sort((a, b) => a.priority - b.priority);

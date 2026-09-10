@@ -9,27 +9,26 @@ export const CONTENT = {
   meta: {
     crew: ['Rower 1', 'Rower 2'],
     source: 'Vicky requirements v2.xlsx',
-    disclaimer: 'Prototype content — review with safety/medical advisers before the crossing.'
+    disclaimer: 'UNAPPROVED prototype — not an emergency procedure. Two-person crew: one casualty leaves ONE rescuer. Crew and safety/medical advisers must approve boat-specific guidance before use.'
   },
 
   /* ---------- 1. QUICK-ACCESS WIKI (Type: Document) ---------- */
   wiki: [
     {
       id: 'mob', title: 'Man Overboard (MOB)', category: 'Safety', priority: 1, voice: true,
-      summary: 'Repeated protocol in a dire emergency. Alert Safety Team & Mayday.',
-      body: `<p class="callout crit"><strong>Shout. Point. Press.</strong> Act immediately — every second counts.</p>
-        <ol>
-          <li><strong>Shout</strong> "MAN OVERBOARD" to wake/alert the other rower.</li>
-          <li><strong>Hit the MOB button</strong> on the chartplotter / GPS to mark position.</li>
-          <li><strong>Throw flotation</strong> (danbuoy / horseshoe) toward the casualty.</li>
-          <li><strong>Keep pointing</strong> at the casualty — do not lose visual contact.</li>
-          <li><strong>Stop the boat</strong> / deploy drogue to slow drift away.</li>
-          <li><strong>Activate AIS MOB beacon / PLB</strong> on the casualty's lifejacket.</li>
-          <li><strong>Send Mayday</strong> on VHF Ch16 + alert Safety Team (see VHF page).</li>
-          <li><strong>Recover</strong> using the recovery strop/ladder; keep casualty horizontal.</li>
-        </ol>
-        <p class="callout"><strong>Prevention:</strong> always clip on when leaving the cabin or on deck.</p>`,
-      ref: 'https://en.wikipedia.org/wiki/Man_overboard'
+      summary: 'Two-person crew: one casualty means ONE remaining rescuer. Approved boat-specific recovery procedure required.',
+      body: `<p class="callout crit"><strong>UNAPPROVED — preparation review only, not a recovery procedure.</strong></p>
+        <p>With two people aboard, a person overboard leaves one rescuer on the boat. There is no third rower to wake, no separate person continuously pointing while another manoeuvres, and no spare communicator.</p>
+        <p>The former generic sequence has been withdrawn: it assumed resources that a pair may not have. This app does not supply a replacement technical sequence.</p>
+        <p><strong>For crew and safety-adviser approval before departure:</strong></p>
+        <ul>
+          <li>Document and practise the boat-specific, single-rescuer recovery procedure using approved training and the actual equipment.</li>
+          <li>Review how one rescuer can manage casualty location, boat handling, distress communications and recovery without impossible simultaneous jobs.</li>
+          <li>Review both a responsive and an incapacitated casualty; do not assume the casualty can activate equipment or help with recovery.</li>
+          <li>Record the approved procedure, equipment locations, training source and approval date in your crew notes.</li>
+        </ul>
+        <p>Race rules are the authoritative race reference, not a substitute for approved recovery training. Confirm the edition applies to your crossing.</p>`,
+      ref: ''
     },
     {
       id: 'epirb', title: 'EPIRB & PLB Deployment', category: 'Safety', priority: 1, voice: true,
@@ -57,7 +56,7 @@ export const CONTENT = {
           <li>"My position is [lat/long or bearing &amp; distance]"</li>
           <li>Nature of distress (e.g. capsize, MOB, fire, sinking)</li>
           <li>Assistance required</li>
-          <li>Number of persons on board (2)</li>
+          <li>Crew total: 2. The number still aboard depends on the incident — do not automatically report both aboard after an MOB. Confirm casualty location/status in the approved communications procedure.</li>
           <li>"OVER"</li>
         </ol>
         <p class="callout"><strong>Pan-Pan</strong> (urgent, not life-threatening): replace "MAYDAY" with "PAN-PAN" ×3. Use for serious but non-grave situations.</p>
@@ -218,11 +217,11 @@ export const CONTENT = {
 
   /* ---------- 3. EVENT-BASED REMINDERS (Type: Triggered notification) ---------- */
   events: [
-    { id:'clipon', title:'CLIP ON', detail:'Leaving the cabin / going on deck? Clip your tether to a strong point BEFORE you step out.', category:'Safety', crit:true },
+    { id:'clipon', title:'CLIP ON', detail:'Both crew: rules 1.7 require an approved harness and safety line to the boat’s jackstays when outside the cabin at sea (Atlantic 2025 v1.0, PDF p.2). Confirm the edition and approved training; one casualty leaves one rescuer.', category:'Safety', crit:true },
     { id:'shiftchange', title:'Shift change — 10 min warning', detail:'10 minutes to handover. Wake the next rower, prep food/layers, keep the boat moving.', category:'Admin', crit:false },
     { id:'watermaker', title:'Run the water maker', detail:'High sun / before a hot day — make water while batteries are charging well.', category:'Maintenance', crit:false },
-    { id:'grabbag', title:'Grab-bag check', detail:'Confirm sealed, attached & ready. Run the checklist.', category:'Safety', crit:false },
-    { id:'drogue', title:'Consider drogue / para-anchor', detail:'Conditions building? Review the deployment wiki before it gets worse.', category:'Safety', crit:true },
+    { id:'grabbag', title:'Grab-bag check', detail:'UNAPPROVED pair checklist: crew/adviser must verify contents and access for one capable rower against the applicable equipment requirements. The prototype list is not a complete mandatory inventory.', category:'Safety', crit:false },
+    { id:'drogue', title:'Drogue / para-anchor plan', detail:'UNAPPROVED pair reminder: refer to your adviser-approved, boat-specific deployment plan, not the prototype wiki sequence. Review feasibility when only one rower is capable.', category:'Safety', crit:true },
     { id:'homecall', title:'Call home', detail:'Low point or milestone — a message from home lifts morale. Open any special package.', category:'Morale', crit:false }
   ],
 

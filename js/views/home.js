@@ -111,6 +111,7 @@ export async function renderHome(view) {
   view.append(
     h('p', { class: 'sub' }, 'Your offline companion for the crossing. Everything here works with no signal.'),
     timerCard, emergency,
+    h('p', { class: 'callout crit' }, CONTENT.meta.disclaimer),
     h('div', { class: 'cat-head' }, 'Go to'), grid,
     remCard, liveCard
   );
