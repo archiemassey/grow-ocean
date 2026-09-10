@@ -12,6 +12,7 @@ import { renderEntertain } from './views/entertain.js';
 import { renderFeedback } from './views/feedback.js';
 import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
+import { initAppUpdates } from './updates.js';
 
 const view = document.getElementById('view');
 const tabbar = document.getElementById('tabbar');
@@ -163,10 +164,4 @@ window.addEventListener('DOMContentLoaded', () => {
   initReminderEngine();
 });
 
-// Register the service worker (the offline engine).
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch((e) =>
-      console.warn('SW registration failed:', e));
-  });
-}
+initAppUpdates();

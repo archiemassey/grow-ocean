@@ -58,7 +58,30 @@ export const db = {
     const r = await this.get('settings', key);
     return r ? r.value : fallback;
   },
-  setSetting(key, value) { return this.put('settings', { key, value }); }
+  setSetting(key, value) { return this.put('settings', { key, value }); },
+
+  // Read and change in one transaction so two tabs cannot draw the same unseen ID.
+  // The reducer must be synchronous: awaiting would let IndexedDB close the transaction.
+  async updateSetting(key, update, fallback = null) {
+    const database = await open();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction('settings', 'readwrite');
+      const store = transaction.objectStore('settings');
+      let value, failure;
+      const request = store.get(key);
+      request.onsuccess = () => {
+        try {
+          value = update(request.result ? request.result.value : fallback);
+          store.put({ key, value });
+        } catch (error) {
+          failure = error;
+          transaction.abort();
+        }
+      };
+      transaction.oncomplete = () => resolve(value);
+      transaction.onerror = transaction.onabort = () => reject(failure || transaction.error);
+    });
+  }
 };
 
 export function uid() {

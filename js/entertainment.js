@@ -47,10 +47,11 @@ export function validatePack(pack) {
 
 export function reconcileProgress(items, saved) {
   const ids = new Set(items.map(item => item.id));
-  const seen = [...new Set(Array.isArray(saved?.seen) ? saved.seen.filter(id => ids.has(id)) : [])];
+  // Keep retired IDs too: an older open tab or a later pack must not erase history.
+  const seen = [...new Set(Array.isArray(saved?.seen) ? saved.seen.filter(id => typeof id === 'string') : [])];
   return {
     seen,
-    currentId: seen.includes(saved?.currentId) ? saved.currentId : null,
+    currentId: ids.has(saved?.currentId) && seen.includes(saved?.currentId) ? saved.currentId : null,
     cycle: Number.isSafeInteger(saved?.cycle) && saved.cycle > 0 ? saved.cycle : 1
   };
 }
@@ -93,28 +94,31 @@ export function createDeck(pack, storage, random = Math.random) {
       revealed = false;
       return this.snapshot();
     },
-    async next() {
-      const result = nextItem(items(), state, random);
-      if (result.item) {
-        await storage.setSetting(key(), result.state);
-        state = result.state;
-        current = result.item;
-      }
+    async next({ freshOnly = false } = {}) {
+      let drawn = false;
+      const committed = await storage.updateSetting(key(), saved => {
+        const result = nextItem(items(), saved, random);
+        drawn = !!result.item;
+        return result.state;
+      });
+      state = committed;
+      if (drawn) current = items().find(item => item.id === state.currentId) || null;
       revealed = false;
-      return this.snapshot();
+      return freshOnly && !drawn ? null : this.snapshot();
     },
     async reset() {
-      const next = resetProgress(items(), state);
-      await storage.setSetting(key(), next);
+      const next = await storage.updateSetting(key(), saved => resetProgress(items(), saved));
       state = next; current = null; revealed = false;
       return this.snapshot();
     },
     reveal() { revealed = true; return this.snapshot(); },
     snapshot() {
+      const seen = new Set(state?.seen || []);
+      const count = items().filter(item => seen.has(item.id)).length;
       return {
         ...presentation(current, revealed), category, item: current,
-        seen: state?.seen.length || 0, total: items().length,
-        cycle: state?.cycle || 1, exhausted: (state?.seen.length || 0) === items().length
+        seen: count, total: items().length,
+        cycle: state?.cycle || 1, exhausted: count === items().length
       };
     }
   };

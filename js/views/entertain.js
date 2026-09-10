@@ -6,8 +6,7 @@ import { h, go, toast, speak, stopSpeaking } from '../app.js';
 import { CONTENT } from '../data/content.js';
 import { db } from '../db.js';
 import { CATEGORIES, createDeck } from '../entertainment.js';
-
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+import { HANDS_FREE_CATEGORIES, createHandsFreePlayer, createSpeechReader } from '../hands-free.js';
 
 /* ---- functional offline white-noise generator ---- */
 function noisePlayer() {
@@ -38,7 +37,12 @@ function noisePlayer() {
 }
 
 async function gamesCard() {
-  const card = h('div', { class: 'card' }, h('h3', {}, '🎲 Games & prompts'));
+  const card = h('section', { class: 'card entertainment-player', 'aria-label': 'Entertainment player' },
+    h('header', { class: 'player-heading' }, [
+      h('p', { class: 'player-eyebrow' }, 'A moment for you'),
+      h('h2', {}, 'Your downtime')
+    ]));
+  const enteredRoute = location.hash;
   try {
     const response = await fetch(new URL('../data/entertainment-pack.json', import.meta.url));
     if (!response.ok) throw new Error('Content pack unavailable');
@@ -48,61 +52,161 @@ async function gamesCard() {
       Object.entries(CATEGORIES).map(([id, label]) => h('option', { value: id },
         `${label} (${pack.items.filter(item => item.category === id).length})`)));
     const progress = h('p', { class: 'hint', role: 'status', 'aria-live': 'polite' });
-    const prompt = h('p', { 'aria-live': 'polite' });
-    const instructions = h('p', { style: 'white-space:pre-line' });
-    const answer = h('p', { 'aria-live': 'polite' });
+    const position = h('p', { class: 'hint player-position' });
+    const prompt = h('p', { class: 'player-prompt', 'aria-live': 'polite', 'aria-atomic': 'true' });
+    const instructions = h('p', { class: 'player-instructions' });
+    const answer = h('p', { class: 'player-answer-copy', 'aria-live': 'polite', 'aria-atomic': 'true' });
+    const answerMeasure = h('p', { class: 'player-answer-measure', 'aria-hidden': 'true' });
+    const answerPlaceholder = h('p', { class: 'player-answer-placeholder' });
     const source = h('p', { class: 'hint', style: 'overflow-wrap:anywhere' });
-    const next = h('button', { class: 'btn', onclick: () => act(() => deck.next()) }, 'Next');
-    const reveal = h('button', { class: 'btn secondary', onclick: () => draw(deck.reveal()) }, 'Reveal answer');
-    const read = h('button', { class: 'btn small secondary', onclick: () => {
+    const next = h('button', { class: 'btn secondary', onclick: () => act(() => deck.next()) }, 'Next unseen item');
+    const reveal = h('button', { class: 'btn secondary', onclick: () => act(() => deck.reveal()) }, 'Reveal answer');
+    const read = h('button', { class: 'btn secondary', 'aria-label': 'Read current prompt and revealed answer aloud', onclick: () => act(() => {
       const state = deck.snapshot();
       speak([state.prompt, state.instructions, state.answer].filter(Boolean).join('. '));
-    } }, '🔊 Read aloud');
-    const reset = h('button', { class: 'btn small ghost', onclick: () => {
+    }) }, '🔊 Read current');
+    const reset = h('button', { class: 'btn ghost', onclick: () => {
       if (window.confirm('Start a new cycle for this category? Previously seen items may repeat.'))
         act(() => deck.reset());
     } }, 'Reset this category');
-    let busy = false;
+    let busy = false, disposed = false;
+    const speech = createSpeechReader();
+    const audio = h('input', { type: 'checkbox', checked: speech.available, disabled: !speech.available });
+    const pace = h('select', { id: 'hands-free-pace', 'aria-label': 'Hands-free timing' }, [
+      h('option', { value: 'short' }, 'Short — half the pauses'),
+      h('option', { value: 'normal', selected: true }, 'Normal — jokes 3s, trivia 10s'),
+      h('option', { value: 'long' }, 'Long — double the pauses')
+    ]);
+    const playbackStatus = h('p', { class: 'hint player-status', role: 'status', 'aria-live': 'polite' });
+    const start = h('button', { id: 'hands-free-toggle', class: 'btn', onclick: () => {
+      if (busy || disposed || document.hidden) return;
+      if (player.snapshot().mode === 'running') { player.pause(); return; }
+      if (player.snapshot().mode === 'paused') { player.resume(); return; }
+      stopSpeaking();
+      player.start({ audio: audio.checked, pace: pace.value });
+    } }, '▶ Start hands-free');
+    const stop = h('button', { class: 'btn secondary', onclick: () => {
+      player.stop(); stopSpeaking();
+    } }, '⏹ Stop');
+    const player = createHandsFreePlayer({
+      deck, speech,
+      onItem: state => { if (!disposed) draw(state); },
+      onStatus: state => {
+        if (disposed) return;
+        playbackStatus.textContent = state.remaining !== null
+          ? `${state.phase === 'think' ? 'Answer' : 'Next item'} in ${state.remaining}s`
+          : state.mode === 'paused' ? 'Paused · Tap Resume when ready.'
+            : state.message.startsWith('Manual control') ? 'Manual mode · Unseen items only'
+              : state.message.startsWith('Stopped.') ? 'Stopped · Your progress is saved.' : state.message;
+        draw(deck.snapshot());
+      }
+    });
+    function dispose() {
+      disposed = true;
+      player.stop(); stopSpeaking();
+      document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('hashchange', dispose);
+      window.removeEventListener('pagehide', pagehide);
+    }
+    function visibility() {
+      if (document.hidden) {
+        player.pause('Paused because the app is hidden or the screen locked. Return here and tap Resume.');
+        stopSpeaking();
+      }
+    }
+    function pagehide() {
+      player.pause('Paused while leaving the page. Tap Resume after returning.');
+      stopSpeaking();
+    }
+    // A delayed pack load must not attach playback handlers to a route already left.
+    if (location.hash !== enteredRoute) return card;
+    document.addEventListener('visibilitychange', visibility);
+    window.addEventListener('hashchange', dispose);
+    window.addEventListener('pagehide', pagehide);
+    pace.addEventListener('change', () => player.stop('Timing changed. Start hands-free to use the new pauses.'));
+    audio.addEventListener('change', () => player.stop('Audio mode changed. Start hands-free to continue.'));
     function draw(state) {
+      if (disposed) return;
       prompt.textContent = state.total ? state.prompt : 'No items published in this category yet. Choose another category.';
       instructions.textContent = state.instructions;
       instructions.hidden = !state.instructions;
       answer.textContent = state.answer;
       answer.hidden = !state.answer;
+      // Reserve the real answer's height without exposing it to assistive tech.
+      // Revealing a punchline must not move the controls under a rower's thumb.
+      answerMeasure.textContent = state.item?.answer || '';
+      answerPlaceholder.textContent = state.item?.answer
+        ? 'A little thinking time…' : state.item ? 'Enjoy this one at your own pace.' : 'Ready when you are.';
+      answerPlaceholder.hidden = !!state.answer;
       source.textContent = state.item
         ? (state.canReveal ? 'Source shown with the answer to avoid spoilers.' : 'Source: ' + state.item.source) : '';
       progress.textContent = `${state.seen} of ${state.total} seen · cycle ${state.cycle}` +
         (!state.total ? ' · No items available.' :
-          state.exhausted ? ' · All seen. Reset when you want another round.' : ' · No repeats until all seen.');
-      next.disabled = state.exhausted;
-      reveal.disabled = !state.canReveal;
-      read.disabled = !state.item;
-      reset.disabled = !state.seen;
+          state.exhausted ? ' · All seen. Reset when you want another round.' : ' · Next draws an unseen item.') +
+        (state.item ? ' · Showing the saved current item; reopening this category is not a new draw.' : '');
+      position.textContent = `${state.seen} / ${state.total} seen` +
+        (!state.total ? ' · No items available.' : state.exhausted ? ' · All seen — reset is in settings.' :
+          !HANDS_FREE_CATEGORIES.has(state.category) ? ' · Manual activity; take as long as you need.' : '');
+      next.disabled = busy || state.exhausted;
+      reveal.disabled = busy || !state.canReveal;
+      read.disabled = busy || !state.item;
+      reset.disabled = busy || !state.seen;
+      const playback = player.snapshot();
+      start.disabled = busy || (playback.mode === 'idle' &&
+        (state.exhausted || !HANDS_FREE_CATEGORIES.has(state.category)));
+      start.textContent = playback.mode === 'running' ? '⏸ Pause' :
+        playback.mode === 'paused' ? '▶ Resume' : '▶ Start hands-free';
+      start.setAttribute('aria-pressed', String(playback.mode === 'running'));
+      stop.disabled = busy || (!state.item && playback.mode === 'idle');
     }
     async function act(action) {
       if (busy) return;
       busy = true;
+      player.stop('Manual control selected. Hands-free stopped.');
       stopSpeaking();
       answer.hidden = true;
       source.textContent = '';
       [selector, next, reveal, read, reset].forEach(control => control.disabled = true);
-      try { await action(); }
+      try {
+        await player.settled();
+        if (!disposed) await action();
+      }
       catch { toast('Could not save progress on this device. Please try again.'); }
       finally {
         busy = false; selector.disabled = false;
         selector.value = deck.snapshot().category;
-        draw(deck.snapshot());
+        if (!disposed) draw(deck.snapshot());
       }
     }
     selector.addEventListener('change', () => act(() => deck.select(selector.value)));
     card.append(
-      h('p', { class: 'hint' }, `${pack.items.length.toLocaleString()} offline items for your 44-day crossing. Choose freely; no daily lock.`),
-      h('p', { class: 'hint' }, 'Optional entertainment for two. Pause whenever either rower needs to attend to the boat; no physical or timed safety drills.'),
-      h('label', { class: 'field', for: 'entertainment-category' }, 'Category'), selector, progress,
-      h('div', { class: 'callout', style: 'min-height:46px' }, [prompt, instructions, answer]),
-      h('div', { class: 'btnrow', style: 'flex-wrap:wrap;gap:8px' }, [next, reveal, read,
-        h('button', { class: 'btn small ghost', onclick: stopSpeaking }, '⏹ Stop'), reset]), source,
-      h('p', { class: 'hint' }, 'Progress saves on this device only. Read-aloud needs an installed offline voice; test in aeroplane mode before departure.')
+      h('div', { class: 'player-category' }, [
+        h('label', { class: 'field', for: 'entertainment-category' }, 'Choose your category'), selector
+      ]),
+      h('div', { class: 'player-content' }, [
+        position, prompt, instructions,
+        h('div', { class: 'player-answer', role: 'group', 'aria-label': 'Answer area' }, [
+          h('span', { class: 'player-eyebrow' }, 'The reveal'),
+          h('div', { class: 'player-answer-body' }, [answerMeasure, answer, answerPlaceholder])
+        ])
+      ]),
+      h('div', { class: 'player-controls', role: 'group', 'aria-label': 'Playback controls' }, [
+        playbackStatus,
+        h('div', { class: 'player-primary' }, [start, next]),
+        h('div', { class: 'player-secondary' }, [reveal, read, stop])
+      ]),
+      h('p', { class: 'hint player-footnote' }, 'Foreground only · Boat and watch duties first'),
+      ...(!speech.available ? [h('p', { class: 'hint' },
+        'Speech unavailable — timed visual mode is active. Manual controls still work.')] : []),
+      h('details', { class: 'player-details' }, [
+        h('summary', {}, 'Playback settings, progress & source'),
+        h('label', { class: 'field player-audio' }, [audio, ' Read aloud during hands-free']),
+        h('label', { class: 'field', for: 'hands-free-pace' }, 'Thinking / next-item pauses'), pace,
+        h('p', { class: 'hint' }, 'Normal pauses: jokes 3s, trivia 10s, conversation/choices 20s; 3s after an answer. Resume restarts the current speech/countdown. Games and challenges stay manual.'),
+        h('p', { class: 'hint' }, 'Hiding the app or locking the screen pauses playback. An installed offline voice is required for read-aloud; turn it off for timed visual mode if speech fails. Test on your phone before departure.'),
+        progress, reset, source,
+        h('p', { class: 'hint' }, `Content ${pack.version} · ${pack.items.length.toLocaleString()} offline items. Progress stays on this device; only an explicit reset permits repeated draws.`)
+      ])
     );
     if (pack.schedule) {
       const day = h('select', { 'aria-label': 'Optional crossing day' }, [...pack.schedule]
@@ -114,12 +218,13 @@ async function gamesCard() {
       }
       day.addEventListener('change', showDay);
       showDay();
-      card.append(h('details', {}, [
+      card.append(h('details', { class: 'player-details' }, [
         h('summary', {}, 'Optional 44-day plan'), day, note,
         h('p', { class: 'hint' }, 'Suggestions only. Use the category picker and Next for unseen items; this plan never advances or resets your progress.')
       ]));
     }
     draw(await deck.select('jokes'));
+    playbackStatus.textContent = 'Manual or hands-free · Your choice';
   } catch {
     card.append(h('p', { role: 'alert' }, 'Entertainment could not load. Open once online to finish downloading the app, then try again. Other morale features remain available.'));
   }
@@ -129,32 +234,13 @@ async function gamesCard() {
 function mediaCard() {
   const card = h('div', { class: 'card' }, [h('h3', {}, '🎧 On-demand media')]);
   CONTENT.media.filter((m) => m.id !== 'whitenoise').forEach((m) =>
-    card.append(h('div', { class: 'listrow', style: 'box-shadow:none;border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0', onclick: () => toast(m.title + ': add your own files before departure') }, [
+    card.append(h('button', { type: 'button', class: 'listrow', style: 'box-shadow:none;border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0', onclick: () => toast(m.title + ': add your own files before departure') }, [
       h('span', { class: 'lead' }, m.icon),
       h('span', { class: 'body' }, [h('span', { class: 't' }, m.title), h('span', { class: 'd' }, m.detail)]),
       h('span', { class: 'mock' }, 'side-load')
     ])));
   card.append(h('p', { class: 'hint' }, 'Prototype: music/podcasts/audiobooks are placeholders. Before the row, load audio files onto the device so they play offline.'));
   return card;
-}
-
-function aweCard() {
-  const out = h('div', { class: 'callout' }, 'Look up. Look out. What can you see right now? 🐋');
-  const prompts = [
-    'Name three things you can see that no one on land can right now.',
-    'Watch the next wave all the way through. Just that one.',
-    'Find the brightest star and make a wish for someone at home.',
-    'Three good things from this shift — say them out loud.',
-    'Picture the finish line. Hold it for ten breaths.'
-  ];
-  return h('div', { class: 'card' }, [
-    h('h3', {}, '🌌 Awe & perspective'),
-    out,
-    h('div', { class: 'btnrow' }, [
-      h('button', { class: 'btn small secondary', onclick: () => out.textContent = pick(prompts) }, 'New prompt'),
-      h('button', { class: 'btn small secondary', onclick: () => go('#/wiki/stars') }, '★ Star guide'),
-    ])
-  ]);
 }
 
 function renderLive(view) {
@@ -178,16 +264,20 @@ export async function renderEntertain(view, param) {
 
   const loading = h('div', { class: 'card', role: 'status' }, 'Loading entertainment...');
   view.append(
-    h('p', { class: 'sub' }, 'Distraction, morale and a moment of awe — plus on-demand media and live race data.'),
-    h('button', { class: 'btn secondary', style: 'margin-bottom:12px', onclick: () => go('#/entertain/live') }, '📡 Live race & weather'),
     loading,
-    noisePlayer(),
-    mediaCard(),
-    aweCard(),
-    h('div', { class: 'card' }, [
-      h('h3', {}, '💬 Messages from home & journal'),
-      h('p', { class: 'hint', style: 'color:var(--ink)' }, 'Record a voice message home or journal your day.'),
-      h('button', { class: 'btn small', onclick: () => go('#/log/journal') }, '🎙 Open voice journal')
+    h('section', { class: 'morale-more', 'aria-label': 'More ways to unwind' }, [
+      h('h2', {}, 'More ways to unwind'),
+      h('details', { class: 'morale-disclosure' }, [
+        h('summary', {}, '🌊 Sound & media'), noisePlayer(), mediaCard()
+      ]),
+      h('details', { class: 'morale-disclosure' }, [
+        h('summary', {}, '💬 Journal & crossing'),
+        h('div', { class: 'player-links' }, [
+          h('a', { class: 'btn secondary', href: '#/log/journal' }, '🎙 Voice journal'),
+          h('a', { class: 'btn secondary', href: '#/home' }, '🌌 This shift on Home'),
+          h('a', { class: 'btn ghost', href: '#/entertain/live' }, 'Race & weather · prototype')
+        ])
+      ])
     ])
   );
   const games = await gamesCard();

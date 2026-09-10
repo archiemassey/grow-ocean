@@ -5,6 +5,8 @@ import { h, go, toast } from '../app.js';
 import { db } from '../db.js';
 import { CONTENT } from '../data/content.js';
 import { getReminderState } from '../reminders.js';
+import { APP_RELEASE, checkForUpdates } from '../updates.js';
+import { getShiftPerspective } from '../shift-perspective.js';
 
 let shiftInterval = null;
 
@@ -21,6 +23,18 @@ export async function renderHome(view) {
   let durMin = await db.getSetting('shiftMin', 90);
   let start = await db.getSetting('shiftStart', null);
   let activeRower = await db.getSetting('activeRower', 'Rower 1');
+  let lastStart = start || 0;
+  const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' });
+  async function refreshPerspective() {
+    try { perspective.textContent = (await getShiftPerspective(db, start)).text; }
+    catch { perspective.textContent = 'A moment of perspective will be available when on-device storage is ready.'; }
+  }
+  await refreshPerspective();
+  const perspectiveCard = h('section', { class: 'card', 'aria-label': 'This shift' }, [
+    h('h3', {}, '🌌 This shift'), perspective,
+    h('p', { class: 'hint' }, ['Only when boat and watch duties allow. ',
+      h('a', { href: '#/wiki/stars' }, 'Star guide')])
+  ]);
 
   const timerEl = h('div', { class: 'timer-big' }, '--:--');
   const labelEl = h('div', { class: 'timer-label' }, 'No shift running');
@@ -36,6 +50,13 @@ export async function renderHome(view) {
   }
 
   async function save() { await db.setSetting('shiftMin', durMin); await db.setSetting('shiftStart', start); await db.setSetting('activeRower', activeRower); }
+  async function startShift() {
+    start = Math.max(Date.now(), lastStart + 1);
+    lastStart = start;
+    await save();
+    await refreshPerspective();
+    tick();
+  }
 
   const timerCard = h('div', { class: 'card' }, [
     h('h3', {}, '🕒 Shift timer'),
@@ -43,13 +64,13 @@ export async function renderHome(view) {
     h('div', { class: 'btnrow', style: 'margin-top:12px' }, [
       h('button', { class: 'btn small secondary', onclick: async () => { durMin = Math.max(5, durMin - 5); await save(); tick(); } }, '−5'),
       h('button', { class: 'btn small secondary', onclick: async () => { durMin += 5; await save(); tick(); } }, '+5 min'),
-      h('button', { class: 'btn small', onclick: async () => { start = Date.now(); await save(); tick(); toast('Shift started'); } }, '▶ Start'),
+      h('button', { class: 'btn small', onclick: async () => { await startShift(); toast('Shift started'); } }, '▶ Start'),
     ]),
     h('div', { class: 'btnrow', style: 'margin-top:10px' }, [
       h('button', { class: 'btn small ghost', onclick: async () => { start = null; timerEl.style.color = ''; await save(); tick(); } }, 'Reset'),
       h('button', { class: 'btn small secondary', onclick: async () => {
         activeRower = activeRower === 'Rower 1' ? 'Rower 2' : 'Rower 1';
-        start = Date.now(); await save(); tick(); toast('Swapped — ' + activeRower + ' on oars'); } }, '🔁 Swap & restart'),
+        await startShift(); toast('Swapped — ' + activeRower + ' on oars'); } }, '🔁 Swap & restart'),
     ]),
     h('div', { class: 'hint' }, 'Adjust durations; a 10-minute warning shows in amber for smooth handovers.')
   ]);
@@ -100,7 +121,7 @@ export async function renderHome(view) {
     ['#/reminders', '⏰', 'Reminders', 'Scheduled & event'],
     ['#/checklists', '✓', 'Checklists', 'Grab-bag, meds…'],
     ['#/log', '🎙', 'Log', 'Shift, watch, voice'],
-    ['#/entertain', '★', 'Morale', 'Games, music, awe'],
+    ['#/entertain', '★', 'Morale', 'Games, prompts, music'],
     ['#/log/journal', '💬', 'Voice journal', 'Message home'],
     ['#/feedback', '📝', 'App feedback', 'Ideas & fixes'],
     ['#/shortcuts', '🗣', 'Siri setup', 'Hey Siri shortcuts'],
@@ -108,9 +129,21 @@ export async function renderHome(view) {
   const grid = h('div', { class: 'grid' }, tiles.map(([href, ico, tt, td]) =>
     h('a', { class: 'tile', href }, [h('span', { class: 'ti' }, ico), h('span', { class: 'tt' }, tt), h('span', { class: 'td' }, td)])));
 
+  const updateStatus = h('p', { class: 'hint', role: 'status', 'aria-live': 'polite' },
+    'Updates keep saved logs, recordings, crew edits and entertainment progress.');
+  const checkUpdate = h('button', { class: 'btn small secondary', onclick: async () => {
+    checkUpdate.disabled = true;
+    updateStatus.textContent = 'Checking for updates…';
+    try { updateStatus.textContent = await checkForUpdates(); }
+    finally { checkUpdate.disabled = false; }
+  } }, 'Check for updates');
+
   view.append(
     h('p', { class: 'sub' }, 'Your offline companion for the crossing. Everything here works with no signal.'),
-    timerCard, emergency,
+    h('details', { class: 'card' }, [
+      h('summary', {}, `App release ${APP_RELEASE} · Updates`), checkUpdate, updateStatus
+    ]),
+    timerCard, emergency, perspectiveCard,
     h('p', { class: 'callout crit' }, CONTENT.meta.disclaimer),
     h('div', { class: 'cat-head' }, 'Go to'), grid,
     remCard, liveCard

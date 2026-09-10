@@ -18,6 +18,33 @@ from its own icon and runs **completely offline**. All data the rowers create �
 notes, checklist ticks, reminder settings, wiki edits and entertainment progress — is stored **on the device** in its local database
 (IndexedDB). Nothing needs the internet.
 
+### Updating an installed app — do not clear site data
+
+Home shows **App release grow-ocean-v8 · Updates**; expand it for **Check for updates**.
+Morale → Entertainment player → **Playback settings, progress & source** also shows the
+content pack release. Connect on land, check for updates and wait for the
+**Offline app ready** banner. Stop **and save** recordings and save any forms, then tap
+**I've saved my work — reload app** and confirm. Downloading/activating updates never
+automatically reloads a screen. Test a subsequent launch in aeroplane mode before departure.
+
+**Already seeing the old standalone “Joke” button?** That screen predates the category deck
+and cannot show the new update banner. While online, save your work, reopen/reload the app
+and leave it open for the complete offline download (including the rules PDF). Then reload
+once more: the newly activated worker serves the new shell and all its fresh modules.
+Look for **grow-ocean-v8** on Home and **Next unseen item** under the Morale category selector.
+If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
+or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
+remain in IndexedDB. Old random-button releases did not record joke history, so their
+pre-deck draws cannot be recovered or excluded.
+
+The new worker fetches its complete shell with HTTP-cache bypass before activating; a failed
+install leaves the previous offline release intact. Online navigations check for updates and
+request fresh HTML (with a short offline fallback), but only display HTML matching the active
+release. Modules, CSS and content use that exact release's cache, never a global cache lookup.
+An already-open old screen stays in memory until you explicitly reload; activation alone does
+not replace its JavaScript. Native/Capacitor installations still require the normal native
+release process where service workers are unavailable.
+
 ---
 
 ## The six functions
@@ -29,7 +56,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
-| 6 | **Morale & Media** | Offline content pack: jokes/riddles, Would You Rather, trivia, playable games, conversation and challenges. Per-category no-repeat progress survives restarts; answers reveal separately. Read-aloud, **white noise**, awe prompts, star guide and media placeholders. | Media + Games |
+| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, manual controls or hands-free timed answers/next items; **white noise**, media placeholders and journal/live-data links. Awe/perspective is now on Home. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
@@ -111,11 +138,14 @@ grow-ocean-app/
 ├─ css/styles.css             gROW Ocean theme (ocean blues, big tap targets, dark mode)
 ├─ js/
 │  ├─ app.js                  Router, navigation, shared helpers (toast, read-aloud)
+│  ├─ updates.js              Release label, update checks and save-before-reload banner
 │  ├─ db.js                   IndexedDB wrapper (on-device storage)
 │  ├─ log-export.js           Excel-compatible CSV log export
 │  ├─ reminders.js            Reminder engine (checks every 30s while open)
 │  ├─ wikiStore.js            Editable wiki layer (overrides, new pages, export/import)
 │  ├─ entertainment.js        Content validation and persisted no-repeat deck logic
+│  ├─ hands-free.js           Cancellable foreground playback, speech completion and countdowns
+│  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
 │  ├─ safety.js               Two-person review notices (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
 │  ├─ data/content.js         Prototype wiki, reminders, checklists and legacy game titles
@@ -155,19 +185,99 @@ plan appears as a collapsed day picker: its original themes and source reference
 but actual draws use category progress rather than replaying fixed IDs. It is never a daily lock
 or a second deck. Sources for answer-bearing items appear only after Reveal to avoid spoilers.
 
-Choose categories freely across the 44-day crossing; there is no forced daily pack. **Next**
+Choose categories freely across the 44-day crossing; there is no forced daily pack. **Next unseen item**
 draws unseen items only. On-device IndexedDB settings save seen IDs and the current item for
-each category. Returning to a category restores that item with its answer hidden. At exhaustion,
+each category. Returning to (or reselecting) a category restores that item with its answer hidden;
+it is not a new draw. At exhaustion,
 the last item remains readable and **Reset this category** (with confirmation) starts a new
-cycle. Added IDs become available without replaying old ones; retired IDs are dropped from
-progress. Storage failures do not advance a draw. Progress is local to each device and is lost
+cycle. Added IDs become available without replaying old ones; retired IDs stay in history in
+case they return, but are not counted in the active category's total. Draw/reset transactions
+read the latest stored progress atomically, so updated tabs in the same browser profile cannot
+draw the same unseen ID concurrently. Already-open pre-v8 tabs must be reloaded; their old
+non-atomic code cannot provide this guarantee. Storage failures do not advance a draw.
+There is no automatic repeat cycle: only an explicit category reset permits new repeated draws.
+Progress is local to each device/browser profile and is lost
 if site data is cleared; it is not included in wiki exports. Offline read-aloud depends on an
 installed device voice: test it before departure.
 
+### Hands-free entertainment (optional; manual mode remains)
+
+The entertainment player is first on Morale. A single category selector and the same content
+panel show the prompt, game instructions, answer and countdown in every category. The primary
+button stays in one position and changes **Start hands-free → Pause → Resume**, alongside
+**Next unseen item**. **Reveal answer**, **Read current** and **Stop** stay in the row below.
+The mobile player uses large, spacious prompt typography and a separate reserved answer area:
+revealing the answer does not move the playback buttons. Its playback bar stays reachable
+above the app tabs while scrolling longer items. Primary targets are at least 56px high;
+secondary playback targets are at least 44px, with visible keyboard focus and light/dark themes.
+Timing/audio options, detailed progress, explicit Reset, source and content release are tucked
+into **Playback settings, progress & source**. There is only one manual read-aloud control.
+White noise and media placeholders are collapsed into **More ways to unwind → Sound & media**.
+Journal, Home perspective and the explicitly labelled prototype race/weather link are in the
+separate **Journal & crossing** disclosure, not competing with the main player. The 44-day plan
+also remains an optional disclosure.
+
+Choose **Jokes**, **Trivia**, **Would you rather** or **Conversation**, then tap the large
+**Start hands-free** button. It saves/draws the next unseen item, reads its prompt to
+completion, counts down, reveals and reads the answer if present, then pauses and draws
+another unseen item. A restored current item is not a new draw. Items without an answer
+are read in full, then remain visible for the category's pause before advancing.
+Games and challenges stay manual so an activity is never cut short by an automatic timer.
+
+**Normal** timing is 3 seconds thinking time for jokes, 10 for trivia and 20 for conversation/
+choices; after an answer finishes, the next-item gap is 3 seconds. **Short** halves these
+pauses (rounded to whole seconds) and **Long** doubles them. The current countdown and
+revealed answer stay visible. Speech completion, not an estimated speech-duration timer,
+controls when the countdown starts.
+
+- **Pause / Resume** cancels speech/timers immediately. Resume replays the current speech
+  or restarts its countdown; it does not consume another item. **Stop** ends the sequence.
+- Any manual Next/Reveal/Read/Reset action, category change or timing/audio-mode change
+  stops automatic playback. Leaving the route stops it; hiding the app, switching apps or
+  locking the screen pauses it. Returning does **not** resume automatically.
+- Playback stops at exhaustion or on speech/storage errors. It never resets progress or
+  loops automatically. An already-started database save may finish after Stop; that item
+  remains saved as current/seen rather than risking a repeated draw.
+- Read-aloud needs browser support and an installed offline voice. iOS/browser policies may
+  block or interrupt speech; errors stop playback. If speech is unavailable, use **timed
+  visual mode** by turning off **Read aloud during hands-free**, or retain manual controls.
+  An unavailable speech API defaults to visual mode. This is **foreground-only**, not
+  reliable locked-screen/background audio. Test speech and offline playback on the actual
+  phone before departure.
+
+### Home: a little perspective for this shift
+
+The compact **This shift** card on Home replaces Morale's random Awe card. It uses a small,
+dedicated set of gentle perspective prompts, with a Star guide link and a reminder that boat
+and watch duties come first. It never draws from or resets the entertainment deck.
+
+Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap &
+restart** each set a new `shiftStart` and assign a new prompt, excluding the immediately
+previous one. The assignment is persisted against that actual shift ID, not the date,
+elapsed time or rower's name. Reopening Home, restarting the app, editing the duration,
+changing the rower name alone or continuing the same shift does not change it. Resetting
+the timer keeps the last perspective until a genuinely new shift starts. Concurrent Home
+tabs share one atomic assignment, and revisiting a known shift ID restores its saved prompt.
+
 For updates: curate/validate the pack, keep source attribution, bump the service-worker cache
-version, run `npm test` and `npm run build`, then use the existing static/native publishing
+version **and** the matching `index.html` `app-release` marker and `js/updates.js` `APP_RELEASE`
+(the tests enforce agreement), run `npm test` and `npm run build`, then use the existing static/native publishing
 process. The build validates the pack and PDF hash before copying `js/` and `references/`
 into `www/`. New content assets must also be listed in `service-worker.js`.
+Publish the shell and worker together as one release; never change assets under an unchanged
+cache version. Regression tests exercise fresh precaching, failed installs, exact-version
+offline loading, update UI confirmation, all 125 published jokes through restarts/upgrades
+and concurrent draws. Mock lifecycle tests do not replace a real-device online-upgrade and
+offline-launch check on the target phone/browser.
+Injected-clock/speech tests also cover hands-free prompt→countdown→answer→next sequencing,
+pause/resume, stopped/stale callbacks, in-flight saves, errors and exhaustion.
+Home tests cover welcome/shift persistence, Start, Swap & restart, duration edits, navigation,
+clock changes and timer reset. Layout tests check the fixed player controls and collapsed settings.
+For browser smoke checks, use 320px and 393px mobile widths plus a tablet viewport; verify no
+horizontal overflow, stable answer-reveal button positions, visible keyboard focus and usable
+touch targets. Also test a completed offline install/reload, concurrent-tab draws, timed visual
+playback and Home's shift persistence. Desktop mobile-viewport simulation does not establish
+iOS voice support or reliable locked-screen audio.
 The original app seeds and newly written two-person instructions/prompts are retained in
 `js/data/entertainment-base.json`. To compose them with a reviewed supplement using the same
 schema, run `node tools/publish-entertainment.mjs <reviewed-supplement.json>`; exact duplicate

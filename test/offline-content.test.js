@@ -36,8 +36,9 @@ test('offline missing PDF and JSON return an honest failure, not app HTML', asyn
   const handlers = {};
   const sw = await readFile(new URL('service-worker.js', root), 'utf8');
   const context = {
-    self: { addEventListener: (name, handler) => { handlers[name] = handler; } },
-    caches: { match: async () => undefined }, URL, Response,
+    self: { addEventListener: (name, handler) => { handlers[name] = handler; },
+      location: { href: 'https://example.test/service-worker.js', origin: 'https://example.test' } },
+    caches: { open: async () => ({ match: async () => undefined }) }, URL, Response, Request,
     fetch: async () => { throw new Error('Offline'); }
   };
   vm.runInNewContext(sw, context);
@@ -57,7 +58,9 @@ test('an offline pack upgrade deletes only older gROW Ocean caches', async () =>
   const sw = await readFile(new URL('service-worker.js', root), 'utf8');
   const current = sw.match(/const CACHE_VERSION = '([^']+)'/)[1];
   vm.runInNewContext(sw, {
-    self: { addEventListener: (name, handler) => { handlers[name] = handler; }, clients: { claim() {} } },
+    self: { addEventListener: (name, handler) => { handlers[name] = handler; }, clients: { claim() {} },
+      location: { href: 'https://example.test/service-worker.js', origin: 'https://example.test' } },
+    URL,
     caches: {
       keys: async () => ['grow-ocean-old-cache', current, 'other-app-v1'],
       delete: async key => { deleted.push(key); }
