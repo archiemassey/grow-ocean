@@ -13,6 +13,7 @@ import { renderFeedback } from './views/feedback.js';
 import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
 import { initAppUpdates } from './updates.js';
+import { createSpeechReader } from './hands-free.js';
 
 const view = document.getElementById('view');
 const tabbar = document.getElementById('tabbar');
@@ -57,14 +58,21 @@ export function toast(msg) {
 }
 
 /* Text-to-speech — reads wiki/instructions aloud, hands-free. Works offline. */
+let manualSpeech;
 export function speak(text) {
-  if (!('speechSynthesis' in window)) { toast('Voice output not supported here'); return; }
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95; u.pitch = 1;
-  speechSynthesis.speak(u);
+  stopSpeaking();
+  if (document.hidden) return;
+  manualSpeech = new AbortController();
+  createSpeechReader().say(text, manualSpeech.signal).catch(error => {
+    if (error.name !== 'AbortError') toast('Read-aloud isn’t available. The instructions are still on screen.');
+  });
 }
-export function stopSpeaking() { if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+export function stopSpeaking() {
+  manualSpeech?.abort(); manualSpeech = null;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopSpeaking(); });
+window.addEventListener('pagehide', stopSpeaking);
 
 export function go(hash) { location.hash = hash; }
 

@@ -1,5 +1,5 @@
 /* Updates never reload a working screen. Only the crew's confirmed action does. */
-export const APP_RELEASE = 'grow-ocean-v8';
+export const APP_RELEASE = 'grow-ocean-v9';
 export let checkForUpdates = async () => 'Updates are unavailable in this browser or native shell.';
 
 export function initAppUpdates({

@@ -9,8 +9,9 @@ import {
   getAllWiki, getArticle, getEditable, saveArticle, addArticle,
   resetArticle, exportWiki, importWiki
 } from '../wikiStore.js';
-import { SAFETY_NOTICE, PAIR_REVIEW } from '../safety.js';
-import { RULES_NOTICE, RULES_DOCUMENT } from '../rules.js';
+import { ACTION_CONDITIONS } from '../safety.js';
+import { RULES_DOCUMENT } from '../rules.js';
+import { createVoiceSettings } from '../speech.js';
 
 function stripHtml(html) {
   const d = document.createElement('div'); d.innerHTML = html; return d.textContent || '';
@@ -24,10 +25,14 @@ function stamp() {
 
 /* ---------- single article ---------- */
 async function renderArticle(view, id) {
+  const enteredRoute = location.hash;
   const a = await getArticle(id);
+  if (location.hash !== enteredRoute) return;
   if (!a) { view.append(h('div', { class: 'empty' }, 'Article not found.')); return; }
 
   const crit = a.priority === 1;
+  const voiceSettings = createVoiceSettings(h, stopSpeaking);
+  window.addEventListener('hashchange', () => voiceSettings.dispose(), { once: true });
   view.append(
     h('div', {}, [
       h('span', { class: 'chip ' + (crit ? 'crit' : '') }, a.category),
@@ -38,18 +43,21 @@ async function renderArticle(view, id) {
     h('h2', {}, a.title),
     h('p', { class: 'sub' }, a.summary),
     h('div', { class: 'btnrow', style: 'margin-bottom:8px' }, [
-      h('button', { class: 'btn small', onclick: () => { speak((a.readOnly ? RULES_NOTICE : SAFETY_NOTICE) + ' ' + (PAIR_REVIEW[a.id] || '') + ' ' + a.title + '. ' + stripHtml(a.body)); toast('Reading aloud…'); } }, '🔊 Read aloud'),
+      h('button', { class: 'btn small', onclick: () => { speak([a.title, ACTION_CONDITIONS[a.id], stripHtml(a.body)].filter(Boolean).join('. ')); toast('Reading aloud…'); } }, '🔊 Read aloud'),
       h('button', { class: 'btn small ghost', onclick: stopSpeaking }, '⏹ Stop'),
       a.readOnly ? '' : h('button', { class: 'btn small secondary', onclick: () => go('#/wiki/edit/' + a.id) }, '✏️ Edit')
     ]),
-    h('p', { class: 'callout crit' }, a.readOnly ? RULES_NOTICE : SAFETY_NOTICE),
-    PAIR_REVIEW[a.id] ? h('p', { class: 'callout' }, PAIR_REVIEW[a.id]) : '',
+    ACTION_CONDITIONS[a.id] ? h('p', { class: 'hint' }, ACTION_CONDITIONS[a.id]) : '',
     h('div', { class: 'article card', html: a.body }),
-    a.ref ? h('p', { class: 'ref' }, ['Reference: ', h('a', { href: a.ref, target: '_blank', rel: 'noopener' },
-      a.readOnly ? 'Open unchanged offline PDF' : a.ref)]) : '',
+    h('details', { class: 'card' }, [
+      h('summary', {}, 'Voice & source'),
+      a.ref ? h('p', { class: 'ref' }, ['Reference: ', h('a', { href: a.ref, target: '_blank', rel: 'noopener' },
+        a.readOnly ? 'Open unchanged offline PDF' : a.ref)]) : '',
+      voiceSettings.element
+    ]),
     a.readOnly ? h('a', { class: 'btn small secondary', href: RULES_DOCUMENT.file,
       download: 'Race Rules WTR - Atlantic 2025 V1.0.pdf' }, '⤓ Save original PDF') : '',
-    a.readOnly ? h('p', { class: 'hint' }, RULES_DOCUMENT.copyright + ' Page links use 1-based PDF page numbers. PDF viewers may require manual page selection.') : '',
+    a.readOnly ? h('p', { class: 'hint' }, RULES_DOCUMENT.copyright) : '',
     a.id === 'official-rules' ? h('div', {}, RULES_DOCUMENT.pages.map(page =>
       h('a', { class: 'listrow', href: '#/wiki/official-rules-page-' + page.page },
         `PDF page ${page.page} — ${page.topic}`))) : '',
@@ -134,7 +142,6 @@ async function renderList(view) {
   _listView = view;
   view.innerHTML = '';
   view.append(h('p', { class: 'sub' }, 'Tap a topic. Critical drills are flagged Priority 1. Use search if you’re in a hurry.'));
-  view.append(h('p', { class: 'callout crit' }, SAFETY_NOTICE));
   view.append(toolbar());
   view.append(h('a', { class: 'btn secondary', href: '#/wiki/official-rules' }, '📄 Official rules · Atlantic 2025 v1.0'));
 

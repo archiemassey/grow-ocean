@@ -3,7 +3,6 @@
 import { h, go, toast } from '../app.js';
 import { db } from '../db.js';
 import { CONTENT } from '../data/content.js';
-import { SAFETY_NOTICE } from '../safety.js';
 
 async function renderOne(view, id) {
   const list = CONTENT.checklists.find((c) => c.id === id);
@@ -66,7 +65,6 @@ function renderList(view) {
 
 export async function renderChecklists(view, param) {
   view.innerHTML = '';
-  view.append(h('p', { class: 'callout crit' }, SAFETY_NOTICE));
   if (param) await renderOne(view, param);
   else renderList(view);
 }

@@ -2,11 +2,12 @@
    live race/weather sub-page. The white-noise generator and game prompts work
    fully offline. Music/podcasts/audiobooks are placeholders for side-loaded files. */
 
-import { h, go, toast, speak, stopSpeaking } from '../app.js';
+import { h, go, toast, stopSpeaking } from '../app.js';
 import { CONTENT } from '../data/content.js';
 import { db } from '../db.js';
 import { CATEGORIES, createDeck } from '../entertainment.js';
 import { HANDS_FREE_CATEGORIES, createHandsFreePlayer, createSpeechReader } from '../hands-free.js';
+import { createVoiceSettings, readPreference, savePreference } from '../speech.js';
 
 /* ---- functional offline white-noise generator ---- */
 function noisePlayer() {
@@ -59,72 +60,78 @@ async function gamesCard() {
     const answerMeasure = h('p', { class: 'player-answer-measure', 'aria-hidden': 'true' });
     const answerPlaceholder = h('p', { class: 'player-answer-placeholder' });
     const source = h('p', { class: 'hint', style: 'overflow-wrap:anywhere' });
-    const next = h('button', { class: 'btn secondary', onclick: () => act(() => deck.next()) }, 'Next unseen item');
-    const reveal = h('button', { class: 'btn secondary', onclick: () => act(() => deck.reveal()) }, 'Reveal answer');
-    const read = h('button', { class: 'btn secondary', 'aria-label': 'Read current prompt and revealed answer aloud', onclick: () => act(() => {
-      const state = deck.snapshot();
-      speak([state.prompt, state.instructions, state.answer].filter(Boolean).join('. '));
-    }) }, '🔊 Read current');
+    const next = h('button', { class: 'btn secondary', 'aria-label': 'Next unseen item',
+      onclick: () => act(() => deck.next({ freshOnly: true }), true) }, 'Next');
     const reset = h('button', { class: 'btn ghost', onclick: () => {
       if (window.confirm('Start a new cycle for this category? Previously seen items may repeat.'))
         act(() => deck.reset());
     } }, 'Reset this category');
-    let busy = false, disposed = false;
+    let busy = false, disposed = false, lifecycle = 0;
     const speech = createSpeechReader();
-    const audio = h('input', { type: 'checkbox', checked: speech.available, disabled: !speech.available });
+    const audio = h('input', { type: 'checkbox', checked: readPreference('grow-ocean-audio', true) });
     const pace = h('select', { id: 'hands-free-pace', 'aria-label': 'Hands-free timing' }, [
       h('option', { value: 'short' }, 'Short — half the pauses'),
       h('option', { value: 'normal', selected: true }, 'Normal — jokes 3s, trivia 10s'),
       h('option', { value: 'long' }, 'Long — double the pauses')
     ]);
     const playbackStatus = h('p', { class: 'hint player-status', role: 'status', 'aria-live': 'polite' });
-    const start = h('button', { id: 'hands-free-toggle', class: 'btn', onclick: () => {
+    const savedPace = readPreference('grow-ocean-pace', 'normal');
+    pace.value = ['short', 'normal', 'long'].includes(savedPace) ? savedPace : 'normal';
+    const settings = (auto = false, read = true) => ({ auto, audio: read && audio.checked, pace: pace.value });
+    const start = h('button', { id: 'hands-free-toggle', class: 'btn', 'aria-pressed': 'false', onclick: () => {
       if (busy || disposed || document.hidden) return;
-      if (player.snapshot().mode === 'running') { player.pause(); return; }
-      if (player.snapshot().mode === 'paused') { player.resume(); return; }
-      stopSpeaking();
-      player.start({ audio: audio.checked, pace: pace.value });
-    } }, '▶ Start hands-free');
-    const stop = h('button', { class: 'btn secondary', onclick: () => {
-      player.stop(); stopSpeaking();
-    } }, '⏹ Stop');
+      if (player.snapshot().mode !== 'running') stopSpeaking();
+      player.setAuto(!player.snapshot().auto, settings());
+    } }, 'Auto Off');
     const player = createHandsFreePlayer({
       deck, speech,
       onItem: state => { if (!disposed) draw(state); },
       onStatus: state => {
         if (disposed) return;
         playbackStatus.textContent = state.remaining !== null
-          ? `${state.phase === 'think' ? 'Answer' : 'Next item'} in ${state.remaining}s`
-          : state.mode === 'paused' ? 'Paused · Tap Resume when ready.'
-            : state.message.startsWith('Manual control') ? 'Manual mode · Unseen items only'
-              : state.message.startsWith('Stopped.') ? 'Stopped · Your progress is saved.' : state.message;
+          ? `${state.message} ${state.remaining}s` : state.message;
         draw(deck.snapshot());
       }
     });
+    const voiceSettings = createVoiceSettings(h, changeSettings);
     function dispose() {
-      disposed = true;
+      disposed = true; lifecycle++;
       player.stop(); stopSpeaking();
+      voiceSettings.dispose();
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('hashchange', dispose);
       window.removeEventListener('pagehide', pagehide);
+      window.removeEventListener('pageshow', visibility);
     }
-    function visibility() {
+    async function visibility() {
       if (document.hidden) {
-        player.pause('Paused because the app is hidden or the screen locked. Return here and tap Resume.');
+        lifecycle++;
+        player.stop('Paused while away. Auto is off.');
         stopSpeaking();
+      } else {
+        const token = lifecycle;
+        await player.settled();
+        if (!disposed && !busy && !document.hidden && token === lifecycle) player.present(settings(false, false));
       }
     }
     function pagehide() {
-      player.pause('Paused while leaving the page. Tap Resume after returning.');
+      lifecycle++;
+      player.stop('Paused while away. Auto is off.');
       stopSpeaking();
     }
     // A delayed pack load must not attach playback handlers to a route already left.
-    if (location.hash !== enteredRoute) return card;
+    if (location.hash !== enteredRoute) { dispose(); return card; }
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('hashchange', dispose);
     window.addEventListener('pagehide', pagehide);
-    pace.addEventListener('change', () => player.stop('Timing changed. Start hands-free to use the new pauses.'));
-    audio.addEventListener('change', () => player.stop('Audio mode changed. Start hands-free to continue.'));
+    window.addEventListener('pageshow', visibility);
+    function changeSettings() {
+      savePreference('grow-ocean-audio', audio.checked);
+      savePreference('grow-ocean-pace', pace.value);
+      return act(async () => deck.snapshot());
+    }
+    pace.addEventListener('change', changeSettings);
+    audio.addEventListener('change', changeSettings);
     function draw(state) {
       if (disposed) return;
       prompt.textContent = state.total ? state.prompt : 'No items published in this category yet. Choose another category.';
@@ -148,28 +155,29 @@ async function gamesCard() {
         (!state.total ? ' · No items available.' : state.exhausted ? ' · All seen — reset is in settings.' :
           !HANDS_FREE_CATEGORIES.has(state.category) ? ' · Manual activity; take as long as you need.' : '');
       next.disabled = busy || state.exhausted;
-      reveal.disabled = busy || !state.canReveal;
-      read.disabled = busy || !state.item;
       reset.disabled = busy || !state.seen;
       const playback = player.snapshot();
-      start.disabled = busy || (playback.mode === 'idle' &&
-        (state.exhausted || !HANDS_FREE_CATEGORIES.has(state.category)));
-      start.textContent = playback.mode === 'running' ? '⏸ Pause' :
-        playback.mode === 'paused' ? '▶ Resume' : '▶ Start hands-free';
-      start.setAttribute('aria-pressed', String(playback.mode === 'running'));
-      stop.disabled = busy || (!state.item && playback.mode === 'idle');
+      start.disabled = busy || !HANDS_FREE_CATEGORIES.has(state.category) ||
+        (state.exhausted && !state.canReveal && playback.mode === 'idle');
+      start.textContent = playback.auto ? 'Auto On' : 'Auto Off';
+      start.setAttribute('aria-pressed', String(playback.auto));
     }
-    async function act(action) {
-      if (busy) return;
+    async function act(action, continueAuto = false) {
+      if (busy || disposed || document.hidden) return;
+      const auto = continueAuto && player.snapshot().auto;
+      const token = lifecycle;
       busy = true;
-      player.stop('Manual control selected. Hands-free stopped.');
+      player.stop();
       stopSpeaking();
       answer.hidden = true;
       source.textContent = '';
-      [selector, next, reveal, read, reset].forEach(control => control.disabled = true);
+      [selector, next, start, reset].forEach(control => control.disabled = true);
       try {
         await player.settled();
-        if (!disposed) await action();
+        if (!disposed && !document.hidden && token === lifecycle) {
+          const result = await action();
+          if (!disposed && !document.hidden) player.present(settings(!!result && token === lifecycle && auto, !!result && token === lifecycle && continueAuto));
+        }
       }
       catch { toast('Could not save progress on this device. Please try again.'); }
       finally {
@@ -192,18 +200,18 @@ async function gamesCard() {
       ]),
       h('div', { class: 'player-controls', role: 'group', 'aria-label': 'Playback controls' }, [
         playbackStatus,
-        h('div', { class: 'player-primary' }, [start, next]),
-        h('div', { class: 'player-secondary' }, [reveal, read, stop])
+        h('div', { class: 'player-primary' }, [next, start])
       ]),
       h('p', { class: 'hint player-footnote' }, 'Foreground only · Boat and watch duties first'),
       ...(!speech.available ? [h('p', { class: 'hint' },
-        'Speech unavailable — timed visual mode is active. Manual controls still work.')] : []),
+        'Read-aloud isn’t available here. Answers still appear on screen.')] : []),
       h('details', { class: 'player-details' }, [
         h('summary', {}, 'Playback settings, progress & source'),
-        h('label', { class: 'field player-audio' }, [audio, ' Read aloud during hands-free']),
+        h('label', { class: 'field player-audio' }, [audio, ' Read aloud after Next / Auto']),
+        voiceSettings.element,
         h('label', { class: 'field', for: 'hands-free-pace' }, 'Thinking / next-item pauses'), pace,
-        h('p', { class: 'hint' }, 'Normal pauses: jokes 3s, trivia 10s, conversation/choices 20s; 3s after an answer. Resume restarts the current speech/countdown. Games and challenges stay manual.'),
-        h('p', { class: 'hint' }, 'Hiding the app or locking the screen pauses playback. An installed offline voice is required for read-aloud; turn it off for timed visual mode if speech fails. Test on your phone before departure.'),
+        h('p', { class: 'hint' }, 'Answers appear automatically, even with Auto off. Normal pauses: jokes 3s, trivia 10s, conversation/choices 20s; 3s after an answer. Auto moves on after reading finishes. Next skips ahead and keeps Auto going. Games and challenges stay at your pace.'),
+        h('p', { class: 'hint' }, 'Leaving or locking the screen stops speech and turns Auto off. Returning shows answers silently; tap Next or Auto to read aloud again. Changing category, voice or timing also turns Auto off. Audio trouble falls back to on-screen answers.'),
         progress, reset, source,
         h('p', { class: 'hint' }, `Content ${pack.version} · ${pack.items.length.toLocaleString()} offline items. Progress stays on this device; only an explicit reset permits repeated draws.`)
       ])
@@ -224,7 +232,7 @@ async function gamesCard() {
       ]));
     }
     draw(await deck.select('jokes'));
-    playbackStatus.textContent = 'Manual or hands-free · Your choice';
+    if (!disposed && !document.hidden) player.present(settings(false, false));
   } catch {
     card.append(h('p', { role: 'alert' }, 'Entertainment could not load. Open once online to finish downloading the app, then try again. Other morale features remain available.'));
   }

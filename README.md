@@ -20,7 +20,10 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 ### Updating an installed app — do not clear site data
 
-Home shows **App release grow-ocean-v8 · Updates**; expand it for **Check for updates**.
+Home starts with the compact **This shift** thought, then the shift timer and actions.
+Expand **About & updates** at the bottom for
+**App release grow-ocean-v9** and **Check for updates**. It stays collapsed by default; there
+is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
 **Offline app ready** banner. Stop **and save** recordings and save any forms, then tap
@@ -31,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v8** on Home and **Next unseen item** under the Morale category selector.
+Look for **grow-ocean-v9** in Home's About disclosure and **Next** / **Auto Off** under the Morale category selector.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -51,12 +54,12 @@ release process where service workers are unavailable.
 
 | # | Function | What it does | Source "Type" |
 |---|----------|--------------|---------------|
-| 1 | **Quick Wiki** | Full-text search, unchanged offline Atlantic 2025 v1.0 rules PDF and 11 read-only, page-referenced extracts. Prototype safety notes have explicit two-person review warnings. Crew notes remain editable, exportable and importable without changing official rules. | Document |
+| 1 | **Quick Wiki** | Full-text search, unchanged offline Atlantic 2025 v1.0 rules PDF and 11 read-only, page-referenced extracts. Action-focused instructions; voice settings and source links in a disclosure. Crew notes remain editable, exportable and importable without changing official rules. | Document |
 | 2 | **Scheduled reminders** | Recurring prompts (sun cream, hydration, meds, battery/bilge/solar checks, stretching). Toggle on/off, snooze, mark done. | Scheduled notification |
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
-| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, manual controls or hands-free timed answers/next items; **white noise**, media placeholders and journal/live-data links. Awe/perspective is now on Home. | Media + Games |
+| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, media placeholders and journal/live-data links. Awe/perspective is on Home. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
@@ -91,11 +94,41 @@ via the manifest `shortcuts`.
   Share sheet / AirDrop); the other rower uses **⤒ Import** to apply it. This also protects
   edits against a reinstall.
 - Built-in updates **preserve crew edits**. In particular, an existing MOB edit may still contain
-  the withdrawn generic sequence: a separate, non-editable review warning stays visible.
+  the withdrawn generic sequence. Updates do not scrub it; contributors must handle review
+  explicitly, outside the emergency UI.
   Wiki imports validate text fields and reject attempts to replace official rule pages.
 - **Feedback:** Home → **📝 App feedback** → type and **Save** (offline) → **⤓ Export all**
   to send a `.txt` summary to whoever maintains the app. On land, feedback can also be raised
   on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
+
+### Emergency reference: useful without implying certification
+
+MOB now leads with the two-person reality: one casualty, one rescuer aboard. It offers
+short orientation and distress-communications prompts, links directly to the offline Mayday
+page, and says **Use your practised boat-specific recovery method**. It does **not** invent
+a recovery manoeuvre, lifting sequence or additional crew roles. The casualty may be unable
+to assist. Approval, preparation and limitation commentary is kept in the repository only,
+not in screens, disclosures or read-aloud. Local crew edits are never silently erased.
+The same reader serves **Stargazing and every other Wiki topic**: it speaks the page title,
+any action-critical conditions and the page body, with no global approval/review prefix.
+Saved crew-authored wording is not filtered by keywords.
+
+Sources checked on 11 September 2026:
+[RYA man-overboard guidance](https://www.rya.org.uk/water-safety/cold-water-shock-safety/man-overboard/)
+and [Mayday/Pan-Pan reference by Andy du Port](https://www.yachtingmonthly.com/sailing-skills/how-to-make-a-vhf-radio-mayday-call-pan-pan-call-81832).
+These general references do not certify the app or a boat-specific method. Radio and beacon
+controls remain model-specific; fixed activation/hold-time claims have been removed.
+Other procedures retain action-critical conditions, not editorial caveats. The race rules
+PDF and extracted page bodies are unchanged; edition/source-verification commentary is
+in the repository review record. Unfilled kit locations and assumed hatch contents/order
+are no longer displayed as a plan; existing saved crew plans remain intact.
+
+### Contributor safety-review record
+
+Read **[docs/safety-review.md](docs/safety-review.md)** before changing operational content.
+It holds the beta/approval status, removed commentary, source checks, unresolved boat details
+and review checklist. Keep this document **out of app links, precaching and the native build**.
+Removing in-app review prose does not certify the content or permit invented technical steps.
 
 ### Export logs
 
@@ -145,14 +178,16 @@ grow-ocean-app/
 │  ├─ wikiStore.js            Editable wiki layer (overrides, new pages, export/import)
 │  ├─ entertainment.js        Content validation and persisted no-repeat deck logic
 │  ├─ hands-free.js           Cancellable foreground playback, speech completion and countdowns
+│  ├─ speech.js               Shared on-device English voice selection and saved playback preferences
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
-│  ├─ safety.js               Two-person review notices (separate from crew edits)
+│  ├─ safety.js               Action-critical operating conditions (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
 │  ├─ data/content.js         Prototype wiki, reminders, checklists and legacy game titles
 │  ├─ data/entertainment-pack.json  Versioned built-in entertainment with provenance
 │  ├─ data/rules-data.js      Page-exact text and SHA-256 of the original PDF
 │  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain, feedback
 ├─ references/                Original crew-provided rules PDF (unchanged)
+├─ docs/safety-review.md       Repository-only review record; not shipped in the offline app
 ├─ tools/                     Static build, content validation and manual PDF extraction
 └─ icons/                     App icons (192, 512, maskable)
 ```
@@ -200,29 +235,31 @@ Progress is local to each device/browser profile and is lost
 if site data is cleared; it is not included in wiki exports. Offline read-aloud depends on an
 installed device voice: test it before departure.
 
-### Hands-free entertainment (optional; manual mode remains)
+### Entertainment: automatic answers, optional Auto
 
 The entertainment player is first on Morale. A single category selector and the same content
 panel show the prompt, game instructions, answer and countdown in every category. The primary
-button stays in one position and changes **Start hands-free → Pause → Resume**, alongside
-**Next unseen item**. **Reveal answer**, **Read current** and **Stop** stay in the row below.
+controls are always **Next** and **Auto On / Auto Off**. Next always draws an unseen item.
+Answers reveal after a short timer even with Auto off; there is no Reveal Answer button.
 The mobile player uses large, spacious prompt typography and a separate reserved answer area:
 revealing the answer does not move the playback buttons. Its playback bar stays reachable
 above the app tabs while scrolling longer items. Primary targets are at least 56px high;
-secondary playback targets are at least 44px, with visible keyboard focus and light/dark themes.
+settings have visible keyboard focus and light/dark themes.
 Timing/audio options, detailed progress, explicit Reset, source and content release are tucked
-into **Playback settings, progress & source**. There is only one manual read-aloud control.
+into **Playback settings, progress & source**. Read-aloud is a secondary preference,
+not another prominent button.
 White noise and media placeholders are collapsed into **More ways to unwind → Sound & media**.
 Journal, Home perspective and the explicitly labelled prototype race/weather link are in the
 separate **Journal & crossing** disclosure, not competing with the main player. The 44-day plan
 also remains an optional disclosure.
 
-Choose **Jokes**, **Trivia**, **Would you rather** or **Conversation**, then tap the large
-**Start hands-free** button. It saves/draws the next unseen item, reads its prompt to
-completion, counts down, reveals and reads the answer if present, then pauses and draws
-another unseen item. A restored current item is not a new draw. Items without an answer
-are read in full, then remain visible for the category's pause before advancing.
-Games and challenges stay manual so an activity is never cut short by an automatic timer.
+Tap **Next** to begin, or turn **Auto On** in Jokes, Trivia, Would You Rather or Conversation.
+Auto starts with the current item if one exists, otherwise draws the first unseen item.
+With read-aloud enabled, the prompt finishes before the answer countdown starts, and the
+answer finishes before the next-item pause. With Auto off the answer still appears, but
+the item stays on screen. Next interrupts the old speech/timers and keeps an already-enabled
+Auto sequence going with the new item. No-answer prompts get reading/discussion time.
+Games and challenges never auto-advance; any answers still reveal automatically.
 
 **Normal** timing is 3 seconds thinking time for jokes, 10 for trivia and 20 for conversation/
 choices; after an answer finishes, the next-item gap is 3 seconds. **Short** halves these
@@ -230,24 +267,40 @@ pauses (rounded to whole seconds) and **Long** doubles them. The current countdo
 revealed answer stay visible. Speech completion, not an estimated speech-duration timer,
 controls when the countdown starts.
 
-- **Pause / Resume** cancels speech/timers immediately. Resume replays the current speech
-  or restarts its countdown; it does not consume another item. **Stop** ends the sequence.
-- Any manual Next/Reveal/Read/Reset action, category change or timing/audio-mode change
-  stops automatic playback. Leaving the route stops it; hiding the app, switching apps or
-  locking the screen pauses it. Returning does **not** resume automatically.
-- Playback stops at exhaustion or on speech/storage errors. It never resets progress or
-  loops automatically. An already-started database save may finish after Stop; that item
-  remains saved as current/seen rather than risking a repeated draw.
-- Read-aloud needs browser support and an installed offline voice. iOS/browser policies may
-  block or interrupt speech; errors stop playback. If speech is unavailable, use **timed
-  visual mode** by turning off **Read aloud during hands-free**, or retain manual controls.
-  An unavailable speech API defaults to visual mode. This is **foreground-only**, not
-  reliable locked-screen/background audio. Test speech and offline playback on the actual
-  phone before departure.
+- **Auto Off** stops advancing, not the current answer. Next/category/settings changes
+  cancel old timers and speech; database draws finish serially before the next action.
+- Category, reset, voice, audio and pace changes turn Auto off. Restored items and settings
+  changes reveal silently. Only a deliberate Next/Auto gesture can begin read-aloud.
+- Leaving/hiding/locking stops speech and timers and turns Auto off. Returning restarts
+  only the current visual answer timer, never speech or automatic advancement.
+- Exhaustion stops without resetting; choose another category or explicitly confirm Reset.
+  Storage failures stop advancement. A save already in flight may finish after cancellation;
+  that item stays recorded as seen/current rather than risking a repeated draw.
+- Speech errors/unavailable voices fall back to timed visual answers with a visible status.
+  Watchdogs catch a voice that never starts (6 seconds) or never ends (120 seconds).
+- Audio, pace and the selected device voice persist locally; an auto-running session does not.
+  Wiki/manual and entertainment playback share natural-rate, normal-pitch English voice selection.
+  Available on-device Enhanced/Premium/Natural voices are preferred; a saved choice wins.
+  `voiceschanged` refreshes choices. Missing selections show an explicit fallback without
+  overwriting the saved choice. Listed cloud-only voices are not used; an empty device voice
+  list uses the system default with an offline-availability warning.
+- On iPhone, download an Enhanced/Premium English voice under **Settings → Accessibility →
+  Spoken Content / Read & Speak → Voices** (names vary by iOS). Safari may not expose every
+  downloaded voice. This is **foreground-only**, not reliable locked-screen PWA audio.
+  Test the actual phone and voice in aeroplane mode before departure.
+
+v9 fixes pale critical callouts against near-white dark-mode text (the apparent “white
+blobs” on MOB/Wiki/Checklists), gives toasts a stable navy/white contrast pair, and ensures
+`hidden` overrides author display styles. Light/dark links, chips, warnings and status
+colours are theme-aware. Safety-review commentary is repository-only; it no longer appears
+as a banner or disclosure in operational screens.
 
 ### Home: a little perspective for this shift
 
-The compact **This shift** card on Home replaces Morale's random Awe card. It uses a small,
+The compact **This shift** card is the first main content on Home, immediately below the
+top bar (and any necessary update notice), ahead of the timer and emergency actions.
+No introduction or release disclosure appears above it. Its short text and tight spacing
+keep the timer and emergency buttons nearby. It replaces Morale's random Awe card and uses a small,
 dedicated set of gentle perspective prompts, with a Star guide link and a reminder that boat
 and watch duties come first. It never draws from or resets the entertainment deck.
 
@@ -341,7 +394,8 @@ The wiki drills and medical content are a **prototype aide-memoire** and **must 
 approved by the crew's safety and medical advisers** before being relied upon at sea.
 These are **two-person crew** notes: one casualty leaves **one rescuer**, not a third rower or
 separate simultaneous lookout/helmsman/communicator. The generic MOB sequence has been withdrawn,
-not replaced with an invented emergency procedure. That page now records approval/rehearsal
-requirements for the actual boat and equipment. Other legacy technical notes remain explicitly
-unapproved, with topic-specific pair review flags. Official race rules remain authoritative;
+not replaced with an invented recovery procedure. That page now provides concise orientation
+and communications; preparation requirements and unresolved content are recorded only in
+`docs/safety-review.md`. Other legacy technical notes remain general references, not newly validated procedures.
+Official race rules remain authoritative;
 crew notes, checklist ticks or an app update do not constitute safety approval.

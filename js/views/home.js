@@ -30,9 +30,9 @@ export async function renderHome(view) {
     catch { perspective.textContent = 'A moment of perspective will be available when on-device storage is ready.'; }
   }
   await refreshPerspective();
-  const perspectiveCard = h('section', { class: 'card', 'aria-label': 'This shift' }, [
+  const perspectiveCard = h('section', { class: 'card shift-thought', 'aria-label': 'This shift' }, [
     h('h3', {}, '🌌 This shift'), perspective,
-    h('p', { class: 'hint' }, ['Only when boat and watch duties allow. ',
+    h('p', { class: 'hint' }, ['When watch duties allow. ',
       h('a', { href: '#/wiki/stars' }, 'Star guide')])
   ]);
 
@@ -139,13 +139,13 @@ export async function renderHome(view) {
   } }, 'Check for updates');
 
   view.append(
-    h('p', { class: 'sub' }, 'Your offline companion for the crossing. Everything here works with no signal.'),
-    h('details', { class: 'card' }, [
-      h('summary', {}, `App release ${APP_RELEASE} · Updates`), checkUpdate, updateStatus
-    ]),
-    timerCard, emergency, perspectiveCard,
-    h('p', { class: 'callout crit' }, CONTENT.meta.disclaimer),
+    perspectiveCard, timerCard, emergency,
     h('div', { class: 'cat-head' }, 'Go to'), grid,
-    remCard, liveCard
+    remCard, liveCard,
+    h('details', { class: 'card' }, [
+      h('summary', {}, 'About & updates'),
+      h('p', {}, 'gROW Ocean · Your offline companion for the crossing. Open once online to save the app; live services and external links need a connection.'),
+      h('p', { class: 'hint' }, `App release ${APP_RELEASE}`), checkUpdate, updateStatus
+    ])
   );
 }

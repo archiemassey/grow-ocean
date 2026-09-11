@@ -1,34 +1,27 @@
 /* gROW Ocean — seeded content from "Checks, drills, functions — Vicky requirements v2.xlsx".
    Plain English: this file is the app's built-in knowledge. Editing text here changes
-   what appears in the app. Everything lives on the device, so it all works offline.
-
-   SAFETY NOTE: wiki content below is a concise aide-memoire drafted for the prototype.
-   It MUST be reviewed/approved by the crew's safety & medical advisers before real use. */
+   what appears in the app. Everything lives on the device, so it all works offline. */
 
 export const CONTENT = {
   meta: {
     crew: ['Rower 1', 'Rower 2'],
-    source: 'Vicky requirements v2.xlsx',
-    disclaimer: 'UNAPPROVED prototype — not an emergency procedure. Two-person crew: one casualty leaves ONE rescuer. Crew and safety/medical advisers must approve boat-specific guidance before use.'
+    source: 'Vicky requirements v2.xlsx'
   },
 
   /* ---------- 1. QUICK-ACCESS WIKI (Type: Document) ---------- */
   wiki: [
     {
       id: 'mob', title: 'Man Overboard (MOB)', category: 'Safety', priority: 1, voice: true,
-      summary: 'Two-person crew: one casualty means ONE remaining rescuer. Approved boat-specific recovery procedure required.',
-      body: `<p class="callout crit"><strong>UNAPPROVED — preparation review only, not a recovery procedure.</strong></p>
-        <p>With two people aboard, a person overboard leaves one rescuer on the boat. There is no third rower to wake, no separate person continuously pointing while another manoeuvres, and no spare communicator.</p>
-        <p>The former generic sequence has been withdrawn: it assumed resources that a pair may not have. This app does not supply a replacement technical sequence.</p>
-        <p><strong>For crew and safety-adviser approval before departure:</strong></p>
-        <ul>
-          <li>Document and practise the boat-specific, single-rescuer recovery procedure using approved training and the actual equipment.</li>
-          <li>Review how one rescuer can manage casualty location, boat handling, distress communications and recovery without impossible simultaneous jobs.</li>
-          <li>Review both a responsive and an incapacitated casualty; do not assume the casualty can activate equipment or help with recovery.</li>
-          <li>Record the approved procedure, equipment locations, training source and approval date in your crew notes.</li>
-        </ul>
-        <p>Race rules are the authoritative race reference, not a substitute for approved recovery training. Confirm the edition applies to your crossing.</p>`,
-      ref: ''
+      summary: 'Two crew. One person overboard. One rescuer aboard.',
+      body: `<h3>If you are aboard</h3>
+        <p>You are the only rescuer. Protect yourself from going overboard too; do not plan on a second helper.</p>
+        <p><strong>Call for help.</strong> In grave and imminent danger, send a distress alert using your radio’s instructions and make a Mayday voice call on VHF channel 16.</p>
+        <p>Give your boat name, position and the situation: <strong>“One person overboard. One person remains aboard. Two crew in total. I need immediate assistance.”</strong> Give the casualty’s location and condition as far as you know.</p>
+        <p><a href="#/wiki/vhf">Open Mayday call prompts →</a></p>
+        <h3>The person in the water</h3>
+        <p>The casualty may be unable to respond or help. Do not rely on them to operate equipment or assist with recovery.</p>
+        <p><strong>Use your practised boat-specific recovery method.</strong></p>`,
+      ref: 'https://www.rya.org.uk/water-safety/cold-water-shock-safety/man-overboard/'
     },
     {
       id: 'epirb', title: 'EPIRB & PLB Deployment', category: 'Safety', priority: 1, voice: true,
@@ -37,12 +30,12 @@ export const CONTENT = {
         <ol>
           <li>Retrieve EPIRB from its bracket / grab bag.</li>
           <li>Move to open deck with clear sky view (beacons need GPS + satellite).</li>
-          <li>Remove the safety tab, then press &amp; hold ACTIVATE until the strobe flashes.</li>
-          <li>Secure the beacon upright — antenna vertical, clear of obstructions. Float-free if in water.</li>
+          <li>Activate using the instructions on your actual beacon. Controls, antenna deployment and indicators differ by model.</li>
+          <li>Position and secure it as the manufacturer directs, with the antenna clear. Not all beacons float or transmit correctly in water.</li>
           <li>Leave it transmitting. Do NOT switch off until rescue confirms.</li>
           <li>Back up with VHF Ch16 Mayday and Safety Team alert if able.</li>
         </ol>
-        <p><strong>PLB</strong> (personal): worn on the lifejacket — same activate &amp; hold principle, keep antenna clear of the body.</p>`,
+        <p><strong>PLB</strong> (personal): use its own activation and antenna instructions, not the EPIRB’s. Keep the antenna clear as directed.</p>`,
       ref: 'https://en.wikipedia.org/wiki/Emergency_position-indicating_radiobeacon'
     },
     {
@@ -51,17 +44,18 @@ export const CONTENT = {
       body: `<p><strong>DISTRESS (Ch16, full power):</strong></p>
         <ol>
           <li>"MAYDAY, MAYDAY, MAYDAY"</li>
-          <li>"This is [BOAT NAME], [BOAT NAME], [BOAT NAME]"</li>
+          <li>"This is [BOAT NAME], [BOAT NAME], [BOAT NAME]. Call sign [CALL SIGN]. MMSI [MMSI, if available]."</li>
           <li>"MAYDAY [BOAT NAME]"</li>
           <li>"My position is [lat/long or bearing &amp; distance]"</li>
           <li>Nature of distress (e.g. capsize, MOB, fire, sinking)</li>
           <li>Assistance required</li>
-          <li>Crew total: 2. The number still aboard depends on the incident — do not automatically report both aboard after an MOB. Confirm casualty location/status in the approved communications procedure.</li>
+          <li>“Two crew in total. [Number] aboard. [Number] in the water.” Give the casualty’s location and condition if known.</li>
           <li>"OVER"</li>
         </ol>
-        <p class="callout"><strong>Pan-Pan</strong> (urgent, not life-threatening): replace "MAYDAY" with "PAN-PAN" ×3. Use for serious but non-grave situations.</p>
-        <p>Press the red <strong>DSC distress</strong> button (lift cover, hold 5s) to send a digital alert with position automatically.</p>`,
-      ref: 'https://en.wikipedia.org/wiki/Marine_VHF_radio'
+        <p class="callout"><strong>Pan-Pan</strong> is for urgent safety messages without grave and imminent danger. Say “PAN-PAN” three times, “All stations” three times, then your identity, position, situation and help needed. Finish with “Over”.</p>
+        <p><strong>DSC distress alert:</strong> use your radio’s instructions before the voice call if possible. Controls and hold times vary; position is only sent correctly if the radio has valid position data.</p>
+        <p>Listen for a reply and follow the responding rescue station’s instructions.</p>`,
+      ref: 'https://www.yachtingmonthly.com/sailing-skills/how-to-make-a-vhf-radio-mayday-call-pan-pan-call-81832'
     },
     {
       id: 'anchor', title: 'Anchor / Para-Anchor Deployment', category: 'Safety', priority: 1, voice: true,
@@ -111,7 +105,7 @@ export const CONTENT = {
     {
       id: 'firstaid', title: 'First Aid — Common Ailments', category: 'Medical', priority: 2, voice: true,
       summary: 'First-aid responder assistant / note-taker for procedures.',
-      body: `<p class="callout">This is an aide-memoire only. Follow your medical kit guidance and shore medical advice (sat phone) for anything serious.</p>
+      body: `<p>For serious illness or injury, contact shore medical support by sat phone and follow your medical kit guidance.</p>
         <p><strong>Severe bleeding:</strong> direct pressure → elevate → pressure dressing → tourniquet only if life-threatening limb bleed.</p>
         <p><strong>Seasickness:</strong> hydrate, medication early, eyes on horizon, stay on deck if safe.</p>
         <p><strong>Hypothermia:</strong> remove wet layers, insulate, warm sweet drinks if conscious, shelter in cabin.</p>
@@ -138,7 +132,7 @@ export const CONTENT = {
       body: `<p><strong>Box breathing (reset after a scare):</strong></p>
         <ol><li>Breathe in 4s</li><li>Hold 4s</li><li>Out 4s</li><li>Hold 4s</li><li>Repeat ×5</li></ol>
         <p><strong>Physiological sigh:</strong> double inhale through the nose, long slow exhale through the mouth. ×3 to drop stress fast.</p>
-        <p class="callout">Tap "Read aloud" and follow the pace with your eyes closed.</p>`,
+        <p class="callout">Practise only while safely resting, not while rowing or keeping watch. Stop if you feel dizzy or uncomfortable.</p>`,
       ref: 'https://www.health.harvard.edu/mind-and-mood/relaxation-techniques-breath-control-helps-quell-errant-stress-response'
     },
     {
@@ -154,30 +148,16 @@ export const CONTENT = {
       ref: 'https://en.wikipedia.org/wiki/Navigation_light'
     },
     {
-      id: 'hatch', title: 'Hatch & Stowage Plan', category: 'Admin', priority: 2, voice: false,
-      summary: 'Where food/snacks are; order to empty hatches to keep boat stable.',
-      body: `<p class="callout">Customise this with your real stowage plan before departure.</p>
-        <ul>
-          <li><strong>Bow hatch:</strong> [contents] — empty last (trim).</li>
-          <li><strong>Day hatch:</strong> current-day food &amp; snacks.</li>
-          <li><strong>Aft hatches:</strong> [contents].</li>
-          <li>Empty evenly side-to-side &amp; fore-aft to keep trim and stability.</li>
-          <li>Log when a hatch/ration block is opened to track consumption.</li>
-        </ul>`,
-      ref: 'https://en.wikipedia.org/wiki/Stowage_plan'
+      id: 'hatch', title: 'Hatches & Stowage', category: 'Admin', priority: 2, voice: false,
+      summary: 'Close cabin hatches after passing through.',
+      body: `<p>Keep cabin hatches closed except when moving in or out of the cabin.</p>
+        <p>Use the boat’s stowage plan when moving supplies.</p>`,
+      ref: 'references/race-rules-wtr-atlantic-2025-v1.0.pdf#page=2'
     },
     {
-      id: 'tools', title: 'Location of Tools / Pump / Medical Kit', category: 'Admin', priority: 1, voice: false,
-      summary: 'Knowing where seldom-used items are, in an emergency.',
-      body: `<p class="callout">Fill in real locations before departure — this page must be findable in seconds.</p>
-        <ul>
-          <li><strong>Manual bilge pump:</strong> [location]</li>
-          <li><strong>Tool kit:</strong> [location]</li>
-          <li><strong>Medical grab kit:</strong> [location]</li>
-          <li><strong>Epoxy / repair kit:</strong> [location]</li>
-          <li><strong>Spare oars / gates:</strong> [location]</li>
-          <li><strong>Grab bag &amp; EPIRB:</strong> [location]</li>
-        </ul>`,
+      id: 'tools', title: 'Essential Kit Access', category: 'Admin', priority: 1, voice: false,
+      summary: 'Keep emergency equipment reachable.',
+      body: `<p>Keep the bilge pump, medical kit and grab bag accessible. Return equipment to its assigned stowage after use.</p>`,
       ref: 'https://en.wikipedia.org/wiki/Marine_safety'
     },
     {
@@ -217,11 +197,11 @@ export const CONTENT = {
 
   /* ---------- 3. EVENT-BASED REMINDERS (Type: Triggered notification) ---------- */
   events: [
-    { id:'clipon', title:'CLIP ON', detail:'Both crew: rules 1.7 require an approved harness and safety line to the boat’s jackstays when outside the cabin at sea (Atlantic 2025 v1.0, PDF p.2). Confirm the edition and approved training; one casualty leaves one rescuer.', category:'Safety', crit:true },
+    { id:'clipon', title:'CLIP ON', detail:'Clip your harness and safety line to the boat’s jackstays before leaving the cabin at sea. Both rowers need their own protection.', category:'Safety', crit:true },
     { id:'shiftchange', title:'Shift change — 10 min warning', detail:'10 minutes to handover. Wake the next rower, prep food/layers, keep the boat moving.', category:'Admin', crit:false },
     { id:'watermaker', title:'Run the water maker', detail:'High sun / before a hot day — make water while batteries are charging well.', category:'Maintenance', crit:false },
-    { id:'grabbag', title:'Grab-bag check', detail:'UNAPPROVED pair checklist: crew/adviser must verify contents and access for one capable rower against the applicable equipment requirements. The prototype list is not a complete mandatory inventory.', category:'Safety', crit:false },
-    { id:'drogue', title:'Drogue / para-anchor plan', detail:'UNAPPROVED pair reminder: refer to your adviser-approved, boat-specific deployment plan, not the prototype wiki sequence. Review feasibility when only one rower is capable.', category:'Safety', crit:true },
+    { id:'grabbag', title:'Grab-bag check', detail:'Check the bag is stocked and reachable by one rower.', category:'Safety', crit:false },
+    { id:'drogue', title:'Drogue / para-anchor plan', detail:'Use your practised boat-specific deployment plan. With only one capable rower, do not rely on a two-person method.', category:'Safety', crit:true },
     { id:'homecall', title:'Call home', detail:'Low point or milestone — a message from home lifts morale. Open any special package.', category:'Morale', crit:false }
   ],
 

@@ -108,7 +108,8 @@ function homeHarness(db) {
 test('Home starts and swaps update This shift; duration edits, clock changes and navigation do not', async () => {
   const db = storage(), home = homeHarness(db);
   const firstView = await home.render();
-  assert.ok(firstView.children.some(node => node['aria-label'] === 'This shift'));
+  assert.equal(firstView.children[0]['aria-label'], 'This shift', 'thought is first main content');
+  assert.equal(firstView.children[1].children[0].textContent, '🕒 Shift timer', 'timer follows thought');
   assert.ok(home.nodes().some(node => node.href === '#/wiki/stars'));
   const welcome = home.text();
   await home.render();

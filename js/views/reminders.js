@@ -50,7 +50,7 @@ async function drawScheduled(wrap) {
 
 function drawEvents(wrap) {
   wrap.innerHTML = '';
-  wrap.append(h('p', { class: 'hint' }, 'Event reminders fire when something happens. Tap to show the prompt now (in the real app these auto-trigger from sensors/the boat).'));
+  wrap.append(h('p', { class: 'hint' }, 'Tap an event to show its prompt.'));
   for (const e of CONTENT.events) {
     wrap.append(h('button', {
       class: 'listrow', style: e.crit ? 'border-color:var(--crit)' : '',
@@ -71,7 +71,6 @@ function drawEvents(wrap) {
 }
 
 export async function renderReminders(view) {
-  view.append(h('p', { class: 'callout crit' }, CONTENT.meta.disclaimer));
   const scheduledWrap = h('div', {});
   const eventsWrap = h('div', {});
 

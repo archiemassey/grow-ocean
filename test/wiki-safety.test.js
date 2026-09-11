@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { db } from '../js/db.js';
 import { CONTENT } from '../js/data/content.js';
 import { RULES_ARTICLES } from '../js/rules.js';
-import { SAFETY_NOTICE, PAIR_REVIEW } from '../js/safety.js';
+import { ACTION_CONDITIONS } from '../js/safety.js';
 import { getArticle, getEditable, saveArticle, importWiki, resetArticle } from '../js/wikiStore.js';
 
 // Only entity decoding is needed by the store's plain-text editor conversion.
@@ -17,17 +18,56 @@ db.get = async (_store, id) => records.get(id);
 db.put = async (_store, record) => records.set(record.id, record);
 db.delete = async (_store, id) => records.delete(id);
 
-test('built-in safety upgrades preserve crew local edits and add separate immutable review context', async () => {
+test('built-in safety upgrades preserve crew edits and keep review records in the repository', async () => {
   await saveArticle('mob', { title: 'Our recovery notes', body: 'Crew-approved training notes', summary: 'Local', category: 'Safety' });
   const article = await getArticle('mob');
   assert.equal(article.title, 'Our recovery notes');
   assert.ok(article.body.includes('Crew-approved training notes'));
   assert.equal(article._edited, true);
-  assert.match(PAIR_REVIEW.mob, /withdrawn generic sequence/);
-  assert.match(SAFETY_NOTICE, /ONE rescuer/);
+  const review = await readFile(new URL('../docs/safety-review.md', import.meta.url), 'utf8');
+  assert.match(review, /withdrawn generic sequence/);
+  assert.match(review, /ONE rescuer/);
   await resetArticle('mob');
-  assert.match((await getArticle('mob')).body, /no third rower/);
+  assert.match((await getArticle('mob')).body, /only rescuer/);
+  assert.match((await getArticle('mob')).body, /Use your practised boat-specific recovery method/);
+  assert.match((await getArticle('mob')).body, /href="#\/wiki\/vhf"/);
+  assert.doesNotMatch((await getArticle('mob')).body, /approval|UNAPPROVED|adviser|withdrawn|not a technical|reference only/i);
   assert.doesNotMatch(CONTENT.wiki.find(a => a.id === 'mob').body, /Keep pointing|Press\.|wake\/alert/);
+  for (const id of ['hatch', 'tools']) {
+    await saveArticle(id, { title: 'Our equipment plan', body: 'Our saved locations and review notes', summary: 'Local', category: 'Admin' });
+    const saved = await getArticle(id);
+    assert.equal(saved.title, 'Our equipment plan');
+    assert.match(saved.body, /Our saved locations and review notes/);
+    await resetArticle(id);
+    assert.doesNotMatch((await getArticle(id)).body, /\[location\]|\[contents\]/);
+  }
+});
+
+test('action-critical facts remain while placeholders and editorial review prose are removed', () => {
+  const vhf = CONTENT.wiki.find(a => a.id === 'vhf');
+  const beacon = CONTENT.wiki.find(a => a.id === 'epirb');
+  assert.match(vhf.body, /hold times vary/);
+  assert.match(vhf.body, /Two crew in total/);
+  assert.doesNotMatch(vhf.body, /hold 5s|approved communications/);
+  assert.match(beacon.body, /differ by model/);
+  assert.match(beacon.body, /Not all beacons float/);
+  assert.doesNotMatch(beacon.body, /same activate|press &amp; hold/);
+  assert.match(ACTION_CONDITIONS.anchor, /both rowers to be capable/);
+  assert.match(ACTION_CONDITIONS.liferaft, /One casualty leaves one person/);
+  for (const article of CONTENT.wiki)
+    assert.doesNotMatch(article.body, /UNAPPROVED|preparation review|aide-memoire only|\[location\]|\[contents\]|Customise this|Fill in real locations/i);
+});
+
+test('repository review documentation is not linked, precached or copied into the app', async () => {
+  const worker = await readFile(new URL('../service-worker.js', import.meta.url), 'utf8');
+  const build = await readFile(new URL('../tools/build-www.mjs', import.meta.url), 'utf8');
+  const paths = ['home', 'wiki', 'checklists', 'reminders'];
+  for (const path of paths) {
+    const source = await readFile(new URL(`../js/views/${path}.js`, import.meta.url), 'utf8');
+    assert.doesNotMatch(source, /safety-review\.md|Reference \/ preparation notes|SAFETY_NOTICE|PAIR_REVIEW|RULES_NOTICE|meta\.disclaimer/);
+  }
+  assert.doesNotMatch(worker, /safety-review|['"]\.\/docs/);
+  assert.doesNotMatch(build, /['"]docs['"]/);
 });
 
 test('official reference and every extracted page are immutable even with a legacy override', async () => {

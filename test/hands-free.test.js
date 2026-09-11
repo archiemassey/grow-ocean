@@ -131,10 +131,9 @@ test('normal trivia uses ten seconds; short/long controls scale pauses and visua
     await h.deck.select('trivia');
     h.speech.available = false;
     h.player.start({ audio: true, pace });
-    assert.equal(h.deck.snapshot().seen, 0);
-    assert.match(h.player.snapshot().message, /Speech unavailable/);
-    h.player.start({ audio: false, pace });
     await flush();
+    assert.equal(h.deck.snapshot().seen, 1);
+    assert.match(h.player.snapshot().message, /Audio unavailable/);
     assert.equal(h.player.snapshot().remaining, seconds);
     assert.equal(h.speechJobs.length, 0);
     await h.timers.tick(seconds * 1000);
@@ -198,19 +197,136 @@ test('stop during an in-flight storage write suppresses stale UI and serializes 
   assert.equal(h.player.snapshot().message, 'Category changed');
 });
 
-test('speech and storage failures stop playback and clear timers', async () => {
+test('speech failure falls back to timed answers; storage failure stops advancement', async () => {
   const h = harness();
   h.player.start();
   await flush();
   h.speechJobs[0].fail();
   await flush();
-  assert.equal(h.player.snapshot().mode, 'idle');
-  assert.match(h.player.snapshot().message, /timed visual mode/);
-  assert.equal(h.timers.size, 0);
+  assert.equal(h.player.snapshot().mode, 'running');
+  assert.match(h.player.snapshot().message, /continuing on screen/);
+  await h.timers.tick(3000);
+  assert.equal(h.deck.snapshot().answer, 'Answer one');
+  h.player.stop();
   h.storage.updateSetting = async () => { throw new Error('Storage full'); };
   h.player.start();
   await flush();
   assert.match(h.player.snapshot().message, /Storage full/);
+  assert.equal(h.deck.snapshot().seen, 1);
+  assert.equal(h.timers.size, 0);
+});
+
+test('Auto off automatically reveals the current answer and never draws another', async () => {
+  const h = harness();
+  await h.deck.next();
+  h.player.present({ audio: false, auto: false });
+  await flush();
+  assert.equal(h.player.snapshot().auto, false);
+  await h.timers.tick(2999);
+  assert.equal(h.deck.snapshot().answer, '');
+  await h.timers.tick(1);
+  assert.equal(h.deck.snapshot().answer, 'Answer one');
+  await h.timers.tick(60000);
+  assert.equal(h.deck.snapshot().seen, 1);
+  assert.equal(h.timers.size, 0);
+});
+
+test('Auto resumes after an already-revealed item without reading it again', async () => {
+  const h = harness();
+  await h.deck.next();
+  h.player.present({ audio: false });
+  await flush();
+  await h.timers.tick(3000);
+  h.player.setAuto(true, { audio: true });
+  await flush();
+  assert.equal(h.speechJobs.length, 0);
+  await h.timers.tick(3000);
+  assert.equal(h.deck.snapshot().seen, 2);
+  assert.equal(h.speechJobs[0].text, 'Prompt two');
+  h.player.stop();
+});
+
+test('deliberately enabling Auto on a silent restored prompt enables preferred speech', async () => {
+  const h = harness();
+  await h.deck.next();
+  h.player.present({ audio: false });
+  await flush();
+  h.player.setAuto(true, { audio: true });
+  await flush();
+  assert.equal(h.speechJobs[0].text, 'Prompt one');
+  assert.equal(h.timers.size, 0, 'the silent answer timer was cancelled');
+  assert.equal(h.deck.snapshot().seen, 1);
+  assert.equal(h.player.snapshot().auto, true);
+  h.player.stop();
+});
+
+test('Next cancels an old answer timer and continues Auto with the new item', async () => {
+  const h = harness([fixture('one'), fixture('two'), fixture('three')]);
+  h.player.start({ audio: false });
+  await flush();
+  await h.timers.tick(2000);
+  const auto = h.player.snapshot().auto;
+  h.player.stop();
+  await h.player.settled();
+  await h.deck.next({ freshOnly: true });
+  h.player.present({ auto, audio: false });
+  await flush();
+  await h.timers.tick(1000);
+  assert.equal(h.deck.snapshot().item.id, 'two');
+  assert.equal(h.deck.snapshot().answer, '', 'old answer timer cannot reveal the next answer early');
+  await h.timers.tick(2000);
+  assert.equal(h.deck.snapshot().answer, 'Answer two');
+  await h.timers.tick(3000);
+  assert.equal(h.deck.snapshot().item.id, 'three');
+  assert.equal(h.player.snapshot().auto, true);
+  h.player.stop();
+});
+
+test('turning Auto off during prompt speech still completes and reveals the answer', async () => {
+  const h = harness();
+  h.player.start();
+  await flush();
+  h.player.setAuto(false);
+  assert.equal(h.speechJobs[0].signal.aborted, false);
+  h.speechJobs[0].finish();
+  await flush();
+  await h.timers.tick(3000);
+  assert.equal(h.deck.snapshot().answer, 'Answer one');
+  h.speechJobs[1].finish();
+  await flush();
+  assert.equal(h.player.snapshot().mode, 'idle');
+  assert.equal(h.player.snapshot().auto, false);
+  assert.equal(h.timers.size, 0);
+});
+
+test('game answers reveal automatically but games never auto-advance', async () => {
+  const h = harness([
+    { ...fixture('one', 'games'), instructions: 'Play at your pace.' },
+    { ...fixture('two', 'games'), instructions: 'Take turns.' }
+  ]);
+  await h.deck.select('games');
+  await h.deck.next();
+  h.player.present({ auto: true, audio: false });
+  await flush();
+  await h.timers.tick(120000);
+  assert.equal(h.deck.snapshot().answer, 'Answer one');
+  assert.equal(h.deck.snapshot().seen, 1);
+  assert.equal(h.player.snapshot().auto, false);
+  assert.equal(h.timers.size, 0);
+});
+
+test('settings/cancellation restart only the current visual answer; no stale speech completion', async () => {
+  const h = harness();
+  h.player.start();
+  await flush();
+  const oldSpeech = h.speechJobs[0];
+  h.player.stop('Settings changed');
+  h.player.present({ auto: false, audio: false, pace: 'short' });
+  oldSpeech.finish();
+  await flush();
+  await h.timers.tick(2000);
+  assert.equal(h.deck.snapshot().answer, 'Answer one');
+  assert.equal(h.speechJobs.length, 1);
   assert.equal(h.deck.snapshot().seen, 1);
   assert.equal(h.timers.size, 0);
 });
@@ -275,6 +391,24 @@ test('pausing during answer speech cancels it and resumes that answer, not anoth
   assert.equal(h.deck.snapshot().seen, 1);
   assert.equal(h.deck.snapshot().answer, 'Answer one');
   h.player.stop();
+});
+
+test('long Wiki narration is not cancelled at the short-prompt time limit', async () => {
+  const timers = clock();
+  let utterance, completed = false;
+  const reader = createSpeechReader({
+    timers, Utterance: class { constructor(text) { this.text = text; } },
+    synthesis: { speak: value => { utterance = value; }, cancel() {} }
+  });
+  const result = reader.say(Array(588).fill('word').join(' '), new AbortController().signal)
+    .then(() => { completed = true; });
+  utterance.onstart();
+  await timers.tick(300000);
+  assert.equal(completed, false);
+  assert.equal(typeof utterance.onend, 'function');
+  utterance.onend();
+  await result;
+  assert.equal(timers.size, 0);
 });
 
 test('speech adapter resolves only on utterance end and cancels cleanly on abort/error/timeout', async () => {
