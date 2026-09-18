@@ -32,12 +32,27 @@ function noisePlayer() {
     src.connect(gain); gain.connect(ctx.destination); src.start();
     playing = true; btn.textContent = '⏹ Stop';
   }
-  function stop() { if (src) src.stop(); playing = false; btn.textContent = '▶ Play white noise'; }
-  window.addEventListener('hashchange', stop, { once: true });
+  function stop() {
+    if (src) { src.stop(); src.disconnect(); src = null; }
+    if (ctx) { ctx.close().catch(() => {}); ctx = null; }
+    playing = false; btn.textContent = '▶ Play white noise';
+  }
+  function disposeNoise() {
+    stop();
+    window.removeEventListener('hashchange', disposeNoise);
+    window.removeEventListener('emergencyopen', disposeNoise);
+    window.removeEventListener('pagehide', stop);
+    document.removeEventListener('visibilitychange', hideNoise);
+  }
+  function hideNoise() { if (document.hidden) stop(); }
+  window.addEventListener('hashchange', disposeNoise);
+  window.addEventListener('emergencyopen', disposeNoise);
+  window.addEventListener('pagehide', stop);
+  document.addEventListener('visibilitychange', hideNoise);
   return h('div', { class: 'card' }, [h('h3', {}, '🌊 White noise / Calm'), label, btn, h('label', { class: 'field' }, 'Volume'), vol]);
 }
 
-async function gamesCard() {
+async function gamesCard(signal) {
   const card = h('section', { class: 'card entertainment-player', 'aria-label': 'Entertainment player' },
     h('header', { class: 'player-heading' }, [
       h('p', { class: 'player-eyebrow' }, 'A moment for you'),
@@ -100,8 +115,10 @@ async function gamesCard() {
       voiceSettings.dispose();
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('hashchange', dispose);
+      window.removeEventListener('emergencyopen', dispose);
       window.removeEventListener('pagehide', pagehide);
       window.removeEventListener('pageshow', visibility);
+      signal?.removeEventListener('abort', dispose);
     }
     async function visibility() {
       if (document.hidden) {
@@ -120,9 +137,11 @@ async function gamesCard() {
       stopSpeaking();
     }
     // A delayed pack load must not attach playback handlers to a route already left.
-    if (location.hash !== enteredRoute) { dispose(); return card; }
+    if (signal?.aborted || location.hash !== enteredRoute) { dispose(); return card; }
+    signal?.addEventListener('abort', dispose, { once: true });
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('hashchange', dispose);
+    window.addEventListener('emergencyopen', dispose);
     window.addEventListener('pagehide', pagehide);
     window.addEventListener('pageshow', visibility);
     function changeSettings() {
@@ -266,7 +285,7 @@ function renderLive(view) {
   );
 }
 
-export async function renderEntertain(view, param) {
+export async function renderEntertain(view, param, signal) {
   view.innerHTML = '';
   if (param === 'live') { renderLive(view); return; }
 
@@ -288,6 +307,6 @@ export async function renderEntertain(view, param) {
       ])
     ])
   );
-  const games = await gamesCard();
-  if (view.contains(loading)) loading.replaceWith(games);
+  const games = await gamesCard(signal);
+  if (!signal?.aborted && view.contains(loading)) loading.replaceWith(games);
 }

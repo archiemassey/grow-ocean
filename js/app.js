@@ -4,16 +4,20 @@
    and registers the service worker that makes the app work offline. */
 
 import { renderHome } from './views/home.js';
+import { renderBoat } from './views/boat.js';
 import { renderWiki } from './views/wiki.js';
 import { renderReminders } from './views/reminders.js';
 import { renderChecklists } from './views/checklists.js';
 import { renderLog } from './views/log.js';
 import { renderEntertain } from './views/entertain.js';
+import { renderProcedures } from './views/procedures.js';
 import { renderFeedback } from './views/feedback.js';
 import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
 import { initAppUpdates } from './updates.js';
 import { createSpeechReader } from './hands-free.js';
+import { primaryTab, parentRoute, EMERGENCY_ROUTES } from './navigation.js';
+import { initShiftClock, mountShiftStrip } from './shift-state.js';
 
 const view = document.getElementById('view');
 const tabbar = document.getElementById('tabbar');
@@ -21,15 +25,15 @@ const backBtn = document.getElementById('backBtn');
 const topTitle = document.getElementById('topTitle');
 const netStatus = document.getElementById('netStatus');
 
-const TAB_FOR = { home:'home', wiki:'wiki', reminders:'reminders', checklists:'checklists', log:'log', entertain:'entertain' };
-
 const routes = {
   home: { title: 'gROW Ocean', tab: 'home', render: renderHome },
+  boat: { title: 'Boat', tab: 'boat', render: renderBoat },
   wiki: { title: 'Quick Wiki', tab: 'wiki', render: renderWiki },
   reminders: { title: 'Reminders', tab: 'reminders', render: renderReminders },
   checklists: { title: 'Checklists', tab: 'checklists', render: renderChecklists },
   log: { title: 'Event Log', tab: 'log', render: renderLog },
   entertain: { title: 'Morale & Media', tab: 'entertain', render: renderEntertain },
+  procedures: { title: 'Emergency procedures', tab: 'home', render: renderProcedures },
   feedback: { title: 'App Feedback', tab: 'home', render: renderFeedback },
   shortcuts: { title: 'Siri Setup', tab: 'home', render: renderShortcuts }
 };
@@ -130,27 +134,37 @@ function parseHash() {
   return { name: routes[name] ? name : 'home', param: rest.join('/') };
 }
 
+let routeController;
 async function router() {
   stopSpeaking();
+  routeController?.abort();
+  const controller = routeController = new AbortController();
   const { name, param } = parseHash();
   const route = routes[name];
   topTitle.textContent = route.title;
 
-  // Back button shows when we're on a sub-screen (a route param exists).
-  backBtn.hidden = !param;
-  backBtn.onclick = () => history.length > 1 ? history.back() : go('#/' + name);
+  const parent = parentRoute(name, param);
+  backBtn.hidden = !parent;
+  backBtn.onclick = () => go(parent);
 
   // Highlight active tab.
-  [...tabbar.querySelectorAll('.tab')].forEach((a) =>
-    a.classList.toggle('active', a.dataset.tab === TAB_FOR[route.tab]));
+  [...tabbar.querySelectorAll('.tab')].forEach(a => {
+    const active = a.dataset.tab === primaryTab(name);
+    a.classList.toggle('active', active);
+    if (active) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
 
-  view.innerHTML = '';
+  // An old async render may finish, but can never append into the new route.
+  const content = h('div', { class: 'route-content' });
+  view.replaceChildren(content);
   try {
-    await route.render(view, decodeURIComponent(param || ''));
+    await route.render(content, decodeURIComponent(param || ''), controller.signal);
   } catch (err) {
     console.error(err);
-    view.append(h('div', { class: 'empty' }, 'Something went wrong loading this screen.'));
+    content.append(h('div', { class: 'empty' }, 'Something went wrong loading this screen.'));
   }
+  if (controller.signal.aborted) return;
   view.focus({ preventScroll: true });
   window.scrollTo(0, 0);
 }
@@ -166,8 +180,33 @@ window.addEventListener('offline', updateNet);
 
 /* ---------- boot ---------- */
 window.addEventListener('hashchange', router);
+document.addEventListener('click', event => {
+  const link = event.target.closest('a');
+  if (!link || !EMERGENCY_ROUTES.includes(link.getAttribute('href'))) return;
+  // Stop Auto, queued speech and media synchronously, even on the current route.
+  stopSpeaking();
+  window.dispatchEvent(new Event('emergencyopen'));
+  event.preventDefault();
+  const target = link.getAttribute('href');
+  if (location.hash === target) {
+    view.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
+  else go(target);
+});
 window.addEventListener('DOMContentLoaded', () => {
   updateNet();
+  mountShiftStrip(document.getElementById('shiftStrip'));
+  initShiftClock();
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) document.documentElement.style.setProperty(
+        entry.target.id === 'primaryDock' ? '--dock-height' : '--shift-height',
+        `${entry.target.getBoundingClientRect().height}px`);
+    });
+    observer.observe(document.getElementById('primaryDock'));
+    observer.observe(document.getElementById('shiftStrip'));
+  }
   router();
   initReminderEngine();
 });

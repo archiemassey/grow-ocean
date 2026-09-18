@@ -97,7 +97,7 @@ test('the category UI distinguishes restored items from Next unseen item and lab
       nodes.push(node);
       return node;
     }
-    const gamesSource = source.slice(source.indexOf('async function gamesCard()'), source.indexOf('function mediaCard()'))
+    const gamesSource = source.slice(source.indexOf('async function gamesCard('), source.indexOf('function mediaCard()'))
       .replace('import.meta.url', JSON.stringify('https://example.test/js/views/entertain.js'));
     const render = runInNewContext(gamesSource + '\ngamesCard;', {
       h, CATEGORIES, createDeck: (content, storage) => createDeck(content, storage, () => 0),
@@ -177,6 +177,11 @@ test('the category UI distinguishes restored items from Next unseen item and lab
     window.dispatchEvent(new Event('pageshow'));
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(start.textContent, 'Auto Off', 'back-forward page restoration never resumes Auto');
+    start.onclick();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(start.textContent, 'Auto On');
+    window.dispatchEvent(new Event('emergencyopen'));
+    assert.equal(jobs.size, 0, 'emergency click disposes playback before hash navigation');
     window.dispatchEvent(new Event('hashchange'));
     assert.equal(jobs.size, 0);
     const before = structuredClone([...saved]);

@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v9** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v10** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v9** in Home's About disclosure and **Next** / **Auto Off** under the Morale category selector.
+Look for **grow-ocean-v10** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -50,7 +50,31 @@ release process where service workers are unavailable.
 
 ---
 
-## The six functions
+## Navigation and boat functions
+
+**v10 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
+Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
+Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
+highlight Boat. The app Back button goes to the section parent (then Boat), including
+cold-start deep links; the browser Back gesture still follows your actual history.
+
+The **compact shift strip stays visible on every screen**. Tap it for Home's full shift
+controls. It names Rower 1 / Rower 2 and shows a timestamp-based countdown, with explicit
+“No shift running”, “Handover in ≤10 min” and “Overdue” text, not colour alone.
+The **MOB / Mayday / EPIRB shortcuts are on Home only**, in the prominent Emergency
+procedures section below the timer. Tap Home from any screen to reach them. They open
+instructions, not radio transmissions or distress activation. Emergency navigation stops
+entertainment Auto, timed reveals, speech and white noise. Only the compact shift strip
+and four-tab navigation stay pinned; there is no global emergency bar taking screen space.
+The navigation respects safe areas and entertainment controls sit above it; on short
+screens those player controls scroll normally to leave room for the activity.
+No emergency approval/review banners are shipped in the app.
+
+Home keeps **This shift first**, followed by the timer, **Record handover** (existing watch
+log), due reminders and collapsed About & updates. Reset requires confirmation. The mocked
+live metrics are no longer on Home; the explicitly labelled prototype remains in Boat and
+Entertainment. Log forms, recordings, settings and entertainment no-repeat histories are unchanged.
 
 | # | Function | What it does | Source "Type" |
 |---|----------|--------------|---------------|
@@ -62,10 +86,10 @@ release process where service workers are unavailable.
 | 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, media placeholders and journal/live-data links. Awe/perspective is on Home. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
-and one-tap emergency access, a **Live race data** page (race/VMG/weather routing via
+and one-tap emergency procedures on Home, a **Live race data** page (race/VMG/weather routing via
 "Dorado") shown as **mocked placeholders** ready to wire to a real tracker later, an
 **App feedback** screen where the crew can capture ideas/issues offline and export them to
-share when back in range, and a **Siri setup** page (Home → 🗣 **Siri setup**) that gives
+share when back in range, and a **Siri setup** page (Boat → **Siri setup**) that gives
 hands-free voice phrases (see below).
 
 ### Hands-free with Siri (e.g. "Hey Siri, Man Overboard")
@@ -97,7 +121,7 @@ via the manifest `shortcuts`.
   the withdrawn generic sequence. Updates do not scrub it; contributors must handle review
   explicitly, outside the emergency UI.
   Wiki imports validate text fields and reject attempts to replace official rule pages.
-- **Feedback:** Home → **📝 App feedback** → type and **Save** (offline) → **⤓ Export all**
+- **Feedback:** Boat → **App feedback** → type and **Save** (offline) → **⤓ Export all**
   to send a `.txt` summary to whoever maintains the app. On land, feedback can also be raised
   on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
 
@@ -180,6 +204,8 @@ grow-ocean-app/
 │  ├─ hands-free.js           Cancellable foreground playback, speech completion and countdowns
 │  ├─ speech.js               Shared on-device English voice selection and saved playback preferences
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
+│  ├─ shift-state.js          Shared atomic shift settings, foreground clock and cross-tab refresh
+│  ├─ navigation.js           Four-tab mapping and deterministic deep-link parents
 │  ├─ safety.js               Action-critical operating conditions (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
 │  ├─ data/content.js         Prototype wiki, reminders, checklists and legacy game titles
@@ -298,7 +324,7 @@ as a banner or disclosure in operational screens.
 ### Home: a little perspective for this shift
 
 The compact **This shift** card is the first main content on Home, immediately below the
-top bar (and any necessary update notice), ahead of the timer and emergency actions.
+top bar, compact shift strip and any necessary update notice, ahead of the full timer.
 No introduction or release disclosure appears above it. Its short text and tight spacing
 keep the timer and emergency buttons nearby. It replaces Morale's random Awe card and uses a small,
 dedicated set of gentle perspective prompts, with a Star guide link and a reminder that boat
@@ -311,6 +337,22 @@ elapsed time or rower's name. Reopening Home, restarting the app, editing the du
 changing the rower name alone or continuing the same shift does not change it. Resetting
 the timer keeps the last perspective until a genuinely new shift starts. Concurrent Home
 tabs share one atomic assignment, and revisiting a known shift ID restores its saved prompt.
+
+Home and the persistent strip subscribe to one shared shift store. `shiftMin`, `shiftStart`
+and `activeRower` keep their existing IndexedDB keys. Related changes read and commit in
+one transaction; `shiftLastStart` only preserves unique shift IDs across resets and concurrent
+starts. Duration-only changes never change `shiftStart`. Failed/invalid storage is shown
+explicitly; a failed save is not presented as a successful start. Retry on Home, rather than
+clearing data. Tabs refresh through BroadcastChannel where supported and on focus/resume
+otherwise. Countdown ticks are calculated from `Date.now()` and the saved start, not decremented
+counters; returning to the foreground refreshes storage. Home unsubscribes when leaving.
+The strip is not an ARIA live region, so it does not announce every second. This is an
+on-screen timer, **not a reliable background alarm**; keep the existing native reminder
+setup and onboard watch procedures. Physical-device alarms remain a separate validation.
+
+The v10 worker precaches `shift-state.js`, `navigation.js` and `views/boat.js` with the shell;
+the existing native build copies them automatically. Bump the HTML release marker,
+`updates.js` and worker together on future releases; never clear IndexedDB during an update.
 
 For updates: curate/validate the pack, keep source attribution, bump the service-worker cache
 version **and** the matching `index.html` `app-release` marker and `js/updates.js` `APP_RELEASE`

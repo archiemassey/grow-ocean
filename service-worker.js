@@ -5,7 +5,7 @@
    internet at all (essential mid-Atlantic). Release bumps must also update the
    index.html app-release marker and updates.js APP_RELEASE (see README). */
 
-const CACHE_VERSION = 'grow-ocean-v9';
+const CACHE_VERSION = 'grow-ocean-v10';
 const APP_SHELL = [
   './',
   './index.html',
@@ -22,19 +22,27 @@ const APP_SHELL = [
   './js/hands-free.js',
   './js/speech.js',
   './js/shift-perspective.js',
+  './js/shift-state.js',
+  './js/navigation.js',
   './js/safety.js',
   './js/rules.js',
+  './js/procedures.js',
   './js/data/content.js',
   './js/data/entertainment-pack.json',
   './js/data/entertainment-base.json',
   './js/data/rules-data.js',
+  './js/data/procedures-data.js',
   './references/race-rules-wtr-atlantic-2025-v1.0.pdf',
+  './references/wtr-atlantic-2026-crisis-operations-plan.pdf',
+  './references/crisis-ops-flow-chart-wtr-2026.pdf',
   './js/views/home.js',
+  './js/views/boat.js',
   './js/views/wiki.js',
   './js/views/reminders.js',
   './js/views/checklists.js',
   './js/views/log.js',
   './js/views/entertain.js',
+  './js/views/procedures.js',
   './js/views/feedback.js',
   './js/views/shortcuts.js',
   './icons/icon-192.png',

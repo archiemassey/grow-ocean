@@ -60,6 +60,40 @@ export const db = {
   },
   setSetting(key, value) { return this.put('settings', { key, value }); },
 
+  async getSettings(defaults) {
+    const records = await this.all('settings');
+    return Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => {
+      const record = records.find(record => record.key === key);
+      return [key, record ? record.value : fallback];
+    }));
+  },
+
+  // Read and commit related settings together, including across concurrent tabs.
+  async updateSettings(defaults, update) {
+    const database = await open();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction('settings', 'readwrite');
+      const store = transaction.objectStore('settings');
+      let value, failure;
+      const request = store.getAll();
+      request.onsuccess = () => {
+        try {
+          const current = Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => {
+            const record = request.result.find(record => record.key === key);
+            return [key, record ? record.value : fallback];
+          }));
+          value = update(current);
+          for (const [key, setting] of Object.entries(value)) store.put({ key, value: setting });
+        } catch (error) {
+          failure = error;
+          transaction.abort();
+        }
+      };
+      transaction.oncomplete = () => resolve(value);
+      transaction.onerror = transaction.onabort = () => reject(failure || transaction.error);
+    });
+  },
+
   // Read and change in one transaction so two tabs cannot draw the same unseen ID.
   // The reducer must be synchronous: awaiting would let IndexedDB close the transaction.
   async updateSetting(key, update, fallback = null) {

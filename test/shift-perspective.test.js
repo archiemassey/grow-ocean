@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { getShiftPerspective, SHIFT_PERSPECTIVES } from '../js/shift-perspective.js';
+import { createShiftStore, shiftDisplay } from '../js/shift-state.js';
 
 function storage() {
   const values = new Map();
@@ -11,6 +12,19 @@ function storage() {
     values,
     async getSetting(key, fallback) { return structuredClone(values.get(key) ?? fallback); },
     async setSetting(key, value) { values.set(key, structuredClone(value)); },
+    async getSettings(defaults) {
+      return Object.fromEntries(Object.entries(defaults).map(([key, fallback]) =>
+        [key, values.has(key) ? values.get(key) : fallback]));
+    },
+    updateSettings(defaults, update) {
+      const result = queue.then(async () => {
+        const next = update(await this.getSettings(defaults));
+        for (const [key, value] of Object.entries(next)) values.set(key, structuredClone(value));
+        return next;
+      });
+      queue = result.catch(() => {});
+      return result;
+    },
     updateSetting(key, update) {
       const result = queue.then(() => {
         const value = update(structuredClone(values.get(key) ?? null));
@@ -72,9 +86,11 @@ const homeSource = (await readFile(new URL('../js/views/home.js', import.meta.ur
   .replace(/^import .*;\r?\n/gm, '').replace('export async function', 'async function');
 
 function homeHarness(db) {
-  let now = 1000, nodes = [];
+  let now = 1000, nodes = [], controller;
+  const shiftStore = createShiftStore(db, { now: () => now });
   const render = vm.runInNewContext(homeSource + '\nrenderHome;', {
-    db, getShiftPerspective, APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',
+    db, getShiftPerspective, shiftStore, shiftDisplay, window: { confirm: () => true },
+    APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',
     Date: { now: () => now }, clearInterval() {}, setInterval() { return 1; },
     CONTENT: {
       scheduled: [], meta: { disclaimer: 'Fixture notice' },
@@ -83,7 +99,8 @@ function homeHarness(db) {
     getReminderState() {}, go() {}, toast() {},
     h(tag, attrs = {}, children = []) {
       const node = {
-        tag, style: {}, ...attrs,
+        tag, style: {}, dataset: {}, ...attrs,
+        replaceChildren(...children) { this.children = children; },
         children: Array.isArray(children) ? children : [children],
         textContent: typeof children === 'string' ? children : ''
       };
@@ -94,9 +111,11 @@ function homeHarness(db) {
   return {
     time(value) { now = value; },
     async render() {
+      controller?.abort();
+      controller = new AbortController();
       nodes = [];
       const view = { children: [], append(...children) { this.children.push(...children); } };
-      await render(view);
+      await render(view, '', controller.signal);
       return view;
     },
     text: () => nodes.find(node => node.id === 'shift-perspective').textContent,

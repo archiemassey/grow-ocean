@@ -1,0 +1,1032 @@
+{
+  "documents": [
+    {
+      "documentTitle": "Crisis Ops Flow Chart WTR 2026",
+      "sourceFilename": "Crisis Ops Flow Chart WTR 2026.pdf",
+      "byteSize": 285303,
+      "sha256": "31e1f4d60f8febf80ba06b4b8f1681659502511cd9cfc0cb859e3c91fab39ae7",
+      "pageCount": 1,
+      "pages": [
+        {
+          "pageNumber": 1,
+          "text": "Crisis Operations Plan\nEMERGENCY\n1. Activate 406 mHz EPIRB\n2. Issue Mayday by VHF\nSTART 3. Contact Duty Officer (DO) +1 470-972-3338.\nIs this an emergency?\n4. If unable to contact DO call NMOC+441329244681\nIs there grave & imminent danger?\nYES 5. If unable, contact DO by any means on board\nE.g. Rower overboard\n6. Ensure all comms and AIS are on & working.\nFire, Sinking\n7. Deploy sea anchor to maintain position.\nAbandonment\nMedical Emergency 8. If you see other vessel try contacting it by any\nmeans: VHF, signalling mirror, set off hand held\nred flare or orange smoke flare.\n9. If in contact with vessel, follow instructions.\n10. Await further instruction.\nIf rower over board make every effort to recover\nthem without compromising your own safety. pg4\nIf fire or abandonment prepare life raft & grab bag\nand get foul weather gear. pg4\nIf medical emergency get medical kit and treat as\nbest you can. Await response. pg5\nNO\nInjury/Illness: Assess seriousness, treat as best as can with\nMedical Kit. Contact DO. Ensure comms on, await call from\nDO +/- race medic and support vessel. pg6.\nLoss of Communication: Try to make contact with passing\nvessel via handheld VHF, mirror, orange smoke flare and\nask them to contact DO. If situation deteriorates eg. drift\ninto shipping lanes, poor weather follow Emergency\nprotocol. pg9.\nTechnical Problem: If unresolved may turn into a Pan-Pan\nNON-EMERGENCY\nand Emergency. Contact DO via any means on board. Call\nWhat is the nature\nevery 4 hours until situation stabilises. If unable to contact\nof the problem?\nDO try Support/other vessels to contact DO. pg11.\nComplete Power Failure: Contact DO by any means\npossible. Go to pg12.\nUnconfirmed Distress: eg accidental EPIRB activation. You\nwill receive call from DO. pg7.\nEvacuation: pg12\nDuty Officer +1 470-972-3389\nDeath on Board: pg8\nNMOC +44 1329 244681"
+        }
+      ],
+      "procedures": [
+        {
+          "title": "Crisis Ops Flow Chart WTR 2026",
+          "pageRefs": [
+            1
+          ],
+          "steps": [
+            "Crisis Operations Plan",
+            "EMERGENCY",
+            "1. Activate 406 mHz EPIRB",
+            "2. Issue Mayday by VHF",
+            "START 3. Contact Duty Officer (DO) +1 470-972-3338.",
+            "Is this an emergency?",
+            "4. If unable to contact DO call NMOC+441329244681",
+            "Is there grave & imminent danger?",
+            "YES 5. If unable, contact DO by any means on board",
+            "E.g. Rower overboard",
+            "6. Ensure all comms and AIS are on & working.",
+            "Fire, Sinking",
+            "7. Deploy sea anchor to maintain position.",
+            "Abandonment",
+            "Medical Emergency 8. If you see other vessel try contacting it by any",
+            "means: VHF, signalling mirror, set off hand held",
+            "red flare or orange smoke flare.",
+            "9. If in contact with vessel, follow instructions.",
+            "10. Await further instruction.",
+            "If rower over board make every effort to recover",
+            "them without compromising your own safety. pg4",
+            "If fire or abandonment prepare life raft & grab bag",
+            "and get foul weather gear. pg4",
+            "If medical emergency get medical kit and treat as",
+            "best you can. Await response. pg5",
+            "NO",
+            "Injury/Illness: Assess seriousness, treat as best as can with",
+            "Medical Kit. Contact DO. Ensure comms on, await call from",
+            "DO +/- race medic and support vessel. pg6.",
+            "Loss of Communication: Try to make contact with passing",
+            "vessel via handheld VHF, mirror, orange smoke flare and",
+            "ask them to contact DO. If situation deteriorates eg. drift",
+            "into shipping lanes, poor weather follow Emergency",
+            "protocol. pg9.",
+            "Technical Problem: If unresolved may turn into a Pan-Pan",
+            "NON-EMERGENCY",
+            "and Emergency. Contact DO via any means on board. Call",
+            "What is the nature",
+            "every 4 hours until situation stabilises. If unable to contact",
+            "of the problem?",
+            "DO try Support/other vessels to contact DO. pg11.",
+            "Complete Power Failure: Contact DO by any means",
+            "possible. Go to pg12.",
+            "Unconfirmed Distress: eg accidental EPIRB activation. You",
+            "will receive call from DO. pg7.",
+            "Evacuation: pg12",
+            "Duty Officer +1 470-972-3389",
+            "Death on Board: pg8",
+            "NMOC +44 1329 244681"
+          ],
+          "warnings": [
+            "EMERGENCY",
+            "2. Issue Mayday by VHF",
+            "Is this an emergency?",
+            "Is there grave & imminent danger?",
+            "Medical Emergency 8. If you see other vessel try contacting it by any",
+            "If medical emergency get medical kit and treat as",
+            "into shipping lanes, poor weather follow Emergency",
+            "Technical Problem: If unresolved may turn into a Pan-Pan",
+            "NON-EMERGENCY",
+            "and Emergency. Contact DO via any means on board. Call"
+          ]
+        }
+      ]
+    },
+    {
+      "documentTitle": "WTR Atlantic 2026 - Crisis Operations Plan",
+      "sourceFilename": "WTR Atlantic 2026 - Crisis Operations Plan.pdf",
+      "byteSize": 475709,
+      "sha256": "22c6f0f135e033d515abe99a5c94bbb4a0e04a2d82baba548d6da262facce3f6",
+      "pageCount": 19,
+      "pages": [
+        {
+          "pageNumber": 1,
+          "text": "CRISIS OPERATIONS PLAN\nContents\n1. Introduction 2\n2. Incident Definitions 2\n3. Other Definitions & Emergency Contact Details 3\n4. Rowing Boat Emergency 4\n5. Medical Emergency 5\n6. Injury/Illness – Non-emergency 6\n7. Death On-board 7\n8. Unconfirmed Distress 8\n9. Total Loss of Communications/Missing Rowing Boat 9\n10. Technical Problem On-board 10\n11. Complete Failure of Power System 12\n12. Hull Breach 13\n13. Evacuation of a Rower 14\n14. Evacuation to Safety Vessel and Abandonment of a Rowing Boat 15\n15. Boats that Finish/Make Landfall in any Location Other Than Antigua 16\n16. Serious Injury/Illness in Port (Member of Race Community) 16\n17. Incident, Injury, Death Involving Team Member’s Immediate Family 17\n18. Race Management Incidents 18\n19. Reports of physical or sexual attack from a crew at sea 19\n1\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 2,
+          "text": "CRISIS OPERATIONS PLAN\n1. Introduction\nAtlantic Campaigns SL has prepared these guidelines for the World's Toughest Row - Atlantic.\nAccidents can happen and ocean rowing, by its very nature, contains elements of danger. These guidelines are designed to\nminimise the impact of any incident and protect the interests of the rowers, their relatives, Atlantic Campaigns SL, and any\nrelated sponsors.\nAny crisis, emergency or accident should be referred to as an incident.\nAn incident could occur during the pre-race lead up in La Gomera, during the race itself or after the race has finished in Antigua.\nWhilst racing in the World's Toughest Row - Atlantic, the Safety Officer is the primary channel for race communications both to\nand from the rowing boats.\nAtlantic Campaigns SL Management and the Safety Officer will make the decision as to how serious an incident is classed.\n2. Incident Definitions\nThe incidents covered in this plan are defined as:\n2.1 Emergency (Maydays)\nAn emergency is defined as ‘Grave and imminent danger to a vessel or person’. In the case of a rowing boat this could be\n(but is not restricted to) a fire on board, boat sinking, medical emergency or rower missing overboard.\n2.2 Pan-Pan\nA Pan-Pan is defined as ‘A situation that is not life threatening at the time but may later become so’. In the case of a\nrowing boat this could be discovering a leak in the boat, a medical problem, running out of food or water.\n2.3 Technical Problem\nA technical problem is defined as ‘A situation where a piece of equipment is not working correctly and, if it continues\nnot to work, the situation could turn into a Pan-Pan and potentially even into an emergency’. In the case of a rowing\nboat this could be a broken water maker or electrical problems.\n2.4 Other Miscellaneous Situations\nThis could be a family or friend of a rower involved in an incident ashore, which may require sensitive communication to the\nrowing boat.\nIt is extremely important that a rowing boat informs the Safety Officer as soon as possible if any of these situations arise.\nIt is also extremely important to be able to clarify quickly whether the situation is technical, when it has developed into a Pan-\nPan, or if it is in fact an emergency.\nThis will help the Safety Officer prioritise should they receive information of problems from more than one boat at any one\ntime.\n2\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 3,
+          "text": "CRISIS OPERATIONS PLAN\n3. Other Definitions and Emergency Contact Details\n3.1 Race Headquarters\nWhilst the rowing boats are at sea between La Gomera and Antigua, this refers to the Atlantic Campaigns SL office based in\nEurope, phone lines will be manned during normal working hours (Monday to Friday 0900-1500 UTC).\nAtlantic Campaigns SL\nCalle Ruiz de Padron 1,\n1A, San Sebastian de La Gomera,\n38800,\nSPAIN\nTel: +44 (0) 7730 788156 (Nikki)\nTel: +45 42 83 86 15 (Carsten)\nEmail: info@atlanticcampaigns.com\n3.2 Atlantic Campaigns SL Safety Officer\nThis is a nominated Atlantic Campaigns SL person who is the conduit for all communications both to and from the rowing\nboats.\nEmergency Contact +1 470-972-3389 (out of hours – strictly emergencies only)\nEmail: info@atlanticcampaigns.com\n3.3 NMOC (National Maritime Operations Centre)\nTelephone: +44 (0) 1329 244 681\nEmail: ukmrcc@hmcg.gov.uk\n3.4 Responsibilities of all Parties\nIn all circumstances surrounding an incident it should be stressed that a strict information/news embargo is in place until all\nfacts relating to the incident have been gathered and the next of kin of any persons involved have been informed. The Safety\nOfficer will advise all parties when the information/news embargo has been lifted.\nIn all incidents, overall responsibility for the management of the incident to be assumed by Atlantic Campaigns SL\nManagement in conjunction with the Safety Officer.\nIn all incidents, overall responsibility for the release of information to the public domain concerning the incident to be\nassumed by Atlantic Campaigns SL Management and implemented by the Atlantic Campaigns SL Press Officer.\nIn all incidents, all parties should avoid any speculation concerning the incident and any communication not concerned with\nproviding direct assistance.\n3\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 4,
+          "text": "CRISIS OPERATIONS PLAN\n4. Rowing Boat Emergency\nFor example – loss of rower overboard, abandonment of rowing boat due to fire or sinking.\n4.1 Rowing Boat Actions:\n4.1.1 Activate 406MHz EPIRB.\n4.1.2 Issue Mayday via VHF or any other recognised means available.\n4.1.3 Contact Safety Officer as soon as possible by any means possible and describe the nature of the emergency.\n4.1.4 If contact with the Safety Officer has not been possible, contact NMOC.\n4.1.5 Ensure that all communications equipment is switched on, working and remains switched on.\n4.1.6 Ensure AIS is switched on and working and remains switched on.\n4.1.7 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.\n4.1.8 Prepare the life raft and grab bag – in case the situation requires the use of these items.\n4.1.9 Put on safety clothing or foul weather gear (as appropriate) if abandonment of the rowing boat is likely.\n4.1.10 Keep Safety Officer informed of any developments related to the incident.\n4.1.11 When a rowing boat in difficulty sees any vessel, they should attempt to make contact with the vessel by VHF radio\nor any other means available.\n4.1.12 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or use any\nother means possible to attract attention.\n4.1.13 Follow any instructions from the vessel.\n4.1.14 In the event of a person overboard make every effort to recover them and – provided the safety of the boat is not\ncompromised – make every effort to remain in the vicinity of the person’s most likely position.\n4.2 Safety Officer Actions:\nNote: Receipt of an emergency distress message can be either from a rowing boat or the controlling MRCC.\n4.2.1 Establish and maintain an Incident log.\n4.2.2 On receiving notice of an emergency distress message or EPIRB activation, ensure that the following parties are\ninformed immediately:\nNMOC\nAtlantic Campaigns SL Management\n4.2.3 Contact Safety Vessel(s) and request assistance.\n4.2.4 Establish Safety Vessel(s) location and ETA at the rowing boat’s last know position.\n4.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.\n4.2.6 Inform all the above parties of the conclusion of the emergency incident.\n4.3 Safety Vessel Actions:\n4.3.1 Following notification from Safety Officer of emergency incident, Safety Vessel(s) to proceed directly towards the\nrowing boat in distress.\n4.3.2 Maintain regular contact with Safety Officer\n4.4 Atlantic Campaigns SL Management Actions:\n4.4.1 At the earliest opportunity, subject to the facts of the incident being established, inform the next-of-kin of all the\nparties involved.\n4.4.2 Provide next-of-kin with a contact phone number for Incident Liaison Officer (not Duty Officer).\n4.4.3 Liaise with Atlantic Campaigns SL Press Officer to draft a press statement.\n4.4.4 All staff to gather for a briefing on the incident and to take all phone enquiries relating to the incident, providing a\nprepared and agreed statement of response. Atlantic Campaigns SL Management will determine the exact\nresponse.\n4.5 Atlantic Campaigns SL Press Officer Actions:\n4.5.1 No information to be released until confirmation that next-of-kin have been informed.\n4\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 5,
+          "text": "CRISIS OPERATIONS PLAN\n5. Medical Emergency\nA Medical Emergency is described as ‘A life-threatening injury or illness on-board a rowing boat at sea’. When considering the\npotential seriousness of a medical condition it should be noted that vessels that may help could be more than 24 hours away\nfrom the rowing boat.\nAll rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.\nUrgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.\n5.1 Rowing Boat Actions:\n5.1.1 Make the patient as comfortable as possible and assess the seriousness of the injury/illness.\n5.1.2 If the injury is considered to be life threatening:\n5.1.2.1 Activate 406MHz EPIRB.\n5.1.2.2 Issue Mayday via any other recognised means available\n5.1.2.3 Contact NMOC to request urgent medical assistance.\n5.1.2.4 Contact Safety Officer as soon as possible by any means possible and describe the nature of the medical\nemergency. Be prepared to communicate with the fleet doctors.\n5.1.2.5 Ensure that all communications equipment is switched on, working and remains switched on.\n5.1.2.6 Ensure AIS is switched on and working and remains switched on.\n5.1.2.7 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.\n5.1.2.8 Keep Safety Officer informed of all developments related to the incident.\n5.1.2.9 Be in reach of the rowing boat’s full medical kit.\n5.1.2.10 Treat the patient as best you can with the medical equipment on board and await response from EPIRB\nactivation/Mayday message.\n5.1.3 If the injury/illness is not considered to be life threatening follow procedures for Illness/Injury – Non-Emergency\n5.1.4 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the\nvessel by VHF radio or any other means available.\n5.1.5 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or use\nany other means possible to attract attention.\n5.1.6 Follow any instructions from the vessel.\n5.2 Safety Officer Actions:\nNote: Receipt of a Medical Emergency message can be either from a rowing boat or NMOC.\n5.2.1 Establish and maintain an Incident Log\n5.2.2 On receiving notice of a Medical Emergency message or EPIRB activation, ensure that the following parties are\ninformed immediately:\nNMOC\nSafety Vessel(s)\nAtlantic Campaigns SL Management\nRace Medic\n5.2.3 Contact Safety Vessel(s) and request assistance\n5.2.4 Establish Safety Vessel’s location and ETA at the rowing boat’s last known position.\n5.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.\n5.2.6 Inform all the above parties of the conclusion of the medical emergency incident.\n5.3 Safety Vessel Actions:\n5.3.1 Following notification from Safety Officer of Medical Emergency incident, Safety Vessel(s) to proceed directly\ntowards the rowing boat in distress.\n5.3.2 Maintain regular contact with Safety Officer\n5.4 Atlantic Campaigns SL Management Actions:\nFollow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions\n5.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n5\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 6,
+          "text": "CRISIS OPERATIONS PLAN\n6. Injury/Illness – Non-Emergency\nA non-life-threatening injury or illness on-board a rowing boat at sea. When considering the potential seriousness of a medical\ncondition it should be noted that vessels that may help could be more than 24 hours away from the rowing boat.\nAll rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.\nUrgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.\n6.1 Rowing Boat Actions:\n6.1.1 Make the patient as comfortable as possible and assess the seriousness of the injury/illness.\n6.1.2 If the injury/illness is not considered to be life-threatening:\n6.1.2.1 The other crew member(s) should treat the patient as best they can with the medical equipment on-board\nthe rowing boat.\n6.1.2.2 Contact Safety Officer as soon as possible and accurately describe the nature of the injury/illness.\n6.1.2.3 Ensure that all communications equipment is switched on, working and remains switched on.\n6.1.2.4 Await response via satellite telephone.\n6.1.2.5 Keep Safety Officer updated of the condition of the patient.\n6.1.2.6 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the\nvessel by VHF radio or any other means available.\n6.1.2.7 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or\nuse any other means possible to attract attention.\n6.1.2.8 Follow any instructions from the vessel.\n6.2 Safety Officer Actions:\n6.2.1 Establish and maintain an Incident Log\n6.2.2 Establish the seriousness of the injury/illness and consider the potential for the illness/injury to develop into a Medical\nEmergency\n6.2.3 Contact Safety Vessel(s) and advise of non-emergency illness/injury.\n6.2.4 Request Safety Vessel to contact Rowing Boat via satellite telephone to provide medical assistance.\n6.2.5 Ensure the following parties are informed of the non-emergency injury/illness incident at the earliest opportunity:\nNMOC\nAtlantic Campaigns SL Management\nRace Medic\n6.2.6 If, after consulting with the Race Medic and Safety Vessel, it is deemed necessary for Safety Vessel assistance, request\nSafety Vessel to proceed to rowing boat position and make contact with rowing boat via any method available\n(satellite telephone, VHF, etc.)\n6.2.7 Keep all the above parties informed and inform of the conclusion of the non-emergency injury/illness incident.\n6.3 Safety Vessel Actions:\n6.3.1 Following notification from Safety Officer of a non-emergency injury/illness incident and request for assistance,\nSafety Vessel to make contact with rowing boat via any means available (satellite phone, VHF, etc.)\n6.3.2 Plot all position information on a chart and maintain this with updated positions.\n6.3.4 Maintain regular contact with Safety Officer and keep informed of potential ETA at Rowing Boat\n6.4 Atlantic Campaigns SL Actions:\n6.4.1 Follow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions\n6.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n6\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 7,
+          "text": "CRISIS OPERATIONS PLAN\n7. Death On-Board\nShould any competitor die during the course of the race:\n7.1 Rowing Boat Actions (solo entries can ignore this section):\n7.1.1 Contact Safety Officer via satellite telephone\n7.1.2 If unable to contact Safety Officer, contact NMOC via satellite telephone.\n7.1.3 If unable to contact Safety Officer or NMOC\n7.1.3.1 Issue Mayday message via VHF or any other recognised means available\n7.1.3.2 If no response to Mayday, activate your 406MHz EPIRB.\n7.1.4 Ensure that all communications equipment is switched on, working and remains switched on.\n7.1.5 Ensure AIS is switched on and working and remains switched on.\n7.1.6 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.\n7.1.7 The body must be kept on-board the rowing boat and actions taken to preserve the body in the best condition\npossible\n7.1.8 On rendezvous with the Safety Vessel, comply with any enquiry which will include providing a written and signed\nstatement along with any photographs or video to support that statement.\n7.2 Safety Officer Actions:\nNote: Receipt of an emergency distress message can be either from a rowing boat or NMOC\n7.2.1 On receiving notice of an emergency distress message or EPIRB activation ensure that the following parties are\ninformed immediately:\nNMOC\nAtlantic Campaigns SL Management\n7.2.2 Contact Safety Vessel(s) and request Safety Vessel assistance\n7.2.3 Establish Safety Vessel’s location and ETA at the rowing boat’s last known position.\n7.2.4 Establish and maintain an Incident Log\n7.2.5 Maintain contact with all the above parties and establish a communications link between the Safety Vessel(s) and\nRace Headquarters during the enquiry.\n7.3 Safety Vessel Actions:\n7.3.1 Following notification from the Safety Officer, Safety Vessel to proceed directly towards the Rowing Boat\n7.3.2 On rendezvous with rowing boat, hold an enquiry at the very first opportunity but at least within 6 hours, and\ncompile a written report which includes:\n7.3.2.1 A written and signed statement by the surviving team partner(s) and any other witnesses.\n7.3.2.2 Photographs or video to support the written report.\nNote: It is essential that all parties make a written statement of his/her observations at this time whilst the incident is fresh in\neveryone’s mind\n7.3.3 Wherever possible, the body should be retained for post-mortem examination (please refer to ‘The Ship Captain’s\nMedical Guide’ for instructions on how to prepare a body for storage or burial at sea)\n7.3.4 If it is necessary to bury the body at sea:\n7.3.4.1 Photographs and video of the burial should be taken.\n7.3.4.2 Record in the official logbook the exact time and place of burial\n7\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 8,
+          "text": "CRISIS OPERATIONS PLAN\n7.4 Atlantic Campaigns SL Management Actions:\n7.4.1 At the earliest opportunity, subject to the facts of the incident being clearly established, a member of Atlantic\nCampaigns SL Management, accompanied by a police officer will inform the next-of-kin of the people directly involved\nin person.\n7.4.2 If the next-of-kin of the people are overseas, inform them at the earliest opportunity. Consider seeking advice from\nBritish Embassy/Consulate\n7.4.3 Provide the next-of-kin with a contact phone number for an Atlantic Campaigns SL Incident Liaison Officer (not the\nSafety Officer)\n7.4.4 Liaise with Atlantic Campaigns SL Press Officer to draft a press statement.\n7.4.5 All staff to gather for a full briefing on the incident and to take all phone enquiries relating to the incident, providing a\nprepared and agreed statement and response. The exact response will be determined by Atlantic Campaigns SL\nManagement\n7.4.6 Ensure letters are written to next-of-kin – Carsten Heron Olsen CEO to follow up.\n7.4.7 Advise insurers.\n7.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n8. Unconfirmed Distress\nNMOC contacts Duty Officer and informs them of receipt of EPIRB activation or other unconfirmed distress.\n8.1 Safety Officer Actions:\n8.1.1 Establish and maintain an Incident Log\n8.1.2 Attempt to contact the rowing boat in distress via any means possible.\n8.1.3 If found to be a false activation (i.e., of EPIRB) instruct Rowing Boat to turn off EPIRB and inform DO immediately.\n8.1.4 If found to be a confirmed distress, follow procedures as described in Section 4. Rowing Boat Emergency\n8.1.5 If not able to confirm false activation within 20 minutes:\n8.1.5.1 Inform NMOC of no immediate response from rowing boat and offer communication assistance. NMOC to co-\nordinate all further actions\n8.1.5.2 Follow procedures as described in Section 4. Rowing Boat Emergency\n8.2 Safety Vessel Actions:\n8.2.1 On notification from Safety Officer of unconfirmed distress, Safety Vessel(s) to assist in making contact with rowing\nboat by all means available.\n8.2.2 Safety Vessel to notify Safety Officer immediately if contact is made with Rowing Boat and distress situation is\nestablished.\n8.2.3 Safety Vessel(s) to alter course to rowing boats last know position and await further instruction from Safety Officer\n8.2.4 If found to be a confirmed distress or unable to confirm false activation within 20 minutes, Safety Vessel(s) to follow\nprocedures as described in Section 4.4 Safety Vessel Actions\n8.3 Atlantic Campaigns SL Management Actions:\nFollow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions\nSee Section 9. Total Loss of Communication/Missing Rowing Boat\n8.4 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n8\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 9,
+          "text": "CRISIS OPERATIONS PLAN\n8.5 Rowing Boat Actions:\n8.5.1 If EPIRB is activated accidentally, turn it off.\n8.5.2 Contact Safety Officer as soon as possible and inform them.\n8.5.3 If unable to contact Safety Officer, contact NMOC and inform them.\n8.5.4 If you are unsure whether you have activated your EPIRB and you are not in distress, contact the SO or NMOC to\ncheck.\n8.5.5 If unable to contact Safety Officer or NMOC, contact RHQ and inform them.\n8.5.6 If unable to contact Safety Officer, NMOC or Race Headquarters, try any other means of communications (VHF to\nany vessel in range, other comms systems, etc.) if all communications have failed, continue to row as normal. The\nprogress indicated by the satellite tracker will give some indication to the Safety Officer that you are not in distress.\n8.5.7 If the Safety Officer, Race Headquarters, or the Safety Vessel contacts you regarding an unconfirmed distress\nincident of which you were not aware, give all information asked and follow all instructions including those above\nfor accidental EPIRB activation.\n9. Total Loss of Communications/Missing rowing boat\nTotal loss of communications could result from equipment or power supply failure; however, consideration must be given to\nfactors concerning the Rowing Boat prior to loss of communication such as weather conditions, previous equipment problems,\netc. A severe storm could conceivably roll a Rowing Boat over resulting in the loss of all communications.\n9.1 Rowing Boat Actions:\n9.1.1 If a rowing boat is aware of a total loss of communications on-board (satellite phone broken, tracking system lost or\nbroken, etc.), the Rowing Boat should try and contact a passing ship (handheld VHF, orange smoke flare, etc.) to\npass on a message to the Safety Officer or NMOC\n9.1.2 If you are unable to make any contact, continue to row normally. The SO will see your progress and will know that\nyou are not in distress. This will help them to prioritise your issue.\n9.1.3 Total loss of communications on-board a rowing boat could be caused by equipment or power failure or damage.\nTherefore, the crew should thoroughly check all equipment on the Rowing Boat\n9.1.4 If the rowing boat is in any kind of emergency and all methods of communications with the Safety Officer or NMOC\nfail, the Rowing Boat should:\n9.1.3.1 activate the 406MHz EPIRB.\n9.1.3.2 follow the procedures for Section 4. Rowing Boat Emergency where possible\n9.1.5 If a rowing boat suspects that their tracking unit is not working the Rowing Boat must advise the Safety Officer\nimmediately. If it is found to be not working the Rowing Boat must update the Safety Officer with its GPS position\nevery 12 hours by satellite telephone\n9.2 Safety Officer Actions:\n9.2.1 Establish and maintain an Incident Log\n9.2.2 unless a distress signal or EPIRB activation has been picked up, the incident will not initially be regarded as an\nemergency.\n9.2.3 the incident would only become an emergency after considering the following factors:\n9.2.3.1 Proximity to shipping lanes, dangerous rocks, shoals, etc.\n9.2.3.2 Weather conditions and sea state\n9.2.3.3 Last reported condition of the Rowing Boat and crewmembers\n9.2.3.4 Any other relevant factors\n9.2.4 Safety Officer to note the course and last position of the rowing boat and plot tracks for the Rowing Boat on the\nassumption that the Rowing Boat is:\n9.2.4.1 Still racing.\n9.2.4.2 In difficulty\n9\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 10,
+          "text": "CRISIS OPERATIONS PLAN\n9.2.5 Contact Safety Vessel(s) and request Safety Vessel assistance\n9.2.6 Establish Safety Vessel(s) location and ETA at the rowing boat’s last known position.\n9.2.7 Ensure that the following parties are informed and kept informed:\nNMOC\nAtlantic Campaigns SL Management\n9.2 8 If and when determined as an Emergency, Safety Officer to follow procedures as described in Section 4. Rowing Boat\nEmergency\n9.2.9 If the rowing boat is located safe and sound, immediately advise NMOC, Safety Vessel(s) and Atlantic Campaigns SL\nManagement\n9.3 Safety Vessel Actions:\n9.3.1 Following notification from Safety Officer of a total loss of communication from a rowing boat, Safety Vessel(s) to\nattempt to contact Rowing Boat by any means necessary.\n9.3.2 Plot all position information on a chart and maintain this with updated positions.\n9.3.3 Maintain regular contact with Safety Officer and inform of potential ETA at rowing boat.\n9.3.4 If requested by Safety Officer, divert to the estimated position of the rowing boat.\n9.4 Atlantic Campaigns SL Management Actions:\n9.4.1 Maintain regular contact with Safety Officer to establish if and when total loss of communication/missing rowing boat\nshould be considered a Rowing Boat Emergency\n9.4.2 If and when determined as an Emergency, follow procedures as described in Section 4.4 Atlantic Campaigns SL\nManagement Actions\n9.4.3 Liaise with Atlantic Campaigns SL Press Officer regarding a press statement concerning total loss of\ncommunication/missing rowing boat.\n9.4.4 Prior to the release of any press statement, inform the next-of-kin of missing rowing boat that a press statement is to\nbe made.\n9.4.5 Keep next-of-kin informed of any updated information concerning the missing rowing boat.\n9.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n10. Technical Problem On-board\nA situation where a piece of equipment is not working correctly and, if it continues to not work, the situation will turn into a\nPan-Pan and, potentially, into an emergency.\n10.1 Rowing Boat Actions:\n10.1.1 Report the incident to Safety Officer as soon as possible via any means of communications available on-board and\nfollow this up within 4 hours and thereafter at least every 12 hours until the situations stabilise.\n10.1.2 On the initial communication of this incident, clearly state that you have a Technical Problem\n10.1.3 If the Technical Problem remains unresolved and contact with the Safety Officer has not been possible, attempt to\nmake contact with the Safety Vessel(s), other rowing boats or any other vessel by any means and request Technical\nProblem message be passed on to the Safety Officer\n10\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 11,
+          "text": "CRISIS OPERATIONS PLAN\n10.2 Safety Officer Actions:\nNote: Notification of a Technical Problem may be direct from a rowing boat, via Safety Vessel, other Rowing\nBoats or any other vessel\n10.2.1 Establish and maintain an Incident Log\n10.2.2 Notify Safety Vessel(s) of the Technical Problem incident and request Safety Vessel contact rowing boat by any\nmeans possible and offer technical problem advice.\n10.2.3 Contact rowing boat shore support team (if one is present) to establish what further details about the piece of\nequipment causing the problem and how SO/Safety Vessel can assist in rectifying the problem.\n10.2.4 Use any other technical contacts available to help solve the problem (i.e., manufacturer of the defective equipment)\n10.2.5 If considered necessary, divert the nearest Safety Vessel to the rowing boat to provide technical assistance in\nresolving the technical problem.\n10.2.6 If technical problem remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat\nEmergency, contact the following parties and inform them of pending situation:\nNMOC\nSafety Vessel(s)\nAtlantic Campaigns SL Management\n10.2.7 If technical problem remains unresolved and develops into a Rowing Boat Emergency, follow procedures described\nin Section 4. Rowing Boat Emergency\n10.2.8 Following confirmation from rowing boat that Technical Problem has been resolved, notify all parties involved.\n10.3 Safety Vessel Actions:\n10.3.1 Following notification from SO, Safety Vessel(s) to assist in solving the technical problem either with advice via\nsatellite phone or any other means of communication available.\n10.3.2 Maintain regular contact (minimum every 4 hours) with SO and report all new information to SO as soon as\npractical.\n10.3.3 If requested by SO, divert to the Rowing Boat and provide further assistance in person as necessary.\n10.3.4 If the piece of equipment is found to be unresponsive but the rowing boat wishes to continue, the Safety Vessel\nshould advise the rowing boat of the risks of continuing and make every effort to find alternative solutions (i.e., if\nwater maker has broken, provide Rowing Boat with additional fresh drinking water supplies) before leaving the\nrowing boat to proceed with Safety Vessel Race duties.\n11\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 12,
+          "text": "CRISIS OPERATIONS PLAN\n11. Complete Failure of Power System\nA situation where a rowing boat’s power system fails and none of the fixed electrical components are usable. This may come on\nsuddenly because of a traumatic event to the boat or may occur slowly as a gradual failure of the crucial components of the\nelectrical system.\n11.1 Rowing Boat Actions:\n11.1.1 Contact Safety Officer as soon as possible via any means of communications available to you and\ninform them of your situation as well as confirming your management plan.\n11.1.2 Unpack your hand-held GPS, hand-held VHF, satellite phones, and torches ready to use if needed.\n11.1.3 Inspect your power system, co-ordinating with your boat builder or another technical expert and\npaying attention to your batteries, solar panels, battery management system, wiring, connections,\nswitch panels and individual components in an effort to restore power.\n11.1.4 If you need to stop rowing to deal with the situation, consider streaming lines or drogues or\ndeploying your sea anchor to maintain your position relative to the sea conditions.\n11.1.5 If you can restore power, contact the SO to inform them of this.\n11.1.6 If you cannot restore power, unpack your manual water maker, independent charging system, spare batteries and\ncharts and plan your management of navigation, communications and water making and communicate this plan to\nthe SO.\n11.1.7 Ensure that you strictly adhere to the requirement to have your race management satellite phone on for a\nspecified period each day and limit the use of your personal satellite phone in case you need to use its battery.\nBear in mind that your satellite tracker has its own independent battery and will continue to transmit your position\nevery 4 hours.\n11.1.8 Navigate by dead reckoning using your compass and manual steering. Your hand-held GPS can be used to monitor\nyour position but may be battery hungry so consider only switching it on once or twice a day. Keep a paper log of\nyour daily position. If the compass cannot be used for any reason, use the sunrise or sunset to estimate bearing.\nTo check your speed over water, you can record the time in seconds that a floating object floats 10 metres back\nfrom where you drop it.\n11.1.9 if another vessel is sighted in your vicinity at night, your torches, strobes, or flares can be used in place of your\nnavigation light to identify your position.\n11.1.10 Making safe landfall is a concern. You should have a rough idea of your position from dead reckoning and should\ncheck your GPS more frequently as you approach shore. If in doubt, assume you are one or more days closer. The\nloom of light over the horizon can be seen about 40 miles out from the island and clouds tend to form over land\ngiving you a natural indication. You are also likely to see increased bird activity with different bird species as you\napproach land. If your position is uncertain you may want to slow down or deploy your sea anchor so that you can\nwait overnight and close the shore in daylight. Bear in mind that, if you have one aboard, a mobile phone should\ngain signal as you approach land and provide an additional method of communication.\n11.1.11 In preparation to deal with a partial or total failure of your power system, maintain a daily log at all\ntimes during your crossing, input waypoints into your hand-held GPS prior to race start. Consider\nkeeping your hand-held electronics with spare batteries in a waterproof back and in a metal box for\nlightning protection and having a 10-metre line to help you when estimating speed using a floating\nobject.\n12\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 13,
+          "text": "CRISIS OPERATIONS PLAN\n12. Hull Breach\nA situation where the hull of the ocean rowing boat is breached or holed, and seawater is being taken on board into either the\naccommodation cabins or the row deck storage hatches.\n12.1 Rowing Boat Actions:\n12.1.1 Report the incident to Safety Officer as soon as possible via any means of communications available on-board and\nfollow this up within 4 hours and thereafter at least every 12 hours until the situation stabilises.\n12.1.2 On the initial communication of this incident, clearly state that you have suffered a Hull Breach, report any injuries\nsustained because of the hull breach and the circumstances under which it occurred.\n12.1.3 Assess the damage and attempt to affect a repair. If breach has occurred in one cabin it can be lifted clear of the\nwater by moving weight and crew to the other cabin, allowing some of the water taken on to drain and provide better\naccess to the damaged area. If the item that has breached the hull is still firmly plugging the hole it caused consider\nsealing it in position with epoxy resin, marine sealant, or two-part mix. If the item has pulled clear of its hole use bungs\nor epoxy putty and apply with epoxy resin, marine sealant, or two-part mix to seal in position. Waterproof roll top\nbags can be cut into patches of increasing size and applied with epoxy over holes. Holes in storage hatches on deck can\nbe managed by inflating a fender in the hatch until such time as a more permanent repair can be applied.\n12.1.4 External damage below the water line should be assessed only when conditions allow safe entry to the water.\n12.1.5 If any injuries are sustained by members of the crew because of the Hull Breach incident follow procedures described\nin Section 5. Medical Emergency or Section 6. Injury/Illness – Non-Emergency as required.\n12.2 Safety Officer Actions:\n12.2.1 Establish and maintain an Incident Log\n12.2.2 If considered necessary, divert the nearest Safety Vessel to the rowing boat to shadow the stricken ORB until such\ntime as any repair is proven or to offer advice and assistance if required.\n12.2.3 Contact rowing boat shore support team (if one is present) to establish what further details about the piece of\nequipment causing the problem and how SO/Safety Vessel can assist in rectifying the problem.\n12.2.4 Use any other contacts available to help solve the problem (i.e., boat manufacturer)\n12.2.5 If hull breach remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat Emergency,\ncontact the following parties and inform them of pending situation:\nNMOC\nSafety Vessel(s)\nAtlantic Campaigns SL Management\n12.2.6 If Hull Breach incident remains unresolved and develops into a Rowing Boat Emergency, follow procedures described\nin Section 4. Rowing Boat Emergency\n12.2.7 Following confirmation from rowing boat that Hull Breach has been resolved, notify all parties involved.\n13\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 14,
+          "text": "CRISIS OPERATIONS PLAN\n13. Evacuation of a Rower\nIf it becomes necessary for one or more rowers to evacuate their rowing boat – be it for medical, safety or personal reasons – on\nto a Safety Vessel or any other vessel.\n13.1 Safety Officer Actions:\n13.1.1 Maintain an Incident Log\n13.1.2 Notify NMOC of the incident and confirm rowing boat and evacuated rower’s name.\n13.1.3 Notify Atlantic Campaigns SL Management\n13.2 Safety Vessel Actions:\n13.2.1 Before evacuating a rower, the skipper shall advise the evacuating rower that they could be on-board the Safety\nVessel until the very end of the Race in Antigua and that – when fit to do so – they will be expected to form part of\nthe crew watch system on-board the Safety Vessel\n13.2.2 The skipper of the Safety Vessel should advise the remaining rower(s) on-board the rowing boat that the Rowing\nBoat will no longer be part of the race and will not be allocated a race position on finishing.\n13.2.3 If the remaining rower(s) is/are determined to continue, the skipper of the Safety Vessel shall request that the\nremaining rower(s) sign a Disclaimer Form acknowledging the safety implications of continuing with reduced\nrowing boat crew.\n13.3 Rowing Boat Actions:\n13.3.1 The need to evacuate will likely occur after other incidents and the procedures for those incidents should be\nfollowed up until the evacuation.\n13.3.2 Lifejackets are to be always worn when evacuating or abandoning the rowing boat.\n13.3.3 If time allows and if appropriate, remove essential items such as any necessary medication, EPIRB, passports,\ncurrency, clothing, sleeping bag, life raft, etc.\n13.3.4 When evacuating the rowing boat follow the instructions from the skipper of the vessel that you are evacuating to.\n13.3.5 If any rowers intend to remain on-board the rowing boat and continue their crossing, they need to sign a\nDisclaimer Form acknowledging the safety implications of continuing with reduced crew. They should also be\naware that their decision to continue is theirs alone and that they might not be allocated a race position on\nfinishing their crossing.\n13.4 Atlantic Campaigns SL Management Actions:\n13.4.1 Advise next-of-kin of rower being evacuated.\n13.4.2 Liaise with the Atlantic Campaigns SL Press Officer regarding press statement.\n13.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n14\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 15,
+          "text": "CRISIS OPERATIONS PLAN\n14. Evacuation to Safety Vessel and Abandonment of a Rowing Boat\n14.1 Rowing Boat Actions:\n14.1.1 Lifejackets are to be worn at all times when evacuating/abandoning Rowing Boat\n14.1.2 If time prevails, remove essential items (i.e., any necessary medication, EPIRB, passports, currency, clothing, sleeping\nbag, life raft, other personal items may be removed at the discretion of the Safety Vessel skipper)\n14.1.3 When evacuating rowing boat, follow instructions from the Safety Vessel\n14.2 Safety Officer Actions:\n14.2.1 Maintain Incident Log\n14.2.2 Following confirmation from Safety Vessel of evacuation from/abandonment of rowing boat, notify Atlantic\nCampaigns SL Management\n14.2.3 Notify NMOC of evacuation and abandonment of rowing boat informing:\nLocation of EPIRB and other beacons\nAbandoned Rowing Boat situation (tracking system status, Rowing Boat taken in tow, etc.)\n14.2.4 Notify supplier of tracking system of abandonment of rowing boat informing location of tracking system beacon (i.e.,\nis it aboard the Safety Vessel or left on the abandoned Rowing Boat?)\n14.3 Safety Vessel Actions:\n14.3.1 If conditions and time prevails, remove any essential items from the rowing boat including safety equipment and\nfood.\n14.3.2 Contact SO to advise that rowers are on-board the Safety Vessel and discuss options for action to take with the\nabandoned Rowing Boat\n14.3.3 Following communication with SO, the decision to take the rowing boat in tow is at the skipper’s discretion.\n14.3.4 Sensitivity should be shown to the evacuated rower(s) throughout the whole process.\n14.4 Atlantic Campaigns SL Management Actions:\n14.4.1 Advise next-of-kin of rower(s) evacuated.\n14.4.2 Liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.\n14.5 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n15\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 16,
+          "text": "CRISIS OPERATIONS PLAN\n15. Rowing Boats That Finish/Make Landfall in Any Location Other Than\nAntigua\nAny rowing boats that miss the official line in Antigua but cross the line of longitude 61o00’W will have completed the crossing\nbut will not be eligible for official race placing.\n15.1 Rowing Boat Actions:\n15.1.1 Any rowing boat the finishes or reaches land in any location other than Antigua shall:\n15.1.1.1 Notify the SO at the earliest opportunity of their whereabouts and physical condition.\n15.1.1.2 Be responsible for any Immigration and Customs formalities.\n15.1.1.3 Arrange transportation for both them and their rowing boat to either Antigua or their home country.\n15.2 Safety Officer Actions:\n15.2.1 Maintain Incident Log\n15.2.2 Notify Atlantic Campaigns SL Management\n15.3 Atlantic Campaigns SL Management Actions:\n15.3.1 Notify the next-of-kin of all parties involved in the situation.\n15.3.2 Liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.\n15.4 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n16. Serious Injury/Illness in Port (Member of the Race Community)\nIf a competitor or member of the race community suffers a serious injury or illness at the race start or finish.\n16.1 Competitor Actions:\n16.1.1 Advise a member of Atlantic Campaigns SL of the incident as soon as possible.\n16.1.2 Ensure that a member of Atlantic Campaigns SL port logistics team receives regular updates of the patient’s\ncondition.\n16.2 Atlantic Campaigns SL Management Actions:\n16.2.1 CEO, Carsten Heron Olsen, to inform next-of-kin of all parties involved in the incident.\n16.3 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.6 Atlantic Campaigns SL Press Officer Actions\n16\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 17,
+          "text": "CRISIS OPERATIONS PLAN\n17. Incident, Injury or Death Involving a Crew Member’s Immediate Family\nDue to the nature of the race, all competitors have been asked to sign a form stating whether they wish to be informed of a\nfamily incident or bereavement whilst competing in the race. Competitors have also been asked to discuss their\nwishes/intentions with their family prior to the start of the race.\nIf a rower states that they do not wish to be informed of a family incident/bereavement whilst competing in the Race, a member\nof the Atlantic Campaigns SL Management Team or a family member will inform the rower of incident/bereavement on arrival in\nAntigua.\n17.1 Next-of-kin Actions:\n17.1.1 Inform RHQ/SO of the details.\n17.2 SO Actions:\n17.2.1 Establish location of Safety Vessel(s) in relation to competitor in question.\n17.2.2 If Safety Vessel is within a one-day range and not required on any other emergency, SO to request Safety Vessel to\ndivert to the rowing boat and inform the competitor of the incident in person. If this is not possible, SO will contact\nthe rowing boat via any means available.\n17.3 Atlantic Campaigns SL Management Actions:\n17.3.1 Overall responsibility for the management of the incident to be assumed by Atlantic Campaigns SL Management\n17\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 18,
+          "text": "CRISIS OPERATIONS PLAN\n18. Race Management Incidents\n18.1 Requirement to Change Ports\nPolitics, war, riots, epidemic or a natural disaster could force a change of port. In the unlikely event that a port is changed, the\nfollowing people will be informed immediately after the decision has been made by Atlantic Campaigns SL Management:\nAll registered rowers\nAtlantic Campaigns SL staff\nNominated contacts of rowers\nHost ports (La Gomera & English Harbour. Antigua)\nPort officials\nAtlantic Campaigns SL Management will make a press announcement in conjunction with the Atlantic Campaigns SL Press\nOfficer\n18.2 Postponement of the Start\nThe race start may have to be postponed due to bad weather. The decision to postpone the race start would be taken by\nAtlantic Campaigns SL Management. In the event of a postponement, Atlantic Campaigns SL Management will immediately\ninform the following:\nAll registered rowers\nAtlantic Campaigns SL staff\nPort officials\nInsurers\nLength of the delay will depend on the severity of the weather.\n18.3 Fire in Race Facilities in Host Ports\nInform Atlantic Campaigns SL Management\nArrange for local temporary facilities.\n18.4 Incident Involving a Safety Vessel\nThis could be an incident of any kind (medical emergency, technical problem, etc.)\n18.4.1 Safety Vessel Actions:\n18.4.1.1 If the incident is life threatening, the Safety Vessel shall activate the 406MHz EPIRB and follow standard Mayday\nprocedures.\n18.4.1.2 If the incident is non-life threatening, the Safety Vessel should notify the DO of the full details of the incident at the\nearlier opportunity.\n18.4.2 Safety Officer Actions:\n18.4.2.1 The SO shall provide incident assistance to the Safety Vessel in line with rowing boat incident procedures.\n18.4.3 Atlantic Campaigns SL Management Actions:\n18.4.3.1 At the earliest opportunity, Atlantic Campaigns SL Management shall contact the owners of the Safety Vessel and\nthe next-of-kin of all parties involved.\n18\n© Atlantic Campaigns. All rights reserved."
+        },
+        {
+          "pageNumber": 19,
+          "text": "CRISIS OPERATIONS PLAN\n19. Reports of physical or sexual attack from a crew at sea.\nIf any crewmember suffers or witnesses any form of physical, sexual or other abuse or attack by any member of their crew.\n19.1 Rowing Boat Actions:\n19.1.1 Any rower that witnesses or suffers any form of physical, sexual or other attack, or is threatened with the same,\nshall:\n19.1.1.1 Notify the SO at the earliest opportunity, by any available means, and provide key notes such as time/ date/\nname of victim/ name of perpetrators/ nature of crime/ injuries seen/ photos of injuries. These notes could be\nused as evidence and exhibited in any future witness statement.\n19.1.1.2 If witnessed and if safely possible, crewmembers should attempt to manage the situation on board, offering\nassistance and support to the victim while managing and calming any aggressor.\n19.1.1.3 If you feel your life is at threat or that you could suffer life changing injury, activate the 406MHz EPIRB.\n19.2 Safety Officer Actions:\n19.2.1 Maintain Incident Log with notes and recorded telephone conversations, this log can be used and exhibited as\nevidence.\n19.2.2 ⁠Assess if any safeguarding can be put in place or if the victim can be/ should be rescued from the boat.\n19.2.3 If within 12 miles of start or finish alert the closest police force.\n19.2.4 If greater than 12 nautical miles offshore, alert the police in the home nation of the crew and request that they\nconsider scene guard for the boat when it arrives in port to maintain any potential crime scene evidence.\n19.3 Atlantic Campaigns SL Management Actions:\n19.3.1 If appropriate, notify the next-of-kin of all parties involved in the situation.\n19.3.2 If appropriate, liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.\n19.4 Atlantic Campaigns SL Press Officer Actions:\nFollow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions\n19\n© Atlantic Campaigns. All rights reserved."
+        }
+      ],
+      "procedures": [
+        {
+          "title": "1. Introduction",
+          "pageRefs": [
+            2
+          ],
+          "steps": [
+            "Atlantic Campaigns SL has prepared these guidelines for the World's Toughest Row - Atlantic.",
+            "Accidents can happen and ocean rowing, by its very nature, contains elements of danger. These guidelines are designed to",
+            "minimise the impact of any incident and protect the interests of the rowers, their relatives, Atlantic Campaigns SL, and any",
+            "related sponsors.",
+            "Any crisis, emergency or accident should be referred to as an incident.",
+            "An incident could occur during the pre-race lead up in La Gomera, during the race itself or after the race has finished in Antigua.",
+            "Whilst racing in the World's Toughest Row - Atlantic, the Safety Officer is the primary channel for race communications both to",
+            "and from the rowing boats.",
+            "Atlantic Campaigns SL Management and the Safety Officer will make the decision as to how serious an incident is classed."
+          ],
+          "warnings": [
+            "Accidents can happen and ocean rowing, by its very nature, contains elements of danger. These guidelines are designed to",
+            "Any crisis, emergency or accident should be referred to as an incident."
+          ]
+        },
+        {
+          "title": "2. Incident Definitions",
+          "pageRefs": [
+            2
+          ],
+          "steps": [
+            "The incidents covered in this plan are defined as:",
+            "2.1 Emergency (Maydays)",
+            "An emergency is defined as ‘Grave and imminent danger to a vessel or person’. In the case of a rowing boat this could be",
+            "(but is not restricted to) a fire on board, boat sinking, medical emergency or rower missing overboard.",
+            "2.2 Pan-Pan",
+            "A Pan-Pan is defined as ‘A situation that is not life threatening at the time but may later become so’. In the case of a",
+            "rowing boat this could be discovering a leak in the boat, a medical problem, running out of food or water.",
+            "2.3 Technical Problem",
+            "A technical problem is defined as ‘A situation where a piece of equipment is not working correctly and, if it continues",
+            "not to work, the situation could turn into a Pan-Pan and potentially even into an emergency’. In the case of a rowing",
+            "boat this could be a broken water maker or electrical problems.",
+            "2.4 Other Miscellaneous Situations",
+            "This could be a family or friend of a rower involved in an incident ashore, which may require sensitive communication to the",
+            "rowing boat.",
+            "It is extremely important that a rowing boat informs the Safety Officer as soon as possible if any of these situations arise.",
+            "It is also extremely important to be able to clarify quickly whether the situation is technical, when it has developed into a Pan-",
+            "Pan, or if it is in fact an emergency.",
+            "This will help the Safety Officer prioritise should they receive information of problems from more than one boat at any one",
+            "time."
+          ],
+          "warnings": [
+            "2.1 Emergency (Maydays)",
+            "An emergency is defined as ‘Grave and imminent danger to a vessel or person’. In the case of a rowing boat this could be",
+            "(but is not restricted to) a fire on board, boat sinking, medical emergency or rower missing overboard.",
+            "2.2 Pan-Pan",
+            "A Pan-Pan is defined as ‘A situation that is not life threatening at the time but may later become so’. In the case of a",
+            "not to work, the situation could turn into a Pan-Pan and potentially even into an emergency’. In the case of a rowing",
+            "Pan, or if it is in fact an emergency."
+          ]
+        },
+        {
+          "title": "3. Other Definitions and Emergency Contact Details",
+          "pageRefs": [
+            3
+          ],
+          "steps": [
+            "3.1 Race Headquarters",
+            "Whilst the rowing boats are at sea between La Gomera and Antigua, this refers to the Atlantic Campaigns SL office based in",
+            "Europe, phone lines will be manned during normal working hours (Monday to Friday 0900-1500 UTC).",
+            "Atlantic Campaigns SL",
+            "Calle Ruiz de Padron 1,",
+            "1A, San Sebastian de La Gomera,",
+            "38800,",
+            "SPAIN",
+            "Tel: +44 (0) 7730 788156 (Nikki)",
+            "Tel: +45 42 83 86 15 (Carsten)",
+            "Email: info@atlanticcampaigns.com",
+            "3.2 Atlantic Campaigns SL Safety Officer",
+            "This is a nominated Atlantic Campaigns SL person who is the conduit for all communications both to and from the rowing",
+            "boats.",
+            "Emergency Contact +1 470-972-3389 (out of hours – strictly emergencies only)",
+            "Email: info@atlanticcampaigns.com",
+            "3.3 NMOC (National Maritime Operations Centre)",
+            "Telephone: +44 (0) 1329 244 681",
+            "Email: ukmrcc@hmcg.gov.uk",
+            "3.4 Responsibilities of all Parties",
+            "In all circumstances surrounding an incident it should be stressed that a strict information/news embargo is in place until all",
+            "facts relating to the incident have been gathered and the next of kin of any persons involved have been informed. The Safety",
+            "Officer will advise all parties when the information/news embargo has been lifted.",
+            "In all incidents, overall responsibility for the management of the incident to be assumed by Atlantic Campaigns SL",
+            "Management in conjunction with the Safety Officer.",
+            "In all incidents, overall responsibility for the release of information to the public domain concerning the incident to be",
+            "assumed by Atlantic Campaigns SL Management and implemented by the Atlantic Campaigns SL Press Officer.",
+            "In all incidents, all parties should avoid any speculation concerning the incident and any communication not concerned with",
+            "providing direct assistance."
+          ],
+          "warnings": [
+            "Emergency Contact +1 470-972-3389 (out of hours – strictly emergencies only)"
+          ]
+        },
+        {
+          "title": "4. Rowing Boat Emergency",
+          "pageRefs": [
+            4
+          ],
+          "steps": [
+            "For example – loss of rower overboard, abandonment of rowing boat due to fire or sinking.",
+            "4.1 Rowing Boat Actions:",
+            "4.1.1 Activate 406MHz EPIRB.",
+            "4.1.2 Issue Mayday via VHF or any other recognised means available.",
+            "4.1.3 Contact Safety Officer as soon as possible by any means possible and describe the nature of the emergency.",
+            "4.1.4 If contact with the Safety Officer has not been possible, contact NMOC.",
+            "4.1.5 Ensure that all communications equipment is switched on, working and remains switched on.",
+            "4.1.6 Ensure AIS is switched on and working and remains switched on.",
+            "4.1.7 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.",
+            "4.1.8 Prepare the life raft and grab bag – in case the situation requires the use of these items.",
+            "4.1.9 Put on safety clothing or foul weather gear (as appropriate) if abandonment of the rowing boat is likely.",
+            "4.1.10 Keep Safety Officer informed of any developments related to the incident.",
+            "4.1.11 When a rowing boat in difficulty sees any vessel, they should attempt to make contact with the vessel by VHF radio",
+            "or any other means available.",
+            "4.1.12 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or use any",
+            "other means possible to attract attention.",
+            "4.1.13 Follow any instructions from the vessel.",
+            "4.1.14 In the event of a person overboard make every effort to recover them and – provided the safety of the boat is not",
+            "compromised – make every effort to remain in the vicinity of the person’s most likely position.",
+            "4.2 Safety Officer Actions:",
+            "Note: Receipt of an emergency distress message can be either from a rowing boat or the controlling MRCC.",
+            "4.2.1 Establish and maintain an Incident log.",
+            "4.2.2 On receiving notice of an emergency distress message or EPIRB activation, ensure that the following parties are",
+            "informed immediately:",
+            "NMOC",
+            "Atlantic Campaigns SL Management",
+            "4.2.3 Contact Safety Vessel(s) and request assistance.",
+            "4.2.4 Establish Safety Vessel(s) location and ETA at the rowing boat’s last know position.",
+            "4.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.",
+            "4.2.6 Inform all the above parties of the conclusion of the emergency incident.",
+            "4.3 Safety Vessel Actions:",
+            "4.3.1 Following notification from Safety Officer of emergency incident, Safety Vessel(s) to proceed directly towards the",
+            "rowing boat in distress.",
+            "4.3.2 Maintain regular contact with Safety Officer",
+            "4.4 Atlantic Campaigns SL Management Actions:",
+            "4.4.1 At the earliest opportunity, subject to the facts of the incident being established, inform the next-of-kin of all the",
+            "parties involved.",
+            "4.4.2 Provide next-of-kin with a contact phone number for Incident Liaison Officer (not Duty Officer).",
+            "4.4.3 Liaise with Atlantic Campaigns SL Press Officer to draft a press statement.",
+            "4.4.4 All staff to gather for a briefing on the incident and to take all phone enquiries relating to the incident, providing a",
+            "prepared and agreed statement of response. Atlantic Campaigns SL Management will determine the exact",
+            "response.",
+            "4.5 Atlantic Campaigns SL Press Officer Actions:",
+            "4.5.1 No information to be released until confirmation that next-of-kin have been informed."
+          ],
+          "warnings": [
+            "4.1.2 Issue Mayday via VHF or any other recognised means available.",
+            "4.1.3 Contact Safety Officer as soon as possible by any means possible and describe the nature of the emergency.",
+            "Note: Receipt of an emergency distress message can be either from a rowing boat or the controlling MRCC.",
+            "4.2.2 On receiving notice of an emergency distress message or EPIRB activation, ensure that the following parties are",
+            "4.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.",
+            "4.2.6 Inform all the above parties of the conclusion of the emergency incident.",
+            "4.3.1 Following notification from Safety Officer of emergency incident, Safety Vessel(s) to proceed directly towards the"
+          ]
+        },
+        {
+          "title": "5. Medical Emergency",
+          "pageRefs": [
+            5
+          ],
+          "steps": [
+            "A Medical Emergency is described as ‘A life-threatening injury or illness on-board a rowing boat at sea’. When considering the",
+            "potential seriousness of a medical condition it should be noted that vessels that may help could be more than 24 hours away",
+            "from the rowing boat.",
+            "All rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.",
+            "Urgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.",
+            "5.1 Rowing Boat Actions:",
+            "5.1.1 Make the patient as comfortable as possible and assess the seriousness of the injury/illness.",
+            "5.1.2 If the injury is considered to be life threatening:",
+            "5.1.2.1 Activate 406MHz EPIRB.",
+            "5.1.2.2 Issue Mayday via any other recognised means available",
+            "5.1.2.3 Contact NMOC to request urgent medical assistance.",
+            "5.1.2.4 Contact Safety Officer as soon as possible by any means possible and describe the nature of the medical",
+            "emergency. Be prepared to communicate with the fleet doctors.",
+            "5.1.2.5 Ensure that all communications equipment is switched on, working and remains switched on.",
+            "5.1.2.6 Ensure AIS is switched on and working and remains switched on.",
+            "5.1.2.7 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.",
+            "5.1.2.8 Keep Safety Officer informed of all developments related to the incident.",
+            "5.1.2.9 Be in reach of the rowing boat’s full medical kit.",
+            "5.1.2.10 Treat the patient as best you can with the medical equipment on board and await response from EPIRB",
+            "activation/Mayday message.",
+            "5.1.3 If the injury/illness is not considered to be life threatening follow procedures for Illness/Injury – Non-Emergency",
+            "5.1.4 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the",
+            "vessel by VHF radio or any other means available.",
+            "5.1.5 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or use",
+            "any other means possible to attract attention.",
+            "5.1.6 Follow any instructions from the vessel.",
+            "5.2 Safety Officer Actions:",
+            "Note: Receipt of a Medical Emergency message can be either from a rowing boat or NMOC.",
+            "5.2.1 Establish and maintain an Incident Log",
+            "5.2.2 On receiving notice of a Medical Emergency message or EPIRB activation, ensure that the following parties are",
+            "informed immediately:",
+            "NMOC",
+            "Safety Vessel(s)",
+            "Atlantic Campaigns SL Management",
+            "Race Medic",
+            "5.2.3 Contact Safety Vessel(s) and request assistance",
+            "5.2.4 Establish Safety Vessel’s location and ETA at the rowing boat’s last known position.",
+            "5.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.",
+            "5.2.6 Inform all the above parties of the conclusion of the medical emergency incident.",
+            "5.3 Safety Vessel Actions:",
+            "5.3.1 Following notification from Safety Officer of Medical Emergency incident, Safety Vessel(s) to proceed directly",
+            "towards the rowing boat in distress.",
+            "5.3.2 Maintain regular contact with Safety Officer",
+            "5.4 Atlantic Campaigns SL Management Actions:",
+            "Follow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions",
+            "5.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": [
+            "A Medical Emergency is described as ‘A life-threatening injury or illness on-board a rowing boat at sea’. When considering the",
+            "All rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.",
+            "Urgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.",
+            "5.1.2.2 Issue Mayday via any other recognised means available",
+            "5.1.2.3 Contact NMOC to request urgent medical assistance.",
+            "emergency. Be prepared to communicate with the fleet doctors.",
+            "activation/Mayday message.",
+            "5.1.3 If the injury/illness is not considered to be life threatening follow procedures for Illness/Injury – Non-Emergency",
+            "5.1.4 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the",
+            "Note: Receipt of a Medical Emergency message can be either from a rowing boat or NMOC.",
+            "5.2.2 On receiving notice of a Medical Emergency message or EPIRB activation, ensure that the following parties are",
+            "5.2.5 Maintain contact with all the above parties until the emergency incident has been resolved.",
+            "5.2.6 Inform all the above parties of the conclusion of the medical emergency incident.",
+            "5.3.1 Following notification from Safety Officer of Medical Emergency incident, Safety Vessel(s) to proceed directly"
+          ]
+        },
+        {
+          "title": "6. Injury/Illness – Non-Emergency",
+          "pageRefs": [
+            6
+          ],
+          "steps": [
+            "A non-life-threatening injury or illness on-board a rowing boat at sea. When considering the potential seriousness of a medical",
+            "condition it should be noted that vessels that may help could be more than 24 hours away from the rowing boat.",
+            "All rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.",
+            "Urgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.",
+            "6.1 Rowing Boat Actions:",
+            "6.1.1 Make the patient as comfortable as possible and assess the seriousness of the injury/illness.",
+            "6.1.2 If the injury/illness is not considered to be life-threatening:",
+            "6.1.2.1 The other crew member(s) should treat the patient as best they can with the medical equipment on-board",
+            "the rowing boat.",
+            "6.1.2.2 Contact Safety Officer as soon as possible and accurately describe the nature of the injury/illness.",
+            "6.1.2.3 Ensure that all communications equipment is switched on, working and remains switched on.",
+            "6.1.2.4 Await response via satellite telephone.",
+            "6.1.2.5 Keep Safety Officer updated of the condition of the patient.",
+            "6.1.2.6 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the",
+            "vessel by VHF radio or any other means available.",
+            "6.1.2.7 If there is no response, use a signalling mirror, set off a handheld red flare, set off an orange smoke flare or",
+            "use any other means possible to attract attention.",
+            "6.1.2.8 Follow any instructions from the vessel.",
+            "6.2 Safety Officer Actions:",
+            "6.2.1 Establish and maintain an Incident Log",
+            "6.2.2 Establish the seriousness of the injury/illness and consider the potential for the illness/injury to develop into a Medical",
+            "Emergency",
+            "6.2.3 Contact Safety Vessel(s) and advise of non-emergency illness/injury.",
+            "6.2.4 Request Safety Vessel to contact Rowing Boat via satellite telephone to provide medical assistance.",
+            "6.2.5 Ensure the following parties are informed of the non-emergency injury/illness incident at the earliest opportunity:",
+            "NMOC",
+            "Atlantic Campaigns SL Management",
+            "Race Medic",
+            "6.2.6 If, after consulting with the Race Medic and Safety Vessel, it is deemed necessary for Safety Vessel assistance, request",
+            "Safety Vessel to proceed to rowing boat position and make contact with rowing boat via any method available",
+            "(satellite telephone, VHF, etc.)",
+            "6.2.7 Keep all the above parties informed and inform of the conclusion of the non-emergency injury/illness incident.",
+            "6.3 Safety Vessel Actions:",
+            "6.3.1 Following notification from Safety Officer of a non-emergency injury/illness incident and request for assistance,",
+            "Safety Vessel to make contact with rowing boat via any means available (satellite phone, VHF, etc.)",
+            "6.3.2 Plot all position information on a chart and maintain this with updated positions.",
+            "6.3.4 Maintain regular contact with Safety Officer and keep informed of potential ETA at Rowing Boat",
+            "6.4 Atlantic Campaigns SL Actions:",
+            "6.4.1 Follow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions",
+            "6.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": [
+            "All rowing boats must carry the mandatory Race Medical Kit. All rowers will hold RYA First Aid at Sea Certificate or equivalent.",
+            "Urgent medical assistance for a life-threatening injury/illness is available via satellite telephone from NMOC.",
+            "6.1.2.6 When a rowing boat with a medical emergency sees any vessel, they should attempt to make contact with the",
+            "Emergency",
+            "6.2.3 Contact Safety Vessel(s) and advise of non-emergency illness/injury.",
+            "6.2.5 Ensure the following parties are informed of the non-emergency injury/illness incident at the earliest opportunity:",
+            "6.2.7 Keep all the above parties informed and inform of the conclusion of the non-emergency injury/illness incident.",
+            "6.3.1 Following notification from Safety Officer of a non-emergency injury/illness incident and request for assistance,"
+          ]
+        },
+        {
+          "title": "7. Death On-Board",
+          "pageRefs": [
+            7,
+            8
+          ],
+          "steps": [
+            "Should any competitor die during the course of the race:",
+            "7.1 Rowing Boat Actions (solo entries can ignore this section):",
+            "7.1.1 Contact Safety Officer via satellite telephone",
+            "7.1.2 If unable to contact Safety Officer, contact NMOC via satellite telephone.",
+            "7.1.3 If unable to contact Safety Officer or NMOC",
+            "7.1.3.1 Issue Mayday message via VHF or any other recognised means available",
+            "7.1.3.2 If no response to Mayday, activate your 406MHz EPIRB.",
+            "7.1.4 Ensure that all communications equipment is switched on, working and remains switched on.",
+            "7.1.5 Ensure AIS is switched on and working and remains switched on.",
+            "7.1.6 Deploy the sea anchor to slow the movement of the rowing boat, which will reduce the search area.",
+            "7.1.7 The body must be kept on-board the rowing boat and actions taken to preserve the body in the best condition",
+            "possible",
+            "7.1.8 On rendezvous with the Safety Vessel, comply with any enquiry which will include providing a written and signed",
+            "statement along with any photographs or video to support that statement.",
+            "7.2 Safety Officer Actions:",
+            "Note: Receipt of an emergency distress message can be either from a rowing boat or NMOC",
+            "7.2.1 On receiving notice of an emergency distress message or EPIRB activation ensure that the following parties are",
+            "informed immediately:",
+            "NMOC",
+            "Atlantic Campaigns SL Management",
+            "7.2.2 Contact Safety Vessel(s) and request Safety Vessel assistance",
+            "7.2.3 Establish Safety Vessel’s location and ETA at the rowing boat’s last known position.",
+            "7.2.4 Establish and maintain an Incident Log",
+            "7.2.5 Maintain contact with all the above parties and establish a communications link between the Safety Vessel(s) and",
+            "Race Headquarters during the enquiry.",
+            "7.3 Safety Vessel Actions:",
+            "7.3.1 Following notification from the Safety Officer, Safety Vessel to proceed directly towards the Rowing Boat",
+            "7.3.2 On rendezvous with rowing boat, hold an enquiry at the very first opportunity but at least within 6 hours, and",
+            "compile a written report which includes:",
+            "7.3.2.1 A written and signed statement by the surviving team partner(s) and any other witnesses.",
+            "7.3.2.2 Photographs or video to support the written report.",
+            "Note: It is essential that all parties make a written statement of his/her observations at this time whilst the incident is fresh in",
+            "everyone’s mind",
+            "7.3.3 Wherever possible, the body should be retained for post-mortem examination (please refer to ‘The Ship Captain’s",
+            "Medical Guide’ for instructions on how to prepare a body for storage or burial at sea)",
+            "7.3.4 If it is necessary to bury the body at sea:",
+            "7.3.4.1 Photographs and video of the burial should be taken.",
+            "7.3.4.2 Record in the official logbook the exact time and place of burial",
+            "7.4 Atlantic Campaigns SL Management Actions:",
+            "7.4.1 At the earliest opportunity, subject to the facts of the incident being clearly established, a member of Atlantic",
+            "Campaigns SL Management, accompanied by a police officer will inform the next-of-kin of the people directly involved",
+            "in person.",
+            "7.4.2 If the next-of-kin of the people are overseas, inform them at the earliest opportunity. Consider seeking advice from",
+            "British Embassy/Consulate",
+            "7.4.3 Provide the next-of-kin with a contact phone number for an Atlantic Campaigns SL Incident Liaison Officer (not the",
+            "Safety Officer)",
+            "7.4.4 Liaise with Atlantic Campaigns SL Press Officer to draft a press statement.",
+            "7.4.5 All staff to gather for a full briefing on the incident and to take all phone enquiries relating to the incident, providing a",
+            "prepared and agreed statement and response. The exact response will be determined by Atlantic Campaigns SL",
+            "Management",
+            "7.4.6 Ensure letters are written to next-of-kin – Carsten Heron Olsen CEO to follow up.",
+            "7.4.7 Advise insurers.",
+            "7.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": [
+            "7.1.3.1 Issue Mayday message via VHF or any other recognised means available",
+            "7.1.3.2 If no response to Mayday, activate your 406MHz EPIRB.",
+            "7.1.7 The body must be kept on-board the rowing boat and actions taken to preserve the body in the best condition",
+            "Note: Receipt of an emergency distress message can be either from a rowing boat or NMOC",
+            "7.2.1 On receiving notice of an emergency distress message or EPIRB activation ensure that the following parties are"
+          ]
+        },
+        {
+          "title": "8. Unconfirmed Distress",
+          "pageRefs": [
+            8,
+            9
+          ],
+          "steps": [
+            "NMOC contacts Duty Officer and informs them of receipt of EPIRB activation or other unconfirmed distress.",
+            "8.1 Safety Officer Actions:",
+            "8.1.1 Establish and maintain an Incident Log",
+            "8.1.2 Attempt to contact the rowing boat in distress via any means possible.",
+            "8.1.3 If found to be a false activation (i.e., of EPIRB) instruct Rowing Boat to turn off EPIRB and inform DO immediately.",
+            "8.1.4 If found to be a confirmed distress, follow procedures as described in Section 4. Rowing Boat Emergency",
+            "8.1.5 If not able to confirm false activation within 20 minutes:",
+            "8.1.5.1 Inform NMOC of no immediate response from rowing boat and offer communication assistance. NMOC to co-",
+            "ordinate all further actions",
+            "8.1.5.2 Follow procedures as described in Section 4. Rowing Boat Emergency",
+            "8.2 Safety Vessel Actions:",
+            "8.2.1 On notification from Safety Officer of unconfirmed distress, Safety Vessel(s) to assist in making contact with rowing",
+            "boat by all means available.",
+            "8.2.2 Safety Vessel to notify Safety Officer immediately if contact is made with Rowing Boat and distress situation is",
+            "established.",
+            "8.2.3 Safety Vessel(s) to alter course to rowing boats last know position and await further instruction from Safety Officer",
+            "8.2.4 If found to be a confirmed distress or unable to confirm false activation within 20 minutes, Safety Vessel(s) to follow",
+            "procedures as described in Section 4.4 Safety Vessel Actions",
+            "8.3 Atlantic Campaigns SL Management Actions:",
+            "Follow procedures as described in Section 4.4 Atlantic Campaigns SL Management Actions",
+            "See Section 9. Total Loss of Communication/Missing Rowing Boat",
+            "8.4 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions",
+            "8.5 Rowing Boat Actions:",
+            "8.5.1 If EPIRB is activated accidentally, turn it off.",
+            "8.5.2 Contact Safety Officer as soon as possible and inform them.",
+            "8.5.3 If unable to contact Safety Officer, contact NMOC and inform them.",
+            "8.5.4 If you are unsure whether you have activated your EPIRB and you are not in distress, contact the SO or NMOC to",
+            "check.",
+            "8.5.5 If unable to contact Safety Officer or NMOC, contact RHQ and inform them.",
+            "8.5.6 If unable to contact Safety Officer, NMOC or Race Headquarters, try any other means of communications (VHF to",
+            "any vessel in range, other comms systems, etc.) if all communications have failed, continue to row as normal. The",
+            "progress indicated by the satellite tracker will give some indication to the Safety Officer that you are not in distress.",
+            "8.5.7 If the Safety Officer, Race Headquarters, or the Safety Vessel contacts you regarding an unconfirmed distress",
+            "incident of which you were not aware, give all information asked and follow all instructions including those above",
+            "for accidental EPIRB activation."
+          ],
+          "warnings": [
+            "8.1.4 If found to be a confirmed distress, follow procedures as described in Section 4. Rowing Boat Emergency",
+            "8.1.5.2 Follow procedures as described in Section 4. Rowing Boat Emergency"
+          ]
+        },
+        {
+          "title": "9. Total Loss of Communications/Missing rowing boat",
+          "pageRefs": [
+            9,
+            10
+          ],
+          "steps": [
+            "Total loss of communications could result from equipment or power supply failure; however, consideration must be given to",
+            "factors concerning the Rowing Boat prior to loss of communication such as weather conditions, previous equipment problems,",
+            "etc. A severe storm could conceivably roll a Rowing Boat over resulting in the loss of all communications.",
+            "9.1 Rowing Boat Actions:",
+            "9.1.1 If a rowing boat is aware of a total loss of communications on-board (satellite phone broken, tracking system lost or",
+            "broken, etc.), the Rowing Boat should try and contact a passing ship (handheld VHF, orange smoke flare, etc.) to",
+            "pass on a message to the Safety Officer or NMOC",
+            "9.1.2 If you are unable to make any contact, continue to row normally. The SO will see your progress and will know that",
+            "you are not in distress. This will help them to prioritise your issue.",
+            "9.1.3 Total loss of communications on-board a rowing boat could be caused by equipment or power failure or damage.",
+            "Therefore, the crew should thoroughly check all equipment on the Rowing Boat",
+            "9.1.4 If the rowing boat is in any kind of emergency and all methods of communications with the Safety Officer or NMOC",
+            "fail, the Rowing Boat should:",
+            "9.1.3.1 activate the 406MHz EPIRB.",
+            "9.1.3.2 follow the procedures for Section 4. Rowing Boat Emergency where possible",
+            "9.1.5 If a rowing boat suspects that their tracking unit is not working the Rowing Boat must advise the Safety Officer",
+            "immediately. If it is found to be not working the Rowing Boat must update the Safety Officer with its GPS position",
+            "every 12 hours by satellite telephone",
+            "9.2 Safety Officer Actions:",
+            "9.2.1 Establish and maintain an Incident Log",
+            "9.2.2 unless a distress signal or EPIRB activation has been picked up, the incident will not initially be regarded as an",
+            "emergency.",
+            "9.2.3 the incident would only become an emergency after considering the following factors:",
+            "9.2.3.1 Proximity to shipping lanes, dangerous rocks, shoals, etc.",
+            "9.2.3.2 Weather conditions and sea state",
+            "9.2.3.3 Last reported condition of the Rowing Boat and crewmembers",
+            "9.2.3.4 Any other relevant factors",
+            "9.2.4 Safety Officer to note the course and last position of the rowing boat and plot tracks for the Rowing Boat on the",
+            "assumption that the Rowing Boat is:",
+            "9.2.4.1 Still racing.",
+            "9.2.4.2 In difficulty",
+            "9.2.5 Contact Safety Vessel(s) and request Safety Vessel assistance",
+            "9.2.6 Establish Safety Vessel(s) location and ETA at the rowing boat’s last known position.",
+            "9.2.7 Ensure that the following parties are informed and kept informed:",
+            "NMOC",
+            "Atlantic Campaigns SL Management",
+            "9.2 8 If and when determined as an Emergency, Safety Officer to follow procedures as described in Section 4. Rowing Boat",
+            "Emergency",
+            "9.2.9 If the rowing boat is located safe and sound, immediately advise NMOC, Safety Vessel(s) and Atlantic Campaigns SL",
+            "Management",
+            "9.3 Safety Vessel Actions:",
+            "9.3.1 Following notification from Safety Officer of a total loss of communication from a rowing boat, Safety Vessel(s) to",
+            "attempt to contact Rowing Boat by any means necessary.",
+            "9.3.2 Plot all position information on a chart and maintain this with updated positions.",
+            "9.3.3 Maintain regular contact with Safety Officer and inform of potential ETA at rowing boat.",
+            "9.3.4 If requested by Safety Officer, divert to the estimated position of the rowing boat.",
+            "9.4 Atlantic Campaigns SL Management Actions:",
+            "9.4.1 Maintain regular contact with Safety Officer to establish if and when total loss of communication/missing rowing boat",
+            "should be considered a Rowing Boat Emergency",
+            "9.4.2 If and when determined as an Emergency, follow procedures as described in Section 4.4 Atlantic Campaigns SL",
+            "Management Actions",
+            "9.4.3 Liaise with Atlantic Campaigns SL Press Officer regarding a press statement concerning total loss of",
+            "communication/missing rowing boat.",
+            "9.4.4 Prior to the release of any press statement, inform the next-of-kin of missing rowing boat that a press statement is to",
+            "be made.",
+            "9.4.5 Keep next-of-kin informed of any updated information concerning the missing rowing boat.",
+            "9.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": [
+            "Total loss of communications could result from equipment or power supply failure; however, consideration must be given to",
+            "9.1.4 If the rowing boat is in any kind of emergency and all methods of communications with the Safety Officer or NMOC",
+            "9.1.3.2 follow the procedures for Section 4. Rowing Boat Emergency where possible",
+            "9.1.5 If a rowing boat suspects that their tracking unit is not working the Rowing Boat must advise the Safety Officer",
+            "immediately. If it is found to be not working the Rowing Boat must update the Safety Officer with its GPS position",
+            "emergency.",
+            "9.2.3 the incident would only become an emergency after considering the following factors:",
+            "9.2 8 If and when determined as an Emergency, Safety Officer to follow procedures as described in Section 4. Rowing Boat",
+            "Emergency",
+            "should be considered a Rowing Boat Emergency",
+            "9.4.2 If and when determined as an Emergency, follow procedures as described in Section 4.4 Atlantic Campaigns SL"
+          ]
+        },
+        {
+          "title": "10. Technical Problem On-board",
+          "pageRefs": [
+            10,
+            11
+          ],
+          "steps": [
+            "A situation where a piece of equipment is not working correctly and, if it continues to not work, the situation will turn into a",
+            "Pan-Pan and, potentially, into an emergency.",
+            "10.1 Rowing Boat Actions:",
+            "10.1.1 Report the incident to Safety Officer as soon as possible via any means of communications available on-board and",
+            "follow this up within 4 hours and thereafter at least every 12 hours until the situations stabilise.",
+            "10.1.2 On the initial communication of this incident, clearly state that you have a Technical Problem",
+            "10.1.3 If the Technical Problem remains unresolved and contact with the Safety Officer has not been possible, attempt to",
+            "make contact with the Safety Vessel(s), other rowing boats or any other vessel by any means and request Technical",
+            "Problem message be passed on to the Safety Officer",
+            "10.2 Safety Officer Actions:",
+            "Note: Notification of a Technical Problem may be direct from a rowing boat, via Safety Vessel, other Rowing",
+            "Boats or any other vessel",
+            "10.2.1 Establish and maintain an Incident Log",
+            "10.2.2 Notify Safety Vessel(s) of the Technical Problem incident and request Safety Vessel contact rowing boat by any",
+            "means possible and offer technical problem advice.",
+            "10.2.3 Contact rowing boat shore support team (if one is present) to establish what further details about the piece of",
+            "equipment causing the problem and how SO/Safety Vessel can assist in rectifying the problem.",
+            "10.2.4 Use any other technical contacts available to help solve the problem (i.e., manufacturer of the defective equipment)",
+            "10.2.5 If considered necessary, divert the nearest Safety Vessel to the rowing boat to provide technical assistance in",
+            "resolving the technical problem.",
+            "10.2.6 If technical problem remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat",
+            "Emergency, contact the following parties and inform them of pending situation:",
+            "NMOC",
+            "Safety Vessel(s)",
+            "Atlantic Campaigns SL Management",
+            "10.2.7 If technical problem remains unresolved and develops into a Rowing Boat Emergency, follow procedures described",
+            "in Section 4. Rowing Boat Emergency",
+            "10.2.8 Following confirmation from rowing boat that Technical Problem has been resolved, notify all parties involved.",
+            "10.3 Safety Vessel Actions:",
+            "10.3.1 Following notification from SO, Safety Vessel(s) to assist in solving the technical problem either with advice via",
+            "satellite phone or any other means of communication available.",
+            "10.3.2 Maintain regular contact (minimum every 4 hours) with SO and report all new information to SO as soon as",
+            "practical.",
+            "10.3.3 If requested by SO, divert to the Rowing Boat and provide further assistance in person as necessary.",
+            "10.3.4 If the piece of equipment is found to be unresponsive but the rowing boat wishes to continue, the Safety Vessel",
+            "should advise the rowing boat of the risks of continuing and make every effort to find alternative solutions (i.e., if",
+            "water maker has broken, provide Rowing Boat with additional fresh drinking water supplies) before leaving the",
+            "rowing boat to proceed with Safety Vessel Race duties."
+          ],
+          "warnings": [
+            "Pan-Pan and, potentially, into an emergency.",
+            "10.2.6 If technical problem remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat",
+            "Emergency, contact the following parties and inform them of pending situation:",
+            "10.2.7 If technical problem remains unresolved and develops into a Rowing Boat Emergency, follow procedures described",
+            "in Section 4. Rowing Boat Emergency"
+          ]
+        },
+        {
+          "title": "11. Complete Failure of Power System",
+          "pageRefs": [
+            12
+          ],
+          "steps": [
+            "A situation where a rowing boat’s power system fails and none of the fixed electrical components are usable. This may come on",
+            "suddenly because of a traumatic event to the boat or may occur slowly as a gradual failure of the crucial components of the",
+            "electrical system.",
+            "11.1 Rowing Boat Actions:",
+            "11.1.1 Contact Safety Officer as soon as possible via any means of communications available to you and",
+            "inform them of your situation as well as confirming your management plan.",
+            "11.1.2 Unpack your hand-held GPS, hand-held VHF, satellite phones, and torches ready to use if needed.",
+            "11.1.3 Inspect your power system, co-ordinating with your boat builder or another technical expert and",
+            "paying attention to your batteries, solar panels, battery management system, wiring, connections,",
+            "switch panels and individual components in an effort to restore power.",
+            "11.1.4 If you need to stop rowing to deal with the situation, consider streaming lines or drogues or",
+            "deploying your sea anchor to maintain your position relative to the sea conditions.",
+            "11.1.5 If you can restore power, contact the SO to inform them of this.",
+            "11.1.6 If you cannot restore power, unpack your manual water maker, independent charging system, spare batteries and",
+            "charts and plan your management of navigation, communications and water making and communicate this plan to",
+            "the SO.",
+            "11.1.7 Ensure that you strictly adhere to the requirement to have your race management satellite phone on for a",
+            "specified period each day and limit the use of your personal satellite phone in case you need to use its battery.",
+            "Bear in mind that your satellite tracker has its own independent battery and will continue to transmit your position",
+            "every 4 hours.",
+            "11.1.8 Navigate by dead reckoning using your compass and manual steering. Your hand-held GPS can be used to monitor",
+            "your position but may be battery hungry so consider only switching it on once or twice a day. Keep a paper log of",
+            "your daily position. If the compass cannot be used for any reason, use the sunrise or sunset to estimate bearing.",
+            "To check your speed over water, you can record the time in seconds that a floating object floats 10 metres back",
+            "from where you drop it.",
+            "11.1.9 if another vessel is sighted in your vicinity at night, your torches, strobes, or flares can be used in place of your",
+            "navigation light to identify your position.",
+            "11.1.10 Making safe landfall is a concern. You should have a rough idea of your position from dead reckoning and should",
+            "check your GPS more frequently as you approach shore. If in doubt, assume you are one or more days closer. The",
+            "loom of light over the horizon can be seen about 40 miles out from the island and clouds tend to form over land",
+            "giving you a natural indication. You are also likely to see increased bird activity with different bird species as you",
+            "approach land. If your position is uncertain you may want to slow down or deploy your sea anchor so that you can",
+            "wait overnight and close the shore in daylight. Bear in mind that, if you have one aboard, a mobile phone should",
+            "gain signal as you approach land and provide an additional method of communication.",
+            "11.1.11 In preparation to deal with a partial or total failure of your power system, maintain a daily log at all",
+            "times during your crossing, input waypoints into your hand-held GPS prior to race start. Consider",
+            "keeping your hand-held electronics with spare batteries in a waterproof back and in a metal box for",
+            "lightning protection and having a 10-metre line to help you when estimating speed using a floating",
+            "object."
+          ],
+          "warnings": []
+        },
+        {
+          "title": "12. Hull Breach",
+          "pageRefs": [
+            13
+          ],
+          "steps": [
+            "A situation where the hull of the ocean rowing boat is breached or holed, and seawater is being taken on board into either the",
+            "accommodation cabins or the row deck storage hatches.",
+            "12.1 Rowing Boat Actions:",
+            "12.1.1 Report the incident to Safety Officer as soon as possible via any means of communications available on-board and",
+            "follow this up within 4 hours and thereafter at least every 12 hours until the situation stabilises.",
+            "12.1.2 On the initial communication of this incident, clearly state that you have suffered a Hull Breach, report any injuries",
+            "sustained because of the hull breach and the circumstances under which it occurred.",
+            "12.1.3 Assess the damage and attempt to affect a repair. If breach has occurred in one cabin it can be lifted clear of the",
+            "water by moving weight and crew to the other cabin, allowing some of the water taken on to drain and provide better",
+            "access to the damaged area. If the item that has breached the hull is still firmly plugging the hole it caused consider",
+            "sealing it in position with epoxy resin, marine sealant, or two-part mix. If the item has pulled clear of its hole use bungs",
+            "or epoxy putty and apply with epoxy resin, marine sealant, or two-part mix to seal in position. Waterproof roll top",
+            "bags can be cut into patches of increasing size and applied with epoxy over holes. Holes in storage hatches on deck can",
+            "be managed by inflating a fender in the hatch until such time as a more permanent repair can be applied.",
+            "12.1.4 External damage below the water line should be assessed only when conditions allow safe entry to the water.",
+            "12.1.5 If any injuries are sustained by members of the crew because of the Hull Breach incident follow procedures described",
+            "in Section 5. Medical Emergency or Section 6. Injury/Illness – Non-Emergency as required.",
+            "12.2 Safety Officer Actions:",
+            "12.2.1 Establish and maintain an Incident Log",
+            "12.2.2 If considered necessary, divert the nearest Safety Vessel to the rowing boat to shadow the stricken ORB until such",
+            "time as any repair is proven or to offer advice and assistance if required.",
+            "12.2.3 Contact rowing boat shore support team (if one is present) to establish what further details about the piece of",
+            "equipment causing the problem and how SO/Safety Vessel can assist in rectifying the problem.",
+            "12.2.4 Use any other contacts available to help solve the problem (i.e., boat manufacturer)",
+            "12.2.5 If hull breach remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat Emergency,",
+            "contact the following parties and inform them of pending situation:",
+            "NMOC",
+            "Safety Vessel(s)",
+            "Atlantic Campaigns SL Management",
+            "12.2.6 If Hull Breach incident remains unresolved and develops into a Rowing Boat Emergency, follow procedures described",
+            "in Section 4. Rowing Boat Emergency",
+            "12.2.7 Following confirmation from rowing boat that Hull Breach has been resolved, notify all parties involved."
+          ],
+          "warnings": [
+            "in Section 5. Medical Emergency or Section 6. Injury/Illness – Non-Emergency as required.",
+            "12.2.5 If hull breach remains unresolved and incident is in risk of developing into a Pan-Pan/Rowing Boat Emergency,",
+            "12.2.6 If Hull Breach incident remains unresolved and develops into a Rowing Boat Emergency, follow procedures described",
+            "in Section 4. Rowing Boat Emergency"
+          ]
+        },
+        {
+          "title": "13. Evacuation of a Rower",
+          "pageRefs": [
+            14
+          ],
+          "steps": [
+            "If it becomes necessary for one or more rowers to evacuate their rowing boat – be it for medical, safety or personal reasons – on",
+            "to a Safety Vessel or any other vessel.",
+            "13.1 Safety Officer Actions:",
+            "13.1.1 Maintain an Incident Log",
+            "13.1.2 Notify NMOC of the incident and confirm rowing boat and evacuated rower’s name.",
+            "13.1.3 Notify Atlantic Campaigns SL Management",
+            "13.2 Safety Vessel Actions:",
+            "13.2.1 Before evacuating a rower, the skipper shall advise the evacuating rower that they could be on-board the Safety",
+            "Vessel until the very end of the Race in Antigua and that – when fit to do so – they will be expected to form part of",
+            "the crew watch system on-board the Safety Vessel",
+            "13.2.2 The skipper of the Safety Vessel should advise the remaining rower(s) on-board the rowing boat that the Rowing",
+            "Boat will no longer be part of the race and will not be allocated a race position on finishing.",
+            "13.2.3 If the remaining rower(s) is/are determined to continue, the skipper of the Safety Vessel shall request that the",
+            "remaining rower(s) sign a Disclaimer Form acknowledging the safety implications of continuing with reduced",
+            "rowing boat crew.",
+            "13.3 Rowing Boat Actions:",
+            "13.3.1 The need to evacuate will likely occur after other incidents and the procedures for those incidents should be",
+            "followed up until the evacuation.",
+            "13.3.2 Lifejackets are to be always worn when evacuating or abandoning the rowing boat.",
+            "13.3.3 If time allows and if appropriate, remove essential items such as any necessary medication, EPIRB, passports,",
+            "currency, clothing, sleeping bag, life raft, etc.",
+            "13.3.4 When evacuating the rowing boat follow the instructions from the skipper of the vessel that you are evacuating to.",
+            "13.3.5 If any rowers intend to remain on-board the rowing boat and continue their crossing, they need to sign a",
+            "Disclaimer Form acknowledging the safety implications of continuing with reduced crew. They should also be",
+            "aware that their decision to continue is theirs alone and that they might not be allocated a race position on",
+            "finishing their crossing.",
+            "13.4 Atlantic Campaigns SL Management Actions:",
+            "13.4.1 Advise next-of-kin of rower being evacuated.",
+            "13.4.2 Liaise with the Atlantic Campaigns SL Press Officer regarding press statement.",
+            "13.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": []
+        },
+        {
+          "title": "14. Evacuation to Safety Vessel and Abandonment of a Rowing Boat",
+          "pageRefs": [
+            15
+          ],
+          "steps": [
+            "14.1 Rowing Boat Actions:",
+            "14.1.1 Lifejackets are to be worn at all times when evacuating/abandoning Rowing Boat",
+            "14.1.2 If time prevails, remove essential items (i.e., any necessary medication, EPIRB, passports, currency, clothing, sleeping",
+            "bag, life raft, other personal items may be removed at the discretion of the Safety Vessel skipper)",
+            "14.1.3 When evacuating rowing boat, follow instructions from the Safety Vessel",
+            "14.2 Safety Officer Actions:",
+            "14.2.1 Maintain Incident Log",
+            "14.2.2 Following confirmation from Safety Vessel of evacuation from/abandonment of rowing boat, notify Atlantic",
+            "Campaigns SL Management",
+            "14.2.3 Notify NMOC of evacuation and abandonment of rowing boat informing:",
+            "Location of EPIRB and other beacons",
+            "Abandoned Rowing Boat situation (tracking system status, Rowing Boat taken in tow, etc.)",
+            "14.2.4 Notify supplier of tracking system of abandonment of rowing boat informing location of tracking system beacon (i.e.,",
+            "is it aboard the Safety Vessel or left on the abandoned Rowing Boat?)",
+            "14.3 Safety Vessel Actions:",
+            "14.3.1 If conditions and time prevails, remove any essential items from the rowing boat including safety equipment and",
+            "food.",
+            "14.3.2 Contact SO to advise that rowers are on-board the Safety Vessel and discuss options for action to take with the",
+            "abandoned Rowing Boat",
+            "14.3.3 Following communication with SO, the decision to take the rowing boat in tow is at the skipper’s discretion.",
+            "14.3.4 Sensitivity should be shown to the evacuated rower(s) throughout the whole process.",
+            "14.4 Atlantic Campaigns SL Management Actions:",
+            "14.4.1 Advise next-of-kin of rower(s) evacuated.",
+            "14.4.2 Liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.",
+            "14.5 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": []
+        },
+        {
+          "title": "15. Rowing Boats That Finish/Make Landfall in Any Location Other Than",
+          "pageRefs": [
+            16
+          ],
+          "steps": [
+            "Antigua",
+            "Any rowing boats that miss the official line in Antigua but cross the line of longitude 61o00’W will have completed the crossing",
+            "but will not be eligible for official race placing.",
+            "15.1 Rowing Boat Actions:",
+            "15.1.1 Any rowing boat the finishes or reaches land in any location other than Antigua shall:",
+            "15.1.1.1 Notify the SO at the earliest opportunity of their whereabouts and physical condition.",
+            "15.1.1.2 Be responsible for any Immigration and Customs formalities.",
+            "15.1.1.3 Arrange transportation for both them and their rowing boat to either Antigua or their home country.",
+            "15.2 Safety Officer Actions:",
+            "15.2.1 Maintain Incident Log",
+            "15.2.2 Notify Atlantic Campaigns SL Management",
+            "15.3 Atlantic Campaigns SL Management Actions:",
+            "15.3.1 Notify the next-of-kin of all parties involved in the situation.",
+            "15.3.2 Liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.",
+            "15.4 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": []
+        },
+        {
+          "title": "16. Serious Injury/Illness in Port (Member of the Race Community)",
+          "pageRefs": [
+            16
+          ],
+          "steps": [
+            "If a competitor or member of the race community suffers a serious injury or illness at the race start or finish.",
+            "16.1 Competitor Actions:",
+            "16.1.1 Advise a member of Atlantic Campaigns SL of the incident as soon as possible.",
+            "16.1.2 Ensure that a member of Atlantic Campaigns SL port logistics team receives regular updates of the patient’s",
+            "condition.",
+            "16.2 Atlantic Campaigns SL Management Actions:",
+            "16.2.1 CEO, Carsten Heron Olsen, to inform next-of-kin of all parties involved in the incident.",
+            "16.3 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.6 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": []
+        },
+        {
+          "title": "17. Incident, Injury or Death Involving a Crew Member’s Immediate Family",
+          "pageRefs": [
+            17
+          ],
+          "steps": [
+            "Due to the nature of the race, all competitors have been asked to sign a form stating whether they wish to be informed of a",
+            "family incident or bereavement whilst competing in the race. Competitors have also been asked to discuss their",
+            "wishes/intentions with their family prior to the start of the race.",
+            "If a rower states that they do not wish to be informed of a family incident/bereavement whilst competing in the Race, a member",
+            "of the Atlantic Campaigns SL Management Team or a family member will inform the rower of incident/bereavement on arrival in",
+            "Antigua.",
+            "17.1 Next-of-kin Actions:",
+            "17.1.1 Inform RHQ/SO of the details.",
+            "17.2 SO Actions:",
+            "17.2.1 Establish location of Safety Vessel(s) in relation to competitor in question.",
+            "17.2.2 If Safety Vessel is within a one-day range and not required on any other emergency, SO to request Safety Vessel to",
+            "divert to the rowing boat and inform the competitor of the incident in person. If this is not possible, SO will contact",
+            "the rowing boat via any means available.",
+            "17.3 Atlantic Campaigns SL Management Actions:",
+            "17.3.1 Overall responsibility for the management of the incident to be assumed by Atlantic Campaigns SL Management"
+          ],
+          "warnings": [
+            "If a rower states that they do not wish to be informed of a family incident/bereavement whilst competing in the Race, a member",
+            "17.2.2 If Safety Vessel is within a one-day range and not required on any other emergency, SO to request Safety Vessel to"
+          ]
+        },
+        {
+          "title": "18. Race Management Incidents",
+          "pageRefs": [
+            18
+          ],
+          "steps": [
+            "18.1 Requirement to Change Ports",
+            "Politics, war, riots, epidemic or a natural disaster could force a change of port. In the unlikely event that a port is changed, the",
+            "following people will be informed immediately after the decision has been made by Atlantic Campaigns SL Management:",
+            "All registered rowers",
+            "Atlantic Campaigns SL staff",
+            "Nominated contacts of rowers",
+            "Host ports (La Gomera & English Harbour. Antigua)",
+            "Port officials",
+            "Atlantic Campaigns SL Management will make a press announcement in conjunction with the Atlantic Campaigns SL Press",
+            "Officer",
+            "18.2 Postponement of the Start",
+            "The race start may have to be postponed due to bad weather. The decision to postpone the race start would be taken by",
+            "Atlantic Campaigns SL Management. In the event of a postponement, Atlantic Campaigns SL Management will immediately",
+            "inform the following:",
+            "All registered rowers",
+            "Atlantic Campaigns SL staff",
+            "Port officials",
+            "Insurers",
+            "Length of the delay will depend on the severity of the weather.",
+            "18.3 Fire in Race Facilities in Host Ports",
+            "Inform Atlantic Campaigns SL Management",
+            "Arrange for local temporary facilities.",
+            "18.4 Incident Involving a Safety Vessel",
+            "This could be an incident of any kind (medical emergency, technical problem, etc.)",
+            "18.4.1 Safety Vessel Actions:",
+            "18.4.1.1 If the incident is life threatening, the Safety Vessel shall activate the 406MHz EPIRB and follow standard Mayday",
+            "procedures.",
+            "18.4.1.2 If the incident is non-life threatening, the Safety Vessel should notify the DO of the full details of the incident at the",
+            "earlier opportunity.",
+            "18.4.2 Safety Officer Actions:",
+            "18.4.2.1 The SO shall provide incident assistance to the Safety Vessel in line with rowing boat incident procedures.",
+            "18.4.3 Atlantic Campaigns SL Management Actions:",
+            "18.4.3.1 At the earliest opportunity, Atlantic Campaigns SL Management shall contact the owners of the Safety Vessel and",
+            "the next-of-kin of all parties involved."
+          ],
+          "warnings": [
+            "This could be an incident of any kind (medical emergency, technical problem, etc.)",
+            "18.4.1.1 If the incident is life threatening, the Safety Vessel shall activate the 406MHz EPIRB and follow standard Mayday"
+          ]
+        },
+        {
+          "title": "19. Reports of physical or sexual attack from a crew at sea.",
+          "pageRefs": [
+            19
+          ],
+          "steps": [
+            "If any crewmember suffers or witnesses any form of physical, sexual or other abuse or attack by any member of their crew.",
+            "19.1 Rowing Boat Actions:",
+            "19.1.1 Any rower that witnesses or suffers any form of physical, sexual or other attack, or is threatened with the same,",
+            "shall:",
+            "19.1.1.1 Notify the SO at the earliest opportunity, by any available means, and provide key notes such as time/ date/",
+            "name of victim/ name of perpetrators/ nature of crime/ injuries seen/ photos of injuries. These notes could be",
+            "used as evidence and exhibited in any future witness statement.",
+            "19.1.1.2 If witnessed and if safely possible, crewmembers should attempt to manage the situation on board, offering",
+            "assistance and support to the victim while managing and calming any aggressor.",
+            "19.1.1.3 If you feel your life is at threat or that you could suffer life changing injury, activate the 406MHz EPIRB.",
+            "19.2 Safety Officer Actions:",
+            "19.2.1 Maintain Incident Log with notes and recorded telephone conversations, this log can be used and exhibited as",
+            "evidence.",
+            "19.2.2 ⁠Assess if any safeguarding can be put in place or if the victim can be/ should be rescued from the boat.",
+            "19.2.3 If within 12 miles of start or finish alert the closest police force.",
+            "19.2.4 If greater than 12 nautical miles offshore, alert the police in the home nation of the crew and request that they",
+            "consider scene guard for the boat when it arrives in port to maintain any potential crime scene evidence.",
+            "19.3 Atlantic Campaigns SL Management Actions:",
+            "19.3.1 If appropriate, notify the next-of-kin of all parties involved in the situation.",
+            "19.3.2 If appropriate, liaise with the Atlantic Campaigns SL Press Officer regarding a press statement.",
+            "19.4 Atlantic Campaigns SL Press Officer Actions:",
+            "Follow procedures as described in Section 4.5 Atlantic Campaigns SL Press Officer Actions"
+          ],
+          "warnings": []
+        }
+      ]
+    }
+  ]
+}

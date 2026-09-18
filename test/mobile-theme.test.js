@@ -33,7 +33,13 @@ test('Home puts the compact thought first, then actions, with review prose out o
   const home = await readFile(new URL('../js/views/home.js', import.meta.url), 'utf8');
   const wiki = await readFile(new URL('../js/views/wiki.js', import.meta.url), 'utf8');
   const checks = await readFile(new URL('../js/views/checklists.js', import.meta.url), 'utf8');
-  assert.match(home, /view.append\(\s*perspectiveCard, timerCard, emergency/);
+  assert.match(home, /view.append\(perspectiveCard, timerCard, emergency\)/);
+  assert.doesNotMatch(home, /Live snapshot/);
+  const shell = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(shell, /emergencyNav|emergency-nav/);
+  assert.match(home, /id: 'emergencyNav'/);
+  for (const route of ['#/procedures/flow', '#/procedures/4', '#/procedures/12', '#/procedures/5', '#/procedures'])
+    assert.ok(home.includes(`href: '${route}'`), route);
   assert.match(css, /\.shift-thought\{padding:10px 14px\}/);
   assert.match(home, /h\('details', \{ class: 'card' \}, \[\s*h\('summary', \{\}, 'About & updates'\)/);
   assert.doesNotMatch(home, /setTimeout/);
