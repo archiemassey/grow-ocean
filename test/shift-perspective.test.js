@@ -129,7 +129,7 @@ test('Home starts and swaps update This shift; duration edits, clock changes and
   const firstView = await home.render();
   assert.equal(firstView.children[0]['aria-label'], 'This shift', 'thought is first main content');
   assert.equal(firstView.children[1].children[0].textContent, '🕒 Shift timer', 'timer follows thought');
-  assert.ok(home.nodes().some(node => node.href === '#/wiki/stars'));
+  assert.ok(home.nodes().some(node => node.href === '#/stars'));
   const welcome = home.text();
   await home.render();
   assert.equal(home.text(), welcome);

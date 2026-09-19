@@ -51,7 +51,7 @@ export function renderBoat(view) {
       ['#/wiki', 'Quick Wiki', 'Search safety, equipment and how-to guides'],
       ['#/procedures', 'Emergency procedures', 'Official Crisis Ops · offline · rower actions first'],
       ['#/wiki/official-rules', 'Official race rules', 'Atlantic 2025 v1.0 · offline reference'],
-      ['#/wiki/stars', 'Star guide', 'A little perspective when watch duties allow']
+      ['#/stars', 'Star guide', 'The live night sky over the boat — a little perspective on watch']
     ]),
     group('Boat routines', [
       ['#/checklists', 'Checklists', 'Grab-bag, safety, medical and maintenance'],

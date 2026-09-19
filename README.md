@@ -92,9 +92,20 @@ and one-tap emergency procedures on Home, a **Live race data** page (race/VMG/we
 share when back in range, and a **Siri setup** page (Boat → **Siri setup**) that gives
 hands-free voice phrases (see below).
 
-### Screen modes: sunlight & night vision
+### Voyage Star Guide (Boat → Star guide, `#/stars`)
 
-A single **screen-mode button in the top bar** cycles four modes so the crew can read the
+An offline "little perspective for this shift". The sky is drawn from **real star
+coordinates** (right ascension / declination in `js/star-math.js`) and projected to the
+crew's altitude/azimuth, so the major constellations sit where they actually are and **wheel
+across the night** as you drag the time-of-night slider or press **Play** — rising in the
+east, culminating in the south, setting in the west. A **voyage slider** carries the observer
+from 28°N (La Gomera) to 14°N (St Lucia): Polaris sinks toward the northern sea while
+Canopus and, near the end, a low Southern Cross climb into the south. It carries ORION,
+CANIS MAJOR/MINOR, TAURUS, GEMINI, AURIGA, LEO, BOÖTES, SCORPIUS, CARINA (Canopus) and CRUX.
+Pure geometry is in `js/star-math.js` (unit-tested); the themed SVG view is in
+`js/views/stars.js`. In **Night-vision** mode it redraws red-on-black. No network or data feed.
+
+### Screen modes: sunlight & night visionA single **screen-mode button in the top bar** cycles four modes so the crew can read the
 screen at any time of day without digging through settings:
 
 - **Auto** — follows the phone's own light/dark setting.

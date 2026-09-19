@@ -11,6 +11,7 @@ import { renderChecklists } from './views/checklists.js';
 import { renderLog } from './views/log.js';
 import { renderEntertain } from './views/entertain.js';
 import { renderProcedures } from './views/procedures.js';
+import { renderStars } from './views/stars.js';
 import { renderFeedback } from './views/feedback.js';
 import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
@@ -36,7 +37,8 @@ const routes = {
   entertain: { title: 'Morale & Media', tab: 'entertain', render: renderEntertain },
   procedures: { title: 'Emergency procedures', tab: 'home', render: renderProcedures },
   feedback: { title: 'App Feedback', tab: 'home', render: renderFeedback },
-  shortcuts: { title: 'Siri Setup', tab: 'home', render: renderShortcuts }
+  shortcuts: { title: 'Siri Setup', tab: 'home', render: renderShortcuts },
+  stars: { title: 'Voyage Star Guide', tab: 'boat', render: renderStars }
 };
 
 /* ---------- shared UI helpers, exported for views ---------- */

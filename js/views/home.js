@@ -11,7 +11,7 @@ export async function renderHome(view, param, signal) {
   const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
   const perspectiveCard = h('section', { class: 'card shift-thought', 'aria-label': 'This shift' }, [
     h('h3', {}, '🌌 This shift'), perspective,
-    h('p', { class: 'hint' }, ['When watch duties allow. ', h('a', { href: '#/wiki/stars' }, 'Star guide')])
+    h('p', { class: 'hint' }, ['When watch duties allow. ', h('a', { href: '#/stars' }, 'Star guide')])
   ]);
   const timerEl = h('div', { class: 'timer-big' }, '--:--');
   const labelEl = h('div', { class: 'timer-label' }, 'Loading shift…');
