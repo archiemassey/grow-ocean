@@ -4,7 +4,7 @@ import { readFile, access } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {
   PROCEDURES_DOCUMENT, PLAN, FLOW_CHART, emergencyProcedures, otherProcedures,
-  getProcedure, boatSections, shoreSections, searchProcedures
+  getProcedure, boatSections, shoreSections, searchProcedures, withContacts, contactInsertions
 } from '../js/procedures.js';
 
 const root = new URL('../', import.meta.url);
@@ -80,6 +80,35 @@ test('otherProcedures holds the shore/reference sections and never overlaps emer
   const emerg = new Set(emergencyProcedures().map(p => p.id));
   for (const proc of otherProcedures()) assert.ok(!emerg.has(proc.id));
   assert.equal(emergencyProcedures().length + otherProcedures().length, 19);
+});
+
+test('contact numbers are inlined where a step says to contact someone, without inventing or duplicating', () => {
+  // NMOC number is appended right after the mention.
+  assert.equal(
+    withContacts('If contact with the Safety Officer has not been possible, contact NMOC.'),
+    'If contact with the Safety Officer (call +1 470-972-3338; out-of-hours emergencies only +1 470-972-3389) has not been possible, contact NMOC (call +44 1329 244681).'
+  );
+  // Safety Officer / Duty Officer both resolve to the DO numbers.
+  assert.ok(withContacts('Contact Safety Officer as soon as possible.').includes('+1 470-972-3338'));
+  assert.ok(withContacts('contact DO by any means on board').includes('+1 470-972-3389'));
+  // Never duplicated when the step already prints the number (verbatim flow chart line).
+  const already = 'Contact Duty Officer (DO) +1 470-972-3338.';
+  assert.equal(withContacts(already), already);
+  // Steps with no contact are untouched.
+  assert.equal(withContacts('Activate 406MHz EPIRB.'), 'Activate 406MHz EPIRB.');
+});
+
+test('contact insertions expose tap-to-dial numbers and never fire when the number is already printed', () => {
+  const pts = contactInsertions('Contact Safety Officer as soon as possible.');
+  assert.equal(pts.length, 1);
+  assert.equal(pts[0].contact.numbers[0].tel, '+14709723338');
+  assert.equal(pts[0].contact.numbers[1].tel, '+14709723389');
+  // NMOC resolves to the UK number.
+  assert.equal(contactInsertions('If unable, contact NMOC.')[0].contact.numbers[0].tel, '+441329244681');
+  // Already-printed number → no insertion (no duplicate link).
+  assert.deepEqual(contactInsertions('Contact Duty Officer (DO) +1 470-972-3338.'), []);
+  // Plain step → nothing to inline.
+  assert.deepEqual(contactInsertions('Activate 406MHz EPIRB.'), []);
 });
 
 test('procedures assets and both PDFs are precached for offline use', async () => {

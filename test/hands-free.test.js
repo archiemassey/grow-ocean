@@ -340,16 +340,17 @@ test('games and challenges cannot start continuous playback', async () => {
   assert.match(h.player.snapshot().message, /stay manual/);
 });
 
-test('all 125 published jokes run hands-free once, then stop with no timers or automatic reset', async () => {
+test('every published joke runs hands-free once, then stops with no timers or automatic reset', async () => {
   const pack = JSON.parse(await readFile(new URL('../js/data/entertainment-pack.json', import.meta.url)));
-  const h = harness(pack.items.filter(item => item.category === 'jokes'));
+  const jokes = pack.items.filter(item => item.category === 'jokes');
+  const h = harness(jokes);
   h.player.start({ audio: false });
   await flush();
-  await h.timers.tick(1000000);
+  await h.timers.tick(jokes.length * 30000);
   const prompts = h.shown.filter(state => !state.answer).map(state => state.item.id);
-  assert.equal(prompts.length, 125);
-  assert.equal(new Set(prompts).size, 125);
-  assert.equal(h.deck.snapshot().seen, 125);
+  assert.equal(prompts.length, jokes.length);
+  assert.equal(new Set(prompts).size, jokes.length);
+  assert.equal(h.deck.snapshot().seen, jokes.length);
   assert.equal(h.deck.snapshot().cycle, 1);
   assert.equal(h.player.snapshot().mode, 'idle');
   assert.equal(h.timers.size, 0);

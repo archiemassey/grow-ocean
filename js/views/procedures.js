@@ -9,7 +9,7 @@
 import { h, go, speak, stopSpeaking, toast } from '../app.js';
 import {
   PLAN, FLOW_CHART, emergencyProcedures, otherProcedures,
-  getProcedure, boatSections, shoreSections, searchProcedures, pdfPage
+  getProcedure, boatSections, shoreSections, searchProcedures, pdfPage, withContacts, contactInsertions
 } from '../procedures.js';
 import { createVoiceSettings } from '../speech.js';
 
@@ -81,8 +81,28 @@ function renderFinder(view) {
 }
 
 /* ---------- single procedure ---------- */
+/* Build a flat list of text + tap-to-dial tel: links from a verbatim step, so
+   a rower can call the right person straight from the instruction. */
+function enrich(text) {
+  const points = contactInsertions(text);
+  if (!points.length) return [text];
+  const nodes = [];
+  let pos = 0;
+  for (const { at, contact } of points) {
+    nodes.push(text.slice(pos, at), ' (');
+    contact.numbers.forEach(n => {
+      nodes.push(n.pre);
+      nodes.push(h('a', { class: 'proc-tel', href: 'tel:' + n.tel }, n.display));
+    });
+    nodes.push(')');
+    pos = at;
+  }
+  nodes.push(text.slice(pos));
+  return nodes;
+}
+
 function stepList(steps) {
-  return h('ol', { class: 'proc-steps' }, steps.map(s => h('li', {}, s)));
+  return h('ol', { class: 'proc-steps' }, steps.map(s => h('li', {}, enrich(s))));
 }
 
 function renderProcedure(view, id) {
@@ -93,7 +113,7 @@ function renderProcedure(view, id) {
   const voiceSettings = createVoiceSettings(h, stopSpeaking);
   window.addEventListener('hashchange', () => voiceSettings.dispose(), { once: true });
 
-  const aloud = [proc.title, proc.intro, ...boat.flatMap(s => s.steps)].filter(Boolean).join('. ');
+  const aloud = [proc.title, proc.intro, ...boat.flatMap(s => s.steps.map(withContacts))].filter(Boolean).join('. ');
 
   view.append(
     h('div', {}, [
@@ -163,7 +183,7 @@ function renderFlowChart(view) {
       h('p', { class: 'hint' }, fc.emergency.when),
       stepList(fc.emergency.steps),
       h('div', { class: 'cat-head' }, 'Then, for your situation'),
-      h('ul', { class: 'proc-notes' }, fc.emergency.scenarioNotes.map(n => h('li', {}, n)))
+      h('ul', { class: 'proc-notes' }, fc.emergency.scenarioNotes.map(n => h('li', {}, enrich(n))))
     ]),
     h('section', { class: 'card' }, [
       h('h3', {}, '⚠️ Not an emergency?'),
@@ -171,7 +191,7 @@ function renderFlowChart(view) {
       ...fc.nonEmergency.map(n => h('a', { class: 'listrow', href: '#/procedures/' + n.procId }, [
         h('span', { class: 'body' }, [
           h('span', { class: 't' }, [n.problem, h('span', { class: 'chip', style: 'margin-left:8px' }, 'pg ' + n.page)]),
-          h('span', { class: 'd' }, n.guidance)
+          h('span', { class: 'd' }, enrich(n.guidance))
         ]),
         h('span', { class: 'chev' }, '›')
       ]))

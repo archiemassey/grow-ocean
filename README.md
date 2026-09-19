@@ -92,9 +92,21 @@ and one-tap emergency procedures on Home, a **Live race data** page (race/VMG/we
 share when back in range, and a **Siri setup** page (Boat → **Siri setup**) that gives
 hands-free voice phrases (see below).
 
-### Hands-free with Siri (e.g. "Hey Siri, Man Overboard")
+### Screen modes: sunlight & night vision
 
-iOS PWAs can't register Siri directly, so the app uses the built-in **Shortcuts** app with
+A single **screen-mode button in the top bar** cycles four modes so the crew can read the
+screen at any time of day without digging through settings:
+
+- **Auto** — follows the phone's own light/dark setting.
+- **Daylight** — maximum-contrast black-on-white for direct sunlight glare.
+- **Dark** — the calm dark theme regardless of the phone setting.
+- **Night vision** — red-on-black (no white, blue or green) to protect night vision on watch.
+
+The same modes, plus an **extra-dimming slider** for below the phone's minimum brightness, are
+on **Boat → Screen & visibility**. The choice is saved on the device and is applied before the
+first paint (no flash) via an inline script in `index.html`; the logic lives in `js/theme.js`.
+
+### Hands-free with Siri (e.g. "Hey Siri, Man Overboard")iOS PWAs can't register Siri directly, so the app uses the built-in **Shortcuts** app with
 deep links — each app page has its own URL (`…/grow-ocean/#/wiki/mob`). One-time setup per
 phrase (the in-app **Siri setup** page has Copy-link buttons and step-by-step instructions):
 
@@ -126,6 +138,11 @@ via the manifest `shortcuts`.
   on GitHub via the **"📱 App feedback"** issue form (`.github/ISSUE_TEMPLATE/`).
 
 ### Emergency reference: useful without implying certification
+
+Where a procedure says to contact the Duty/Safety Officer or NMOC, the **official phone number
+is shown inline as a tap-to-dial link** (and spoken in read-aloud) so the crew never has to
+leave the guidance to find a number. Numbers are injected at display time from
+`js/procedures.js` (`CONTACTS`) and are never stored in the verbatim step data.
 
 MOB now leads with the two-person reality: one casualty, one rescuer aboard. It offers
 short orientation and distress-communications prompts, links directly to the offline Mayday
@@ -224,11 +241,15 @@ edits live on the device, not in this file.
 
 ### Manual content publishing — no SharePoint backend
 
-The bundled release contains **2,569 items**: **2,005 trivia**, **125 jokes/riddles**,
-**166 Would You Rather prompts**, **77 playable games**, **122 conversation prompts**
-and **74 challenges**, plus the original **44-day plan** as optional theme/category suggestions.
-This combines the content agent's 2,000-question / 120-joke upgrade, the original library's
-other categories, and the retained app seeds with newly written two-person instructions.
+The bundled release contains **6,082 items**: **2,005 trivia**, **1,000 jokes/riddles**,
+**1,000 Would You Rather prompts**, **77 playable games**, **1,000 conversation prompts**
+and **1,000 challenges**, plus the original **44-day plan** as optional theme/category suggestions.
+The four topped-up categories are grown to exactly **1,000 each** by
+`tools/generate-morale-content.mjs` — a **regenerable** top-up generator that appends only as
+many original, wholesome, non-copyright, British-English items as needed (prefixing generated
+IDs `gen-joke-` / `gen-wyr-` / `gen-conv-` / `gen-chal-`), dedupes per category, bumps the pack
+`version`, then validates. Re-running it is idempotent: it tops up to 1,000 without duplicating
+existing content. Trivia is left as-is; games are unchanged.
 
 SharePoint is **only the crew's review/upload library**. This Copilot session or a maintainer
 manually curates approved material into the static app. There is no SharePoint authentication,

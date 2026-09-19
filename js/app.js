@@ -18,6 +18,7 @@ import { initAppUpdates } from './updates.js';
 import { createSpeechReader } from './hands-free.js';
 import { primaryTab, parentRoute, EMERGENCY_ROUTES } from './navigation.js';
 import { initShiftClock, mountShiftStrip } from './shift-state.js';
+import { initTheme } from './theme.js';
 
 const view = document.getElementById('view');
 const tabbar = document.getElementById('tabbar');
@@ -195,6 +196,7 @@ document.addEventListener('click', event => {
   else go(target);
 });
 window.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   updateNet();
   mountShiftStrip(document.getElementById('shiftStrip'));
   initShiftClock();

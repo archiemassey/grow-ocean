@@ -160,10 +160,10 @@ test('presentation never carries a previous answer into a new prompt or turns te
   assert.equal(presentation(item('no-answer'), true).canReveal, false);
 });
 
-test('all 125 published jokes draw once across restarts, category revisits and a release upgrade', async () => {
+test('every published joke draws once across restarts, category revisits and a release upgrade', async () => {
   let content = JSON.parse(await readFile(new URL('../js/data/entertainment-pack.json', import.meta.url)));
   const jokes = content.items.filter(item => item.category === 'jokes');
-  assert.equal(jokes.length, 125);
+  assert.ok(jokes.length >= 125, 'joke bank should never shrink below the original set');
   const storage = memory(), drawn = new Set();
   let deck;
   for (let index = 0; index < jokes.length; index++) {
@@ -184,7 +184,7 @@ test('all 125 published jokes draw once across restarts, category revisits and a
     assert.equal(restored.answer, '');
     assert.equal((await deck.select('jokes')).seen, index + 1, 'same-category selection does not draw');
   }
-  assert.equal(drawn.size, 125);
+  assert.equal(drawn.size, jokes.length);
   const exhausted = deck.snapshot();
   for (let index = 0; index < 5; index++)
     assert.deepEqual(await deck.next(), exhausted, 'exhaustion must not silently start another cycle');

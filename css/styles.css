@@ -9,12 +9,43 @@
   --shift-height:calc(44px + env(safe-area-inset-top));
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  html[data-theme="auto"]{
     --foam:#0a1a24; --card:#10293a; --ink:#eaf2f6; --muted:#9fb6c3;
     --line:#1d3a4f; --sand:#13303f;
     --crit:#f09b94; --crit-bg:#3b2328; --warn:#f1b365; --ok:#70ce9e; --link:#74cddd;
   }
 }
+/* Explicit Dark (same palette as auto-dark, but chosen regardless of OS). */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --foam:#0a1a24; --card:#10293a; --ink:#eaf2f6; --muted:#9fb6c3;
+  --line:#1d3a4f; --sand:#13303f;
+  --crit:#f09b94; --crit-bg:#3b2328; --warn:#f1b365; --ok:#70ce9e; --link:#74cddd;
+}
+/* Daylight: maximum contrast for direct sunlight — pure white, near-black text. */
+html[data-theme="day"]{
+  color-scheme:light;
+  --foam:#ffffff; --card:#ffffff; --ink:#000000; --muted:#2b2b2b;
+  --line:#7d7d7d; --sand:#ece6d8; --link:#0b4a58; --shadow:0 2px 10px rgba(0,0,0,.20);
+  --crit:#9c1c15; --crit-bg:#ffe1de;
+}
+/* Night vision: red-on-black to protect dark adaptation — no white/blue/green. */
+html[data-theme="night"]{
+  color-scheme:dark;
+  --navy:#160000; --navy-2:#1f0000; --teal:#5a0b0b; --aqua:#7a1212;
+  --sand:#140303; --foam:#000000; --ink:#d21f1f; --muted:#7e1414;
+  --ok:#7a1414; --warn:#a02010; --crit:#ff3b3b; --crit-bg:#240000;
+  --link:#ff6a6a; --danger-button:#8a1010;
+  --card:#0b0202; --line:#3a0d0d; --shadow:none;
+}
+html[data-theme="night"] .topbar,
+html[data-theme="night"] .iconbtn,
+html[data-theme="night"] .btn,
+html[data-theme="night"] .recbtn{color:#ff6a6a}
+html[data-theme="night"] .slider:before{background:#5a0000}
+html[data-theme="night"] img,html[data-theme="night"] svg{opacity:.82}
+/* Full-screen dim veil — lets the crew darken below the phone's minimum brightness. */
+#dimOverlay{position:fixed;inset:0;background:#000;pointer-events:none;z-index:2147483646;opacity:0;transition:opacity .2s}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html{color-scheme:light dark}
@@ -86,6 +117,8 @@ body{
 .proc-boat h3{color:var(--crit)}
 .proc-boat .proc-steps li,.proc-boat .proc-notes li{color:var(--ink)}
 .proc-contacts .listrow{border-color:var(--crit)}
+.proc-tel{display:inline-block;font-weight:700;color:var(--crit);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;padding:1px 2px}
+.proc-tel::before{content:"\260E\FE0E";margin-right:3px;font-weight:400}
 .shift-controls .btnrow{margin-top:10px}
 .handover-action{display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:12px}
 
@@ -273,3 +306,13 @@ audio{width:100%;margin-top:6px}
 .history-export-status:empty{display:none}
 .history-export-status.success{color:var(--ok)}
 .history-export-status.error{color:var(--crit)}
+
+/* Screen & visibility settings card (Boat page) */
+.screen-card{margin-top:8px}
+.screen-hint{font-size:13px;color:var(--muted);margin:2px 0 12px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.seg-btn{min-height:52px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;
+  background:var(--card);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer}
+.seg-btn.is-active{border-color:var(--link);box-shadow:inset 0 0 0 1px var(--link);color:var(--link)}
+.dim-row{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:14px;color:var(--ink)}
+.dim-range{flex:1;height:44px}
