@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 import { RULES_DOCUMENT, RULES_ARTICLES } from '../js/rules.js';
@@ -31,6 +31,19 @@ test('all precached files exist, including content, rules and PDF', async () => 
     assert.ok(entries.includes(expected), expected);
   const build = await readFile(new URL('tools/build-www.mjs', root), 'utf8');
   assert.ok(build.includes("'references'"));
+});
+
+test('every runtime JS module under js/ is precached, so no screen 503s offline', async () => {
+  // A hand-maintained shell list once let new view modules (e.g. the star guide)
+  // ship without being cached, so they failed offline — the one place it matters.
+  // This guard fails the build if any js/ module is missing from the precache.
+  const sw = await readFile(new URL('service-worker.js', root), 'utf8');
+  const entries = new Set([...sw.matchAll(/'(\.\/[^']*)'/g)].map(match => match[1]));
+  const files = await readdir(new URL('js/', root), { recursive: true });
+  const modules = files
+    .map(f => './js/' + String(f).split('\\').join('/'))
+    .filter(f => f.endsWith('.js'));
+  for (const module of modules) assert.ok(entries.has(module), 'not precached for offline: ' + module);
 });
 
 test('offline missing PDF and JSON return an honest failure, not app HTML', async () => {

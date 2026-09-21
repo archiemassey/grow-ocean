@@ -57,6 +57,9 @@ export function renderBoat(view) {
       ['#/checklists', 'Checklists', 'Grab-bag, safety, medical and maintenance'],
       ['#/reminders', 'Reminders', 'Manage scheduled and event reminders']
     ]),
+    group('Rest & recovery', [
+      ['#/breathe', 'Breath work & recovery', 'Guided 4:6 slow-breathing to unwind on rest shifts']
+    ]),
     group('Practical links', [
       ['#/log/journal', 'Voice journal', 'Record a message home'],
       ['#/shortcuts', 'Siri setup', 'Set up spoken shortcuts before departure'],

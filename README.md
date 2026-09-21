@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v10** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v11** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v10** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v11** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v10 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v11 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -126,6 +126,24 @@ screen at any time of day without digging through settings:
 The same modes, plus an **extra-dimming slider** for below the phone's minimum brightness, are
 on **Boat → Screen & visibility**. The choice is saved on the device and is applied before the
 first paint (no flash) via an inline script in `index.html`; the logic lives in `js/theme.js`.
+
+### Breath work & recovery (Boat → Rest & recovery, `#/breathe`)
+
+A guided slow-breathing pacer for rest shifts, framed as relaxation and recovery (not a
+medical device). Three sliders set **Breathe in**, **Hold** and **Breathe out** independently
+up to 10 s each — the default **4 / 2 / 6** sits close to the crew's familiar 4:6 resonance
+cadence (a longer exhale nudges the parasympathetic, "rest-and-digest" response). A soft **3D
+sphere swells on the in-breath, holds, and shrinks on the out-breath**, with the current phase
+named beneath it. A procedurally-generated **"sea breath"** soundbed (brown/pink noise shaped
+by a lowpass filter — brighter on the in-breath, lower on the out-breath, silent on the hold)
+rises and falls with the sphere; there is nothing to download. Meant to layer over the crew's
+Yōjō vagus-nerve device on rest shifts, so a small pairing note and four safety points are
+included. After **10 minutes** a black "sleep" overlay fades in (tap to wake); over the
+**next 10 minutes** the sound fades to silence so it won't disturb sleep — a **Screen Wake
+Lock** keeps the audio alive behind the overlay. It is **theme-aware** (the sphere goes
+red-on-black in Night vision) and cleans up all audio, animation and the wake lock the moment
+you leave the screen. Pure timing/scale/fade/envelope maths are in `js/breathe-math.js`
+(unit-tested); the Web-Audio + sphere view is in `js/views/breathe.js`. Fully offline.
 
 ### Hands-free with Siri (e.g. "Hey Siri, Man Overboard")iOS PWAs can't register Siri directly, so the app uses the built-in **Shortcuts** app with
 deep links — each app page has its own URL (`…/grow-ocean/#/wiki/mob`). One-time setup per
@@ -392,8 +410,11 @@ The strip is not an ARIA live region, so it does not announce every second. This
 on-screen timer, **not a reliable background alarm**; keep the existing native reminder
 setup and onboard watch procedures. Physical-device alarms remain a separate validation.
 
-The v10 worker precaches `shift-state.js`, `navigation.js` and `views/boat.js` with the shell;
-the existing native build copies them automatically. Bump the HTML release marker,
+The v11 worker precaches every `js/**` module with the shell — including `theme.js`,
+`star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
+releases omitted (a latent bug that broke the star guide, screen modes and breathwork
+offline; `test/offline-content.test.js` now guards against it). The existing native build
+copies them automatically. Bump the HTML release marker,
 `updates.js` and worker together on future releases; never clear IndexedDB during an update.
 
 For updates: curate/validate the pack, keep source attribution, bump the service-worker cache

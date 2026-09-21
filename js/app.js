@@ -12,6 +12,7 @@ import { renderLog } from './views/log.js';
 import { renderEntertain } from './views/entertain.js';
 import { renderProcedures } from './views/procedures.js';
 import { renderStars } from './views/stars.js';
+import { renderBreathe } from './views/breathe.js';
 import { renderFeedback } from './views/feedback.js';
 import { renderShortcuts } from './views/shortcuts.js';
 import { initReminderEngine } from './reminders.js';
@@ -38,7 +39,8 @@ const routes = {
   procedures: { title: 'Emergency procedures', tab: 'home', render: renderProcedures },
   feedback: { title: 'App Feedback', tab: 'home', render: renderFeedback },
   shortcuts: { title: 'Siri Setup', tab: 'home', render: renderShortcuts },
-  stars: { title: 'Voyage Star Guide', tab: 'boat', render: renderStars }
+  stars: { title: 'Voyage Star Guide', tab: 'boat', render: renderStars },
+  breathe: { title: 'Breath work & recovery', tab: 'boat', render: renderBreathe }
 };
 
 /* ---------- shared UI helpers, exported for views ---------- */

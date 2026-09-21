@@ -1,4 +1,4 @@
-const BOAT_ROUTES = new Set(['wiki', 'checklists', 'reminders', 'feedback', 'shortcuts', 'stars']);
+const BOAT_ROUTES = new Set(['wiki', 'checklists', 'reminders', 'feedback', 'shortcuts', 'stars', 'breathe']);
 export function primaryTab(name) {
   return BOAT_ROUTES.has(name) ? 'boat' : ['boat', 'log', 'entertain'].includes(name) ? name : 'home';
 }
