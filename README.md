@@ -105,12 +105,22 @@ CANIS MAJOR/MINOR, TAURUS, GEMINI, AURIGA, LEO, BOÖTES, SCORPIUS, CARINA (Canop
 Pure geometry is in `js/star-math.js` (unit-tested); the themed SVG view is in
 `js/views/stars.js`. In **Night-vision** mode it redraws red-on-black. No network or data feed.
 
-### Screen modes: sunlight & night visionA single **screen-mode button in the top bar** cycles four modes so the crew can read the
+### Screen modes: sunlight & night vision
+
+A single **screen-mode button in the top bar** cycles four modes so the crew can read the
 screen at any time of day without digging through settings:
 
-- **Auto** — follows the phone's own light/dark setting.
+- **Auto — follows the sky over the boat.** It computes the sun's altitude from the device's
+  UTC clock (timezone-proof) and the boat's position (GPS when available — it works with no
+  signal — cached between launches, falling back to the phone's timezone as a rough longitude
+  until a fix arrives). It then picks **Daylight** while the sun is up, **Dark** through
+  dawn/dusk twilight, and **Night vision** once it is properly dark past nautical twilight —
+  re-checking every minute so transitions happen on their own. No network and no ambient-light
+  sensor (unsupported on iOS) are needed. The sun maths live in `js/star-math.js`
+  (`sunAltitudeDeg`, `themeForSunAltitude`, unit-tested); the mode engine is in `js/theme.js`.
+  Manually picking any of the three fixed modes below overrides Auto until the crew taps back.
 - **Daylight** — maximum-contrast black-on-white for direct sunlight glare.
-- **Dark** — the calm dark theme regardless of the phone setting.
+- **Dark** — the calm dark theme regardless of the sky.
 - **Night vision** — red-on-black (no white, blue or green) to protect night vision on watch.
 
 The same modes, plus an **extra-dimming slider** for below the phone's minimum brightness, are

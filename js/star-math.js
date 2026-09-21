@@ -46,3 +46,33 @@ export function altaz(raHours, decDeg, lstH, latDeg) {
   if (Math.sin(Hang) > 0) az = 360 - az;
   return { alt: alt / DEG, az };
 }
+
+/* --- Sun position, for the "follow the sky over the boat" Auto screen mode ---
+   Low-precision solar altitude (NOAA/USNO algorithm, good to well within a
+   degree). Everything runs off the device's UTC clock, so it is immune to
+   whatever timezone the phone is set to; longitude supplies the local offset. */
+export function sunAltitudeDeg(date, latDeg, lonDeg) {
+  const d = date.getTime() / 86400000 - 10957.5;        // days since J2000.0 (UT)
+  const g = (357.529 + 0.98560028 * d) * DEG;           // mean anomaly
+  const q = 280.459 + 0.98564736 * d;                   // mean longitude
+  const L = (q + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * DEG;  // ecliptic longitude
+  const e = (23.439 - 0.00000036 * d) * DEG;            // obliquity
+  const dec = Math.asin(Math.sin(e) * Math.sin(L));     // declination (rad)
+  const ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L)) / DEG;  // right ascension (deg)
+  const gmst = 280.46061837 + 360.98564736629 * d;      // Greenwich sidereal time (deg)
+  let ha = (gmst + lonDeg - ra) % 360;                  // hour angle (deg)
+  if (ha < -180) ha += 360; else if (ha > 180) ha -= 360;
+  const phi = latDeg * DEG, H = ha * DEG;
+  const sinAlt = Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(H);
+  return Math.asin(Math.max(-1, Math.min(1, sinAlt))) / DEG;
+}
+
+/* Pick the screen mode from the sun's altitude:
+     day   — sun up (allowing for refraction at the horizon)
+     dark  — dawn/dusk twilight glow (calm dark theme)
+     night — properly dark past nautical twilight (red-on-black to save night vision) */
+export function themeForSunAltitude(altDeg) {
+  if (altDeg >= -0.83) return 'day';
+  if (altDeg >= -12) return 'dark';
+  return 'night';
+}
