@@ -18,6 +18,24 @@ const FADE_MS = 10 * 60 * 1000;     // then a slow fade to silence
 const PEAK = 0.16;                  // gentle master volume for the noise
 const HI_HZ = 620, LO_HZ = 300;     // in-breath brighter, out-breath warmer
 
+/* A tiny looping silent WAV. Playing it through an <audio> element inside the
+   Begin gesture promotes iOS Safari to the media-playback audio session, so the
+   Web-Audio "sea breath" is heard even when the phone's ring/silent switch is
+   set to silent — and helps the sound survive the screen dimming. */
+function silentWavUrl() {
+  const sr = 8000, n = sr / 2;               // 0.5s, 8-bit mono
+  const b = new Uint8Array(44 + n);
+  const dv = new DataView(b.buffer);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, 'RIFF'); dv.setUint32(4, 36 + n, true); ws(8, 'WAVE');
+  ws(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, sr, true); dv.setUint32(28, sr, true); dv.setUint16(32, 1, true); dv.setUint16(34, 8, true);
+  ws(36, 'data'); dv.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) b[44 + i] = 128;   // 8-bit silence
+  let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+  return 'data:audio/wav;base64,' + btoa(s);
+}
+
 /* Theme-aware sphere colours so Night-vision stays red-on-black. */
 function sphereColors() {
   const t = document.documentElement.getAttribute('data-theme');
@@ -27,7 +45,7 @@ function sphereColors() {
 }
 
 export function renderBreathe(view, _param, signal) {
-  let ctx = null, src = null, filter = null, gain = null;
+  let ctx = null, src = null, filter = null, gain = null, keepEl = null;
   let raf = null, startT = 0, running = false, sleeping = false, wakeLock = null;
 
   const sphere = h('div', { class: 'bx-sphere', 'aria-hidden': 'true' });
@@ -74,6 +92,13 @@ export function renderBreathe(view, _param, signal) {
   function startAudio() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
+    // Promote iOS to media-playback so sound is heard past the ring/silent switch.
+    try {
+      keepEl = new Audio(silentWavUrl());
+      keepEl.loop = true; keepEl.playsInline = true;
+      keepEl.setAttribute('playsinline', ''); keepEl.setAttribute('webkit-playsinline', '');
+      const pl = keepEl.play(); if (pl && pl.catch) pl.catch(() => {});
+    } catch (e) { /* fall back to normal Web-Audio output */ }
     ctx = new AC();
     // Brown noise: integrate white noise, then normalise. Warm, surf-like, kind to sleep.
     const len = Math.floor(ctx.sampleRate * 3);
@@ -90,6 +115,8 @@ export function renderBreathe(view, _param, signal) {
     gain = ctx.createGain(); gain.gain.value = 0;
     src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     src.start();
+    // iOS creates the context suspended even inside a gesture — resume it now.
+    if (ctx.resume) { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); }
   }
 
   function frame(now) {
@@ -118,7 +145,7 @@ export function renderBreathe(view, _param, signal) {
     running = true; sleeping = false; startT = performance.now();
     startBtn.textContent = '■ Stop';
     startBtn.classList.add('bx-running');
-    if (!ctx) startAudio(); else ctx.resume && ctx.resume();
+    if (!ctx) startAudio(); else { if (ctx.resume) { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); } if (keepEl) { const p = keepEl.play(); if (p && p.catch) p.catch(() => {}); } }
     lock();
     if (!view.contains(overlay)) document.body.appendChild(overlay);
     raf = requestAnimationFrame(frame);
@@ -130,7 +157,8 @@ export function renderBreathe(view, _param, signal) {
     if (gain && ctx) gain.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
     const closing = ctx;
     setTimeout(() => { try { src && src.stop(); } catch (e) { /* ignore */ } try { closing && closing.close(); } catch (e) { /* ignore */ } }, 200);
-    ctx = src = filter = gain = null;
+    try { if (keepEl) { keepEl.pause(); keepEl.src = ''; } } catch (e) { /* ignore */ }
+    ctx = src = filter = gain = keepEl = null;
     unlock();
     startBtn.textContent = '▶ Begin';
     startBtn.classList.remove('bx-running');
