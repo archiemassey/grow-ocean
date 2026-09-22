@@ -357,7 +357,7 @@ audio{width:100%;margin-top:6px}
 .bx-start.bx-running{background:var(--danger-button,#b3402f)}
 .bx-sliders{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:4px}
 .bx-legend{font-size:.82rem;color:var(--muted);text-align:left}
-.bx-slider{display:grid;grid-template-columns:5.4em 1fr 2.8em;align-items:center;gap:10px}
+.bx-slider{display:grid;grid-template-columns:6.2em 1fr 2.8em;align-items:center;gap:10px}
 .bx-slider>span:first-child{text-align:left;font-size:.9rem}
 .bx-slider input[type=range]{width:100%}
 .bx-val{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
@@ -372,3 +372,13 @@ audio{width:100%;margin-top:6px}
 .bx-overlay span{color:#2a2a2a;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
 html[data-theme="night"] .bx-overlay span{color:#4a0000}
 @media (prefers-reduced-motion:reduce){.bx-sphere{transition:none}}
+/* Focus mode: while a session runs, fade everything away but the orb + phase,
+   and turn the primary button into a quiet, unobtrusive Stop. */
+.bx-focus .bx-hide-on-run{display:none}
+.bx-focus .bx-wrap{background:transparent;border:none;box-shadow:none;padding:0;gap:18px;
+  min-height:70vh;justify-content:center}
+.bx-focus .bx-stage{width:min(78vw,340px);height:min(78vw,340px);margin:0}
+.bx-start.bx-running{min-width:0;width:auto;padding:.4em 1.1em;font-size:.8rem;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;background:transparent;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;opacity:.45;transition:opacity .2s}
+.bx-start.bx-running:hover,.bx-start.bx-running:focus-visible{opacity:1}

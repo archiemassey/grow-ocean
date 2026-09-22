@@ -77,7 +77,8 @@ export function renderBreathe(view, _param, signal) {
   const inS = slider('bxIn', 'Breathe in', 4);
   const holdS = slider('bxHold', 'Hold', 2);
   const outS = slider('bxOut', 'Breathe out', 6);
-  const lengths = () => [Math.max(0, +inS.input.value), Math.max(0, +holdS.input.value), Math.max(0, +outS.input.value)];
+  const holdOutS = slider('bxHoldOut', 'Hold (empty)', 0);
+  const lengths = () => [Math.max(0, +inS.input.value), Math.max(0, +holdS.input.value), Math.max(0, +outS.input.value), Math.max(0, +holdOutS.input.value)];
 
   const startBtn = h('button', { type: 'button', class: 'btn bx-start' }, '▶ Begin');
   startBtn.addEventListener('click', () => (running ? stop(false) : start()));
@@ -122,11 +123,11 @@ export function renderBreathe(view, _param, signal) {
   function frame(now) {
     if (!running) return;
     const elapsed = now - startT;
-    const [i, hold, o] = lengths();
-    const { phase, p } = cyclePhase(elapsed / 1000, i, hold, o);
+    const [i, hold, o, holdOut] = lengths();
+    const { phase, p } = cyclePhase(elapsed / 1000, i, hold, o, holdOut);
 
     sphere.style.transform = 'scale(' + sphereScale(phase, p).toFixed(3) + ')';
-    const label = phase === 'in' ? 'Breathe in' : phase === 'hold' ? 'Hold' : 'Breathe out';
+    const label = phase === 'in' ? 'Breathe in' : phase === 'out' ? 'Breathe out' : 'Hold';
     if (phaseText.textContent !== label) phaseText.textContent = label;
 
     if (ctx && gain) {
@@ -143,8 +144,9 @@ export function renderBreathe(view, _param, signal) {
 
   function start() {
     running = true; sleeping = false; startT = performance.now();
-    startBtn.textContent = '■ Stop';
+    startBtn.textContent = 'Stop';
     startBtn.classList.add('bx-running');
+    view.classList.add('bx-focus');
     if (!ctx) startAudio(); else { if (ctx.resume) { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); } if (keepEl) { const p = keepEl.play(); if (p && p.catch) p.catch(() => {}); } }
     lock();
     if (!view.contains(overlay)) document.body.appendChild(overlay);
@@ -162,6 +164,7 @@ export function renderBreathe(view, _param, signal) {
     unlock();
     startBtn.textContent = '▶ Begin';
     startBtn.classList.remove('bx-running');
+    view.classList.remove('bx-focus');
     phaseText.textContent = finished ? 'Rest well 🌙' : 'Ready when you are';
     sphere.style.transform = 'scale(0.32)';
     // On a manual stop, clear the black overlay immediately; on a natural finish
@@ -179,23 +182,23 @@ export function renderBreathe(view, _param, signal) {
   });
 
   view.append(
-    h('h2', { class: 'bx-h' }, 'Breath work & recovery'),
-    h('p', { class: 'sub' }, 'A slow-breathing wind-down for rest shifts. Breathe in and out through your nose, follow the sphere and the sound, and let the exhale be the longest part.'),
+    h('h2', { class: 'bx-h bx-hide-on-run' }, 'Breath work & recovery'),
+    h('p', { class: 'sub bx-hide-on-run' }, 'A slow-breathing wind-down for rest shifts. Breathe in and out through your nose, follow the sphere and the sound, and let the exhale be the longest part.'),
     h('section', { class: 'card bx-wrap' }, [
       stage,
       phaseText,
       startBtn,
-      h('div', { class: 'bx-sliders' }, [
+      h('div', { class: 'bx-sliders bx-hide-on-run' }, [
         h('div', { class: 'bx-legend' }, 'Set your rhythm (seconds)'),
-        inS.row, holdS.row, outS.row
+        inS.row, holdS.row, outS.row, holdOutS.row
       ]),
-      h('p', { class: 'bx-note' }, 'Default is 4 · 2 · 6 — the "breathe slow" 4:6 you know, with a gentle pause. A longer out-breath is what settles the nervous system. Runs 10 minutes, then the screen sleeps and the sound fades away over 10 more.')
+      h('p', { class: 'bx-note bx-hide-on-run' }, 'Default is 4 · 2 · 6 — the "breathe slow" 4:6 you know, with a gentle pause when full. Add a second "hold (empty)" pause after the out-breath if you like a box-style rhythm. A longer out-breath is what settles the nervous system. Runs 10 minutes, then the screen sleeps and the sound fades away over 10 more.')
     ]),
-    h('section', { class: 'card bx-yojo' }, [
+    h('section', { class: 'card bx-yojo bx-hide-on-run' }, [
       h('h3', {}, '🌀 Pairing with your Yōjō'),
       h('p', {}, 'On a rest shift you can run this alongside a Yōjō relax, sleep or recovery session — the device works the vagus nerve electrically while your slow 4:6 breathing does the same by feel. Two gentle routes to the same "rest and digest" calm.')
     ]),
-    h('section', { class: 'card bx-safe' }, [
+    h('section', { class: 'card bx-safe bx-hide-on-run' }, [
       h('h3', {}, 'Keep it safe'),
       h('ul', {}, [
         h('li', {}, 'A relaxation and recovery aid — not medical advice or treatment.'),
