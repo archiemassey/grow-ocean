@@ -1,11 +1,19 @@
 /* Home keeps perspective first, then the shared shift controls and due reminders. */
-import { h, go, toast } from '../app.js';
+import { h, go, toast, shareOrDownload } from '../app.js';
 import { db } from '../db.js';
 import { CONTENT } from '../data/content.js';
 import { getReminderState } from '../reminders.js';
 import { APP_RELEASE, checkForUpdates } from '../updates.js';
 import { getShiftPerspective } from '../shift-perspective.js';
 import { shiftStore, shiftDisplay } from '../shift-state.js';
+import { buildWakeupICS } from '../shift-ics.js';
+
+/* −5 pulls the handover EARLIER, so a resting partner's Calendar alarm (set when the
+   old schedule was shared) will not move itself earlier — she could be woken late.
+   +5 is safe (she only wakes slightly early), so only −5 needs this warning. */
+const SHORTEN_WARNING = 'Shorten this shift by 5 min? The handover comes forward 5 minutes. ' +
+  'If your partner is resting, her wake-up alarm will NOT move earlier on its own — ' +
+  're-share the wake-up alarms, or wake her, so she is not caught out.';
 
 export async function renderHome(view, param, signal) {
   const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
@@ -22,7 +30,11 @@ export async function renderHome(view, param, signal) {
   const controls = [];
   function control(label, action, className = 'secondary') {
     const button = h('button', { class: 'btn small ' + className, disabled: true, onclick: async () => {
-      if (busy || (action === 'reset' && !window.confirm('Reset this shift timer? Saved logs and the current perspective are kept.'))) return;
+      if (busy) return;
+      if (action === 'reset' && !window.confirm('Reset this shift timer? Saved logs and the current perspective are kept.')) return;
+      const snapshot = shiftStore.snapshot();
+      const running = snapshot.state && Number.isFinite(snapshot.state.shiftStart) && snapshot.state.shiftStart;
+      if (action === 'shorter' && running && !window.confirm(SHORTEN_WARNING)) return;
       busy = true;
       controls.forEach(button => button.disabled = true);
       try {
@@ -42,6 +54,13 @@ export async function renderHome(view, param, signal) {
   function updateControls({ state, error }) {
     controls.forEach(button => button.disabled = busy || !state || !!error);
   }
+  const wakeupsBtn = h('button', { class: 'btn small secondary', onclick: async () => {
+    const { state, error } = shiftStore.snapshot();
+    if (error || !state) { toast('Shift storage unavailable — retry first.'); return; }
+    const ics = buildWakeupICS(state, { count: 8, leadMin: 10 });
+    const shared = await shareOrDownload('grow-ocean-wake-ups.ics', ics, 'text/calendar');
+    if (shared) toast('Wake-up alarms ready — open the file to add them to Calendar.');
+  } }, '⏰ Wake-up alarms (.ics)');
   const timerCard = h('section', { class: 'card shift-controls', 'aria-label': 'Shift timer' }, [
     h('h3', {}, '🕒 Shift timer'), timerEl, labelEl, storageError, retry,
     h('a', { href: '#/log/watch', class: 'btn handover-action' }, 'Record handover'),
@@ -51,7 +70,9 @@ export async function renderHome(view, param, signal) {
     h('div', { class: 'btnrow' }, [
       control('🔁 Swap & restart', 'swap'), control('Reset', 'reset', 'ghost')
     ]),
-    h('p', { class: 'hint' }, 'Start or swap starts a new shift. Duration edits keep this shift. The on-screen warning is not a reliable background alarm.')
+    h('p', { class: 'hint' }, 'Start or swap starts a new shift. Duration edits keep this shift. The on-screen warning is not a reliable background alarm.'),
+    h('div', { class: 'btnrow' }, [wakeupsBtn]),
+    h('p', { class: 'hint' }, 'Wake-up alarms add iPhone Calendar alerts 10 min before each handover — real alarms that fire offline and on the lock screen. Turn on Calendar notifications + sound. Re-download after changing the shift length.')
   ]);
   const emergency = h('nav', { id: 'emergencyNav', class: 'card emergency-nav', 'aria-label': 'Emergency procedures' }, [
     h('h3', {}, 'Emergency procedures'),

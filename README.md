@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v13** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v14** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v13** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v14** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v13 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v14 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -264,6 +264,7 @@ grow-ocean-app/
 │  ├─ speech.js               Shared on-device English voice selection and saved playback preferences
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
 │  ├─ shift-state.js          Shared atomic shift settings, foreground clock and cross-tab refresh
+│  ├─ shift-ics.js            DOM-free wake-up alarm (.ics) builder for upcoming handovers
 │  ├─ navigation.js           Four-tab mapping and deterministic deep-link parents
 │  ├─ safety.js               Action-critical operating conditions (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
@@ -413,7 +414,19 @@ The strip is not an ARIA live region, so it does not announce every second. This
 on-screen timer, **not a reliable background alarm**; keep the existing native reminder
 setup and onboard watch procedures. Physical-device alarms remain a separate validation.
 
-The v13 worker precaches every `js/**` module with the shell — including `theme.js`,
+**Wake-up alarms (.ics export).** Because an installed web app cannot set or move a native
+iPhone alarm on its own, Home's shift card has an **⏰ Wake-up alarms (.ics)** button. It
+builds a small calendar file of the next eight handovers, each with a Calendar alert 10 min
+before, and opens the iOS Share sheet to add them to Calendar — real alerts that fire offline
+and on the lock screen. The same file serves both rowers: it wakes the resting partner and
+cues the rower on oars to rouse her. The maths lives in the DOM-free `js/shift-ics.js`
+(`nextHandovers`, `rowerAfter`, `buildWakeupICS`) with ASCII-only, UTC-stamped output.
+Because a web app cannot move an alarm already imported, **−5 (shorten) now warns** when a
+shift is running: the handover comes forward but the resting partner's alarm will not, so
+re-share the alarms or wake her. **+5 is safe** (she only wakes slightly early) and is not
+gated. Re-download the alarms after changing the shift length.
+
+The v14 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build

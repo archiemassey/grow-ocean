@@ -5,7 +5,7 @@
    internet at all (essential mid-Atlantic). Release bumps must also update the
    index.html app-release marker and updates.js APP_RELEASE (see README). */
 
-const CACHE_VERSION = 'grow-ocean-v13';
+const CACHE_VERSION = 'grow-ocean-v14';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,6 +23,7 @@ const APP_SHELL = [
   './js/speech.js',
   './js/shift-perspective.js',
   './js/shift-state.js',
+  './js/shift-ics.js',
   './js/navigation.js',
   './js/theme.js',
   './js/star-math.js',
