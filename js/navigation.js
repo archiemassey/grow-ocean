@@ -6,6 +6,7 @@ export function primaryTab(name) {
 // Deterministic parents also work for cold launches, Siri and manifest shortcuts.
 export function parentRoute(name, param = '') {
   if (name === 'procedures') return param ? '#/procedures' : '#/home';
+  if (name === 'schedule') return '#/home';
   if (param) {
     if (name === 'wiki' && param.startsWith('official-rules-page-')) return '#/wiki/official-rules';
     return '#/' + name;

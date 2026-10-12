@@ -9,6 +9,8 @@
    DOM-free and pure so it can be unit-tested. Uses UTC (Z) timestamps, so the alarms
    fire at the correct absolute instant regardless of the phone's time zone. */
 
+import { computeSchedule, nextHandovers as scheduleHandovers } from './shift-schedule.js';
+
 /* Upcoming handover timestamps (ms). A handover happens every shiftMin minutes from
    shiftStart. If no shift is running we anchor from `now` as a planning aid. */
 export function nextHandovers(state, { count = 8, now = Date.now() } = {}) {
@@ -62,6 +64,44 @@ export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now(
       'DTSTART:' + icsStamp(at),
       'DTEND:' + icsStamp(at + 60000),
       'SUMMARY:Shift handover - ' + onNext + ' on oars',
+      'DESCRIPTION:' + leadMin + ' min warning. Wake your partner and prepare to swap.',
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Handover in ' + leadMin + ' minutes - ' + onNext + ' on oars',
+      'TRIGGER:-PT' + leadMin + 'M',
+      'END:VALARM',
+      'END:VEVENT'
+    );
+  });
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n') + '\r\n';
+}
+
+/* Build a .ics clocked off the computed day/night schedule. Each handover is a
+   1-minute event with a DISPLAY alarm `leadMin` minutes before. The schedule is
+   deterministic from the settings + the phone clock, so the resting rower's wake-ups
+   line up exactly with the active rower's countdown. */
+export function buildScheduleICS(settings, { count = 12, leadMin = 10, now = Date.now() } = {}) {
+  const schedule = computeSchedule(settings);
+  const handovers = scheduleHandovers(schedule, { count, now });
+  const dtstamp = icsStamp(now);
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//gROW Ocean//Shift Schedule//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:gROW Ocean shift schedule'
+  ];
+  handovers.forEach(({ at, onNext, part }, i) => {
+    const when = part === 'night' ? 'night' : 'day';
+    lines.push(
+      'BEGIN:VEVENT',
+      'UID:grow-ocean-schedule-' + at + '-' + i + '@grow-ocean',
+      'DTSTAMP:' + dtstamp,
+      'DTSTART:' + icsStamp(at),
+      'DTEND:' + icsStamp(at + 60000),
+      'SUMMARY:Shift handover - ' + onNext + ' on oars (' + when + ')',
       'DESCRIPTION:' + leadMin + ' min warning. Wake your partner and prepare to swap.',
       'BEGIN:VALARM',
       'ACTION:DISPLAY',

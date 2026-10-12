@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v14** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v15** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v14** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v15** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v14 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v15 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -265,6 +265,10 @@ grow-ocean-app/
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
 │  ├─ shift-state.js          Shared atomic shift settings, foreground clock and cross-tab refresh
 │  ├─ shift-ics.js            DOM-free wake-up alarm (.ics) builder for upcoming handovers
+│  ├─ shift-schedule.js       DOM-free day/night schedule maths (fair split, strict alternation)
+│  ├─ shift-qr.js             Encode/decode the schedule as a compact offline QR payload
+│  ├─ vendor/qrcode.js        Vendored public-domain QR generator (offline, SVG output)
+│  ├─ vendor/jsqr.js          Vendored Apache-2.0 QR scanner (in-app camera decode)
 │  ├─ navigation.js           Four-tab mapping and deterministic deep-link parents
 │  ├─ safety.js               Action-critical operating conditions (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
@@ -426,7 +430,24 @@ shift is running: the handover comes forward but the resting partner's alarm wil
 re-share the alarms or wake her. **+5 is safe** (she only wakes slightly early) and is not
 gated. Re-download the alarms after changing the shift length.
 
-The v14 worker precaches every `js/**` module with the shell — including `theme.js`,
+**Day / night schedule + offline QR sync (`#/schedule`).** Home's shift card links to a
+**🗓️ Day / night schedule** screen. Two sliders set the **night** stint (one long unbroken
+rest each) and the **day** stint; a **balance** slider shares the rowing time if one rower is
+stronger. The maths (DOM-free `js/shift-schedule.js`) guarantees each rower's daily total is
+exactly her balance share of 24h — 50/50 → 12h each, 60/40 → 14h24 / 9h36 — whatever the
+slider lengths, because every segment length (never the count) scales by the split, so strict
+alternation is preserved. When **“Use this schedule”** is on, Home's live countdown and the
+`.ics` alarms are clocked off the computed stints (`currentSegment`, `nextHandovers`) rather
+than the fixed length. The schedule is deterministic from the settings plus the phone clock
+(anchored to local midnight + night start), so two phones holding the same settings compute
+identical handovers with **no shared start time**. The rowers stay awake and agree changes
+together, then re-sync by **QR**: one phone shows the schedule QR (`js/shift-qr.js` payload),
+the other scans it in-app with the camera — fully offline, no wifi, cloud or push. QR encode
+uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the vendored Apache-2.0
+`js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms are also
+provided. There is deliberately **no autonomous push** between phones.
+
+The v15 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build

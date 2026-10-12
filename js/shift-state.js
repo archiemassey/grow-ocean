@@ -1,7 +1,11 @@
 import { db } from './db.js';
+import { normaliseSchedule, computeSchedule, currentSegment } from './shift-schedule.js';
 
 export const SHIFT_DEFAULTS = Object.freeze({
-  shiftMin: 90, shiftStart: null, activeRower: 'Rower 1', shiftLastStart: 0
+  shiftMin: 90, shiftStart: null, activeRower: 'Rower 1', shiftLastStart: 0,
+  // Day/night schedule (deterministic from these settings + the phone clock, so two
+  // phones with the same settings stay in sync without sharing a start time).
+  scheduleOn: false, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200
 });
 
 function validate(state) {
@@ -10,11 +14,13 @@ function validate(state) {
       !['Rower 1', 'Rower 2'].includes(state.activeRower) ||
       !Number.isFinite(state.shiftLastStart) || state.shiftLastStart < 0)
     throw new Error('Saved shift settings are invalid.');
-  return state;
+  // Schedule fields are clamped rather than rejected, so they can never break the timer.
+  return { ...state, ...normaliseSchedule(state) };
 }
 
 export function shiftDisplay(state, now = Date.now()) {
-  if (!state) return { status: 'unavailable', label: 'Shift unavailable', time: '—' };
+  if (!state) return { status: 'unavailable', label: 'Shift unavailable', time: '—', rower: null };
+  if (state.scheduleOn) return scheduleDisplay(state, now);
   const left = state.shiftStart === null ? state.shiftMin * 60000
     : state.shiftStart + state.shiftMin * 60000 - now;
   const seconds = Math.floor(Math.abs(left) / 1000);
@@ -23,7 +29,21 @@ export function shiftDisplay(state, now = Date.now()) {
   const status = state.shiftStart === null ? 'idle' : left <= 0 ? 'overdue' : left <= 600000 ? 'warning' : 'running';
   const label = status === 'idle' ? 'No shift running' : status === 'overdue' ? 'Overdue — handover'
     : status === 'warning' ? 'Handover in ≤10 min' : 'On oars';
-  return { status, label, time };
+  return { status, label, time, rower: state.activeRower };
+}
+
+/* Live countdown for the computed day/night schedule — clocked off the current stint. */
+function scheduleDisplay(state, now) {
+  const seg = currentSegment(computeSchedule(state), now);
+  if (!seg) return { status: 'idle', label: 'No schedule', time: '--:--', rower: null };
+  const left = seg.endsAt - now;
+  const seconds = Math.floor(Math.abs(left) / 1000);
+  const time = (left < 0 ? '+' : '') + String(Math.floor(seconds / 60)).padStart(2, '0') +
+    ':' + String(seconds % 60).padStart(2, '0');
+  const status = left <= 0 ? 'overdue' : left <= 600000 ? 'warning' : 'running';
+  const label = (seg.part === 'night' ? 'Night · ' : 'Day · ') +
+    (status === 'overdue' ? 'Overdue — handover' : status === 'warning' ? 'Handover in ≤10 min' : 'On oars');
+  return { status, label, time, rower: seg.rower };
 }
 
 // One timestamp-based state source for Home and the shell. No view owns a timer.
@@ -65,6 +85,13 @@ export function createShiftStore(storage, { now = Date.now, broadcast = () => {}
       }));
       broadcast();
       return result;
+    },
+    // Merge schedule settings (sliders / Re-calc / QR apply). Values are clamped by validate().
+    async setSchedule(partial) {
+      const result = await enqueue(() => storage.updateSettings(SHIFT_DEFAULTS, saved =>
+        validate({ ...validate(saved), ...partial })));
+      broadcast();
+      return result;
     }
   };
 }
@@ -100,7 +127,8 @@ export function mountShiftStrip(link) {
   return shiftStore.subscribe(({ state, error }) => {
     const display = shiftDisplay(state);
     link.dataset.status = error ? 'unavailable' : display.status;
+    const rower = display.rower || state?.activeRower;
     link.textContent = error ? 'Shift storage unavailable — open Home to retry'
-      : state ? `${state.activeRower} · ${display.label} · ${display.time}` : 'Loading shift…';
+      : state ? `${rower} · ${display.label} · ${display.time}` : 'Loading shift…';
   });
 }

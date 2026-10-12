@@ -382,3 +382,16 @@ html[data-theme="night"] .bx-overlay span{color:#4a0000}
   letter-spacing:.06em;text-transform:uppercase;background:transparent;color:var(--muted);
   border:1px solid var(--line);border-radius:999px;opacity:.45;transition:opacity .2s}
 .bx-start.bx-running:hover,.bx-start.bx-running:focus-visible{opacity:1}
+
+/* Day / night schedule + QR sync */
+.sched-slider{grid-template-columns:7em 1fr 8em}
+.sched-field{display:flex;align-items:center;gap:10px;margin:4px 0}
+.sched-field>span{font-size:.9rem}
+.sched-field input[type=time]{width:auto;flex:none}
+.switch-row{display:flex;align-items:center;gap:12px;margin:4px 0 10px}
+.sched-totals{margin:8px 0 2px;font-size:1rem}
+.sched-totals span{color:var(--muted)}
+.sched-qr{display:grid;place-items:center;background:#fff;border-radius:12px;padding:12px;margin:6px 0}
+.sched-qr svg{width:min(66vw,260px);height:auto;display:block}
+.sched-scan{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.sched-cam{width:100%;max-width:340px;border-radius:12px;background:#000;aspect-ratio:1/1;object-fit:cover}

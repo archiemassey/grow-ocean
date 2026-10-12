@@ -72,7 +72,8 @@ export async function renderHome(view, param, signal) {
     ]),
     h('p', { class: 'hint' }, 'Start or swap starts a new shift. Duration edits keep this shift. The on-screen warning is not a reliable background alarm.'),
     h('div', { class: 'btnrow' }, [wakeupsBtn]),
-    h('p', { class: 'hint' }, 'Wake-up alarms add iPhone Calendar alerts 10 min before each handover — real alarms that fire offline and on the lock screen. Turn on Calendar notifications + sound. Re-download after changing the shift length.')
+    h('p', { class: 'hint' }, 'Wake-up alarms add iPhone Calendar alerts 10 min before each handover — real alarms that fire offline and on the lock screen. Turn on Calendar notifications + sound. Re-download after changing the shift length.'),
+    h('a', { href: '#/schedule', class: 'btn small secondary' }, '🗓️ Day / night schedule & QR sync')
   ]);
   const emergency = h('nav', { id: 'emergencyNav', class: 'card emergency-nav', 'aria-label': 'Emergency procedures' }, [
     h('h3', {}, 'Emergency procedures'),
