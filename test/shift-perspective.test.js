@@ -127,8 +127,8 @@ function homeHarness(db) {
 test('Home starts and swaps update This shift; duration edits, clock changes and navigation do not', async () => {
   const db = storage(), home = homeHarness(db);
   const firstView = await home.render();
-  assert.equal(firstView.children[0]['aria-label'], 'This shift', 'thought is first main content');
-  assert.equal(firstView.children[1].children[0].textContent, '🕒 Shift timer', 'timer follows thought');
+  assert.equal(firstView.children[0]['aria-label'], 'Shift timer', 'hero timer is first main content');
+  assert.equal(firstView.children[1]['aria-label'], 'This shift', 'inspiration follows the timer');
   assert.ok(home.nodes().some(node => node.href === '#/stars'));
   const welcome = home.text();
   await home.render();
@@ -142,7 +142,7 @@ test('Home starts and swaps update This shift; duration edits, clock changes and
   assert.equal(home.text(), first);
   await home.render();
   assert.equal(home.text(), first, 'reopening the same running shift preserves its prompt');
-  await home.button('🔁 Swap & restart').onclick();
+  await home.button('🔁 Swap').onclick();
   const swapped = home.text();
   assert.notEqual(swapped, first);
   assert.equal(await db.getSetting('shiftStart'), 1001, 'even same-millisecond starts have distinct IDs');

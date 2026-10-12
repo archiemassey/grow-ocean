@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v15** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v16** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v15** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v16** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v15 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v16 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -391,15 +391,26 @@ as a banner or disclosure in operational screens.
 
 ### Home: a little perspective for this shift
 
-The compact **This shift** card is the first main content on Home, immediately below the
-top bar, compact shift strip and any necessary update notice, ahead of the full timer.
-No introduction or release disclosure appears above it. Its short text and tight spacing
-keep the timer and emergency buttons nearby. It replaces Morale's random Awe card and uses a small,
-dedicated set of gentle perspective prompts, with a Star guide link and a reminder that boat
-and watch duties come first. It never draws from or resets the entertainment deck.
+Home opens on the **Deep Horizon** hero — a full-width gradient card with a circular
+countdown dial (the arc fills as the stint runs and tints amber/red as the handover nears),
+an SVG wave along the bottom, and a single **This shift** inspiration line beneath it.
+The hero carries the emergency control in plain view and a discreet **⚙️ cog** in its
+top-right. The cog is the only trigger for a **rising bottom sheet** that holds the shift
+controls — Start, 🔁 Swap, Reset, the one-time **+5 min / −5** nudges, and links to the
+day/night schedule and wake-up alarms. The sheet closes on Escape, a backdrop tap or its
+Done control; its open/closed state is driven entirely by CSS (no view-owned timer), and
+focus is trapped and restored. The inspiration text uses a small, dedicated set of gentle
+prompts with a Star guide link and a reminder that boat and watch duties come first. It
+never draws from or resets the entertainment deck.
 
-Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap &
-restart** each set a new `shiftStart` and assign a new prompt, excluding the immediately
+The **+5 / −5** buttons are a **one-time local nudge**: in day/night schedule mode they
+shift only the current stint's handover time (keyed to that stint's start, so the offset
+auto-expires at the next changeover) without rewriting the fixed daily schedule; in plain
+fixed mode they still adjust `shiftMin` by ±5. −5 confirms first, because it does not move
+the resting partner's native wake-up alarm.
+
+Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap**
+each set a new `shiftStart` and assign a new prompt, excluding the immediately
 previous one. The assignment is persisted against that actual shift ID, not the date,
 elapsed time or rower's name. Reopening Home, restarting the app, editing the duration,
 changing the rower name alone or continuing the same shift does not change it. Resetting
@@ -447,7 +458,7 @@ uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the vendore
 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms are also
 provided. There is deliberately **no autonomous push** between phones.
 
-The v15 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v16 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build
