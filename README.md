@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v17** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v18** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v17** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v18** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v17 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v18 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -83,7 +83,7 @@ Entertainment. Log forms, recordings, settings and entertainment no-repeat histo
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
-| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, media placeholders and journal/live-data links. Awe/perspective is on Home. | Media + Games |
+| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, a note pointing to the native Apple Music / Podcasts apps, and journal/live-data links. Awe/perspective is on Home. | Media + Games |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency procedures on Home, a **Live race data** page (race/VMG/weather routing via
@@ -290,7 +290,8 @@ edits live on the device, not in this file.
 
 The bundled release contains **6,082 items**: **2,005 trivia**, **1,000 jokes/riddles**,
 **1,000 Would You Rather prompts**, **77 playable games**, **1,000 conversation prompts**
-and **1,000 challenges**, plus the original **44-day plan** as optional theme/category suggestions.
+and **1,000 challenges**. (A legacy 44-day plan may remain in the content pack but is no
+longer surfaced in the UI.)
 The four topped-up categories are grown to exactly **1,000 each** by
 `tools/generate-morale-content.mjs` — a **regenerable** top-up generator that appends only as
 many original, wholesome, non-copyright, British-English items as needed (prefixing generated
@@ -309,10 +310,11 @@ array. Each item has a permanent `id`, `category` (`jokes`, `wyr`, `trivia`, `ga
 `conversation`, `challenges`), plain-text `prompt` and `source`. Optional fields are `answer`,
 `instructions` and `topic`; trivia requires an answer and games require complete instructions.
 Do not reuse IDs for different content. Pack text is rendered as text, never executable HTML.
-An optional `schedule` contains 44 distinct `{ day, title, note, source }` records. The included
-plan appears as a collapsed day picker: its original themes and source references are preserved,
-but actual draws use category progress rather than replaying fixed IDs. It is never a daily lock
-or a second deck. Sources for answer-bearing items appear only after Reveal to avoid spoilers.
+An optional `schedule` of 44 `{ day, title, note, source }` records may still ship inside a
+pack, but v18 **no longer surfaces it as a UI disclosure** — it was an inert display that
+changed nothing, so the day-picker was removed. Draws always use category progress rather than
+replaying fixed IDs; the schedule is never a daily lock or a second deck. Sources for
+answer-bearing items appear only after Reveal to avoid spoilers.
 
 Choose categories freely across the 44-day crossing; there is no forced daily pack. **Next unseen item**
 draws unseen items only. On-device IndexedDB settings save seen IDs and the current item for
@@ -342,10 +344,11 @@ settings have visible keyboard focus and light/dark themes.
 Timing/audio options, detailed progress, explicit Reset, source and content release are tucked
 into **Playback settings, progress & source**. Read-aloud is a secondary preference,
 not another prominent button.
-White noise and media placeholders are collapsed into **More ways to unwind → Sound & media**.
+White noise is collapsed into **More ways to unwind → Sound & media**, alongside a short note
+pointing the crew to the native **Apple Music** and **Apple Podcasts** apps for their own
+downloaded tunes, podcasts and audiobooks — gROW no longer ships its own media placeholders.
 Journal, Home perspective and the explicitly labelled prototype race/weather link are in the
-separate **Journal & crossing** disclosure, not competing with the main player. The 44-day plan
-also remains an optional disclosure.
+separate **Journal & crossing** disclosure, not competing with the main player.
 
 Tap **Next** to begin, or turn **Auto On** in Jokes, Trivia, Would You Rather or Conversation.
 Auto starts with the current item if one exists, otherwise draws the first unseen item.
@@ -382,6 +385,11 @@ controls when the countdown starts.
   Spoken Content / Read & Speak → Voices** (names vary by iOS). Safari may not expose every
   downloaded voice. This is **foreground-only**, not reliable locked-screen PWA audio.
   Test the actual phone and voice in aeroplane mode before departure.
+- **iOS audio-unlock fix.** iPhone Safari only grants speech synthesis from inside a direct
+  user gesture. gROW now **primes** the voice synchronously (a silent utterance via
+  `createSpeechReader.prime()`) on the Start/Auto tap and on the settings change, *before* the
+  async IndexedDB draw runs — so the gesture isn't lost and the jokes actually read aloud.
+  This clears the earlier **“audio-unavailable”** state on iPhone.
 
 v9 fixes pale critical callouts against near-white dark-mode text (the apparent “white
 blobs” on MOB/Wiki/Checklists), gives toasts a stable navy/white contrast pair, and ensures
@@ -396,34 +404,50 @@ countdown dial (the arc fills as the stint runs and tints amber/red as the hando
 an SVG wave along the bottom, and a single **This shift** inspiration line beneath it.
 The hero carries the emergency control in plain view and a discreet **⚙️ cog** in its
 top-right. Beside the dial is a compact **D-pad**: up/down are the one-time **+5 / −5**
-nudges, left swaps rower, centre resets and right starts — small icons so the dial keeps
-the page. The cog opens a **rising bottom sheet** that holds the day/night schedule sliders
-(night stint, day stint and the Rower-1 balance split) inline, plus links to QR sync and the
-wake-up alarms. The sheet closes on Escape, a backdrop tap or its **✕**; its open/closed
-state is driven entirely by CSS (no view-owned timer), and focus is trapped and restored.
+nudges, left swaps rower, centre resets and right is a **play/pause toggle** (▶ starts or
+resumes, ⏸ pauses) — small icons so the dial keeps the page. The cog opens a **rising bottom
+sheet** that holds **rower-name inputs** (with **✓ Save names**), the day/night schedule
+sliders (night stint, day stint and the Rower-1 balance split) full-width inline, plus links
+to QR sync, the wake-up alarms and **🗑 Remove gROW alarms**. The sheet closes on Escape, a
+backdrop tap or its **✕**; its open/closed state is driven entirely by CSS (no view-owned
+timer), and focus is trapped and restored.
 The global shift strip is hidden on Home (the hero already shows the live status) and shown
 on every other screen. The inspiration text uses a small, dedicated set of gentle
 prompts with a Star guide link and a reminder that boat and watch duties come first. It
 never draws from or resets the entertainment deck.
 
-The **+5 / −5** buttons are a **one-time local nudge**: in day/night schedule mode they
-shift only the current stint's handover time (keyed to that stint's start, so the offset
-auto-expires at the next changeover) without rewriting the fixed daily schedule; in plain
-fixed mode they still adjust `shiftMin` by ±5. They apply silently (no confirm pop-up), and
-Reset applies without a confirm as well.
+**Manual stopwatch seeded by the schedule.** In day/night schedule mode the dial normally
+follows the deterministic clock, but the moment a quick control (▶/⏸/↺/⇄/±5) is used it
+hands the dial to a **manual stopwatch**, seeded from the current stint (same rower, same
+remaining) so the switch is seamless. **▶** starts or resumes, **⏸** freezes the remaining
+time, **↺** restarts the current stint from its full configured length (running, no confirm
+pop-up), and **⇄** swaps the rower onto a fresh stint. The schedule still clocks the wake-up
+alarms and QR sync throughout, so the two phones stay in agreement even while one rower drives
+the dial by hand. **Rower names** entered in the sheet (and on `#/schedule`) replace
+“Rower 1 / Rower 2” everywhere the pair are named — the live strip, handover line, swap toast
+and the `.ics` text — while the internal ids never change, so saved alarms still match.
+
+The **+5 / −5** buttons are a **one-time local nudge**: in day/night schedule mode, before the
+manual stopwatch takes over, they shift only the current stint's handover time (keyed to that
+stint's start, so the offset auto-expires at the next changeover) without rewriting the fixed
+daily schedule; in plain fixed mode (and once the stopwatch owns the dial) they adjust
+`shiftMin` by ±5. They apply silently (no confirm pop-up), and Reset applies without a confirm
+as well.
 
 Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap**
-each set a new `shiftStart` and assign a new prompt, excluding the immediately
-previous one. The assignment is persisted against that actual shift ID, not the date,
-elapsed time or rower's name. Reopening Home, restarting the app, editing the duration,
-changing the rower name alone or continuing the same shift does not change it. Resetting
-the timer keeps the last perspective until a genuinely new shift starts. Concurrent Home
+each begin a genuinely new shift (a new `shiftLastStart`) and assign a new prompt, excluding
+the immediately previous one. The assignment is persisted against that actual shift identity,
+not the date, elapsed time or rower's name. Reopening Home, restarting the app, editing the
+duration, changing the rower name alone, **pausing/resuming**, **resetting** or continuing the
+same shift does not change it — reset restarts the countdown but keeps this shift's identity,
+so the gentle prompt stays until a genuinely new shift (Start/Swap) begins. Concurrent Home
 tabs share one atomic assignment, and revisiting a known shift ID restores its saved prompt.
 
 Home and the persistent strip subscribe to one shared shift store. `shiftMin`, `shiftStart`
-and `activeRower` keep their existing IndexedDB keys. Related changes read and commit in
-one transaction; `shiftLastStart` only preserves unique shift IDs across resets and concurrent
-starts. Duration-only changes never change `shiftStart`. Failed/invalid storage is shown
+and `activeRower` keep their existing IndexedDB keys; `rower1Name`/`rower2Name`, `manualOn` and
+`pausedLeft` are stored alongside. Related changes read and commit in
+one transaction; `shiftLastStart` preserves unique, strictly-increasing shift IDs across resets
+and concurrent starts and is the perspective key. Duration-only changes never change `shiftStart`. Failed/invalid storage is shown
 explicitly; a failed save is not presented as a successful start. Retry on Home, rather than
 clearing data. Tabs refresh through BroadcastChannel where supported and on focus/resume
 otherwise. Countdown ticks are calculated from `Date.now()` and the saved start, not decremented
@@ -443,6 +467,15 @@ cues the rower on oars to rouse her. The maths lives in the DOM-free `js/shift-i
 (`nextHandovers`, `rowerAfter`, `buildWakeupICS`) with ASCII-only, UTC-stamped output.
 Calendar alerts are **soft** (they obey silent mode / Focus), so the resting rower should
 also set a Clock-app alarm for a guaranteed wake-up.
+
+**Remove gROW alarms (cancel `.ics`).** A web app cannot delete iPhone Calendar events
+through any API. The ⚙️ sheet's **🗑 Remove gROW alarms** button instead exports a
+`METHOD:CANCEL` file (`buildCancelICS`) that re-emits the **same stable UIDs** gROW published
+before, marked `STATUS:CANCELLED` with a far-higher `SEQUENCE`, so a well-behaved Calendar
+withdraws the matching events on import. Because the alarm builders use fixed internal ids in
+their UIDs (never the display names), cancels and re-imports still match. This is best-effort —
+pair it with a **dedicated gROW calendar** the crew can clear outright if their calendar app
+ignores cancellations.
 
 **Per-rower wake-ups (`#/schedule`).** The schedule screen carries a small **“I'm Rower 1 /
 I'm Rower 2”** toggle, remembered on that phone (`localStorage` key `grow-ocean-my-rower`).
@@ -472,7 +505,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v17 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v18 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build
@@ -551,8 +584,9 @@ bytes are retained. Re-review page text and test the build after extraction.
   native-aware notification layer (`js/notify.js`) is already implemented. See **[CAPACITOR.md](CAPACITOR.md)**
   for the Android/iOS build steps (Android works from Windows; iOS needs a Mac).
 - **Live data is mocked** — race/VMG/weather values are placeholders pending a tracker/router feed.
-- **Media (music/podcasts/audiobooks)** are placeholders; load real audio files onto the device
-  before departure so they play offline. (White noise is generated live and already works.)
+- **Media (music/podcasts/audiobooks)** are no longer built into gROW — the crew use the native
+  **Apple Music** and **Apple Podcasts** apps for their own downloaded content, which plays
+  offline. (White noise is generated live inside gROW and already works.)
 - **Voice notes** use the phone mic via `MediaRecorder` (offline). Voice *commands* (speech-to-text)
   can be added with the Web Speech API but recognition is patchy offline — recommend native for that.
 

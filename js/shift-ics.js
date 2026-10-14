@@ -34,6 +34,16 @@ export function rowerAfter(state, i) {
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
+/* iCalendar SEQUENCE — bumped each time a file is generated (minute resolution) so a
+   re-import with the SAME UID updates the existing Calendar event in place instead of
+   creating a duplicate. This is also what lets "Remove gROW alarms" cancel them. */
+function seqFor(now) { return Math.floor(now / 60000); }
+
+/* Resolve a rower's display name for SUMMARY/DESCRIPTION text. Internal UIDs always use
+   the fixed id so cancels still match prior imports — only the human-visible text uses
+   the custom name. */
+function labeller(names) { return r => (names && names[r]) || r; }
+
 /* Format a timestamp as an iCalendar UTC stamp: YYYYMMDDTHHMMSSZ. */
 export function icsStamp(ms) {
   const d = new Date(ms);
@@ -44,9 +54,11 @@ export function icsStamp(ms) {
 /* Build a complete .ics string of the next `count` handovers, each a 1-minute
    Calendar event with a DISPLAY alarm `leadMin` minutes before. ASCII only
    (no emoji/em-dashes) to stay within iCalendar line-length rules safely. */
-export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now() } = {}) {
+export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now(), names = {} } = {}) {
   const handovers = nextHandovers(state, { count, now });
   const dtstamp = icsStamp(now);
+  const seq = seqFor(now);
+  const label = labeller(names);
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -56,10 +68,11 @@ export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now(
     'X-WR-CALNAME:gROW Ocean shift wake-ups'
   ];
   handovers.forEach((at, i) => {
-    const onNext = rowerAfter(state, i);
+    const onNext = label(rowerAfter(state, i));
     lines.push(
       'BEGIN:VEVENT',
-      'UID:grow-ocean-handover-' + at + '-' + i + '@grow-ocean',
+      'UID:grow-ocean-handover-' + at + '@grow-ocean',
+      'SEQUENCE:' + seq,
       'DTSTAMP:' + dtstamp,
       'DTSTART:' + icsStamp(at),
       'DTEND:' + icsStamp(at + 60000),
@@ -84,7 +97,7 @@ export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now(
      'night' - her night on-oars handovers over the next 7 days
      '24h'   - all her on-oars handovers in the next 24 hours
    Each kept handover is a 1-minute event with a DISPLAY alarm `leadMin` before. */
-export function buildRowerWakeupsICS(settings, { rower = 'Rower 1', horizon = '24h', leadMin = 10, now = Date.now() } = {}) {
+export function buildRowerWakeupsICS(settings, { rower = 'Rower 1', horizon = '24h', leadMin = 10, now = Date.now(), names = {} } = {}) {
   const schedule = computeSchedule(settings);
   const all = scheduleHandovers(schedule, { count: 600, now });
   const mine = all.filter(hv => hv.onNext === rower);
@@ -95,28 +108,31 @@ export function buildRowerWakeupsICS(settings, { rower = 'Rower 1', horizon = '2
   else picks = mine.filter(hv => hv.at <= now + DAY_MS); // '24h'
 
   const slug = rower.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const name = (names && names[rower]) || rower;
   const dtstamp = icsStamp(now);
+  const seq = seqFor(now);
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//gROW Ocean//Rower Wake-ups//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    'X-WR-CALNAME:gROW Ocean wake-ups - ' + rower
+    'X-WR-CALNAME:gROW Ocean wake-ups - ' + name
   ];
-  picks.forEach(({ at, part }, i) => {
+  picks.forEach(({ at, part }) => {
     const when = part === 'night' ? 'night' : 'day';
     lines.push(
       'BEGIN:VEVENT',
-      'UID:grow-ocean-wake-' + slug + '-' + at + '-' + i + '@grow-ocean',
+      'UID:grow-ocean-wake-' + slug + '-' + at + '@grow-ocean',
+      'SEQUENCE:' + seq,
       'DTSTAMP:' + dtstamp,
       'DTSTART:' + icsStamp(at),
       'DTEND:' + icsStamp(at + 60000),
-      'SUMMARY:Wake up ' + rower + ' - on oars (' + when + ')',
+      'SUMMARY:Wake up ' + name + ' - on oars (' + when + ')',
       'DESCRIPTION:' + leadMin + ' min warning. Your shift starts - get ready to row.',
       'BEGIN:VALARM',
       'ACTION:DISPLAY',
-      'DESCRIPTION:On oars in ' + leadMin + ' minutes - ' + rower,
+      'DESCRIPTION:On oars in ' + leadMin + ' minutes - ' + name,
       'TRIGGER:-PT' + leadMin + 'M',
       'END:VALARM',
       'END:VEVENT'
@@ -130,10 +146,12 @@ export function buildRowerWakeupsICS(settings, { rower = 'Rower 1', horizon = '2
    1-minute event with a DISPLAY alarm `leadMin` minutes before. The schedule is
    deterministic from the settings + the phone clock, so the resting rower's wake-ups
    line up exactly with the active rower's countdown. */
-export function buildScheduleICS(settings, { count = 12, leadMin = 10, now = Date.now() } = {}) {
+export function buildScheduleICS(settings, { count = 12, leadMin = 10, now = Date.now(), names = {} } = {}) {
   const schedule = computeSchedule(settings);
   const handovers = scheduleHandovers(schedule, { count, now });
   const dtstamp = icsStamp(now);
+  const seq = seqFor(now);
+  const label = labeller(names);
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -142,21 +160,77 @@ export function buildScheduleICS(settings, { count = 12, leadMin = 10, now = Dat
     'METHOD:PUBLISH',
     'X-WR-CALNAME:gROW Ocean shift schedule'
   ];
-  handovers.forEach(({ at, onNext, part }, i) => {
+  handovers.forEach(({ at, onNext, part }) => {
     const when = part === 'night' ? 'night' : 'day';
     lines.push(
       'BEGIN:VEVENT',
-      'UID:grow-ocean-schedule-' + at + '-' + i + '@grow-ocean',
+      'UID:grow-ocean-schedule-' + at + '@grow-ocean',
+      'SEQUENCE:' + seq,
       'DTSTAMP:' + dtstamp,
       'DTSTART:' + icsStamp(at),
       'DTEND:' + icsStamp(at + 60000),
-      'SUMMARY:Shift handover - ' + onNext + ' on oars (' + when + ')',
+      'SUMMARY:Shift handover - ' + label(onNext) + ' on oars (' + when + ')',
       'DESCRIPTION:' + leadMin + ' min warning. Wake your partner and prepare to swap.',
       'BEGIN:VALARM',
       'ACTION:DISPLAY',
-      'DESCRIPTION:Handover in ' + leadMin + ' minutes - ' + onNext + ' on oars',
+      'DESCRIPTION:Handover in ' + leadMin + ' minutes - ' + label(onNext) + ' on oars',
       'TRIGGER:-PT' + leadMin + 'M',
       'END:VALARM',
+      'END:VEVENT'
+    );
+  });
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n') + '\r\n';
+}
+
+/* Build a METHOD:CANCEL .ics that withdraws previously-imported gROW alarms.
+
+   A PWA cannot delete iOS Calendar events through any API. The workaround: emit
+   CANCEL/STATUS:CANCELLED events with the SAME stable UIDs we published before and a
+   HIGHER sequence, so a well-behaved Calendar removes the matching events on import.
+   We cover the next `days` of schedule handovers (both the schedule and per-rower wake
+   UIDs, since the user may have imported either), plus the running fixed-shift handover
+   UIDs when a manual shift is active. Not guaranteed on every calendar app — pair with
+   a dedicated gROW calendar the user can clear if needed. */
+export function buildCancelICS(settings, { days = 21, now = Date.now(), names = {} } = {}) {
+  const dtstamp = icsStamp(now);
+  // Far above any publish sequence so the cancel always wins.
+  const seq = seqFor(now) + 1000000;
+  const horizonMs = now + days * 24 * 60 * 60000;
+  const uids = new Set();
+
+  // Schedule + per-rower wake UIDs across the horizon.
+  const schedule = computeSchedule(settings);
+  scheduleHandovers(schedule, { count: 2000, now }).forEach(({ at, onNext }) => {
+    if (at > horizonMs) return;
+    uids.add('grow-ocean-schedule-' + at + '@grow-ocean');
+    const slug = onNext.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    uids.add('grow-ocean-wake-' + slug + '-' + at + '@grow-ocean');
+  });
+  // Running fixed-shift handover UIDs, when a manual shift is active.
+  if (settings && Number.isFinite(settings.shiftStart) && settings.shiftStart) {
+    nextHandovers(settings, { count: 200, now }).forEach(at => {
+      if (at <= horizonMs) uids.add('grow-ocean-handover-' + at + '@grow-ocean');
+    });
+  }
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//gROW Ocean//Cancel//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:CANCEL',
+    'X-WR-CALNAME:gROW Ocean shift schedule'
+  ];
+  [...uids].forEach(uid => {
+    lines.push(
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'SEQUENCE:' + seq,
+      'STATUS:CANCELLED',
+      'DTSTAMP:' + dtstamp,
+      'DTSTART:' + dtstamp,
+      'SUMMARY:gROW Ocean alarm cancelled',
       'END:VEVENT'
     );
   });

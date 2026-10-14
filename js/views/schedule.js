@@ -14,10 +14,10 @@
    silent push from one phone to the other. */
 
 import { h, toast, shareOrDownload, openCalendarFile } from '../app.js';
-import { shiftStore } from '../shift-state.js';
+import { shiftStore, rowerName } from '../shift-state.js';
 import { computeSchedule, formatHours } from '../shift-schedule.js';
 import { encodeSchedulePayload, decodeSchedulePayload } from '../shift-qr.js';
-import { buildScheduleICS, buildRowerWakeupsICS } from '../shift-ics.js';
+import { buildScheduleICS, buildRowerWakeupsICS, buildCancelICS } from '../shift-ics.js';
 import { readPreference, savePreference } from '../speech.js';
 import qrcode from '../vendor/qrcode.js';
 import jsQR from '../vendor/jsqr.js';
@@ -30,6 +30,11 @@ export async function renderSchedule(view, param, signal) {
   await shiftStore.refresh().catch(() => {});
   if (signal?.aborted) return;
   const saved = shiftStore.snapshot().state || {};
+  // Display names (fall back to Rower 1/2). Internal ids stay fixed for the maths + ICS.
+  const r1Name = rowerName(saved, 'Rower 1');
+  const r2Name = rowerName(saved, 'Rower 2');
+  const nameOf = r => (r === 'Rower 2' ? r2Name : r1Name);
+  const icsNames = { 'Rower 1': r1Name, 'Rower 2': r2Name };
 
   /* ---- controls ---- */
   const toggle = h('input', { type: 'checkbox', id: 'schedOn', ...(saved.scheduleOn ? { checked: true } : {}) });
@@ -73,14 +78,14 @@ export async function renderSchedule(view, param, signal) {
     const r2 = formatHours(sched.perRowerMin['Rower 2']);
     const even = Math.abs(sched.perRowerMin['Rower 1'] - sched.perRowerMin['Rower 2']) < 1;
     totalsEl.replaceChildren(
-      h('strong', {}, 'Rower 1 ' + r1), h('span', {}, ' · '),
-      h('strong', {}, 'Rower 2 ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
+      h('strong', {}, r1Name + ' ' + r1), h('span', {}, ' · '),
+      h('strong', {}, r2Name + ' ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
     const dayStints = sched.dayPairs * 2;
     detailEl.textContent =
-      'Night: one stint each — R1 ' + formatHours(sched.nightShiftActual['Rower 1']) +
-      ' / R2 ' + formatHours(sched.nightShiftActual['Rower 2']) + '. ' +
-      'Day: ' + dayStints + ' stints — R1 ' + mins(sched.dayShiftActual['Rower 1']) +
-      ' / R2 ' + mins(sched.dayShiftActual['Rower 2']) + '. ' +
+      'Night: one stint each — ' + r1Name + ' ' + formatHours(sched.nightShiftActual['Rower 1']) +
+      ' / ' + r2Name + ' ' + formatHours(sched.nightShiftActual['Rower 2']) + '. ' +
+      'Day: ' + dayStints + ' stints — ' + r1Name + ' ' + mins(sched.dayShiftActual['Rower 1']) +
+      ' / ' + r2Name + ' ' + mins(sched.dayShiftActual['Rower 2']) + '. ' +
       'Night starts ' + timeLabel(sched.nightStartMin) + '.';
   }
 
@@ -161,8 +166,8 @@ export async function renderSchedule(view, param, signal) {
   /* ---- per-rower wake-up alarms (only the handovers where YOU come on oars) ---- */
   let myRower = readPreference(MY_ROWER_KEY, 'Rower 1');
   if (myRower !== 'Rower 1' && myRower !== 'Rower 2') myRower = 'Rower 1';
-  const r1Btn = h('button', { type: 'button', onclick: () => setRower('Rower 1') }, 'I’m Rower 1');
-  const r2Btn = h('button', { type: 'button', onclick: () => setRower('Rower 2') }, 'I’m Rower 2');
+  const r1Btn = h('button', { type: 'button', onclick: () => setRower('Rower 1') }, 'I’m ' + r1Name);
+  const r2Btn = h('button', { type: 'button', onclick: () => setRower('Rower 2') }, 'I’m ' + r2Name);
   function setRower(r) {
     myRower = r; savePreference(MY_ROWER_KEY, r);
     r1Btn.setAttribute('aria-pressed', String(r === 'Rower 1'));
@@ -171,22 +176,28 @@ export async function renderSchedule(view, param, signal) {
   setRower(myRower);
 
   async function addWakeups(horizon, label) {
-    const ics = buildRowerWakeupsICS(currentInputs(), { rower: myRower, horizon, leadMin: 10 });
+    const ics = buildRowerWakeupsICS(currentInputs(), { rower: myRower, horizon, leadMin: 10, names: icsNames });
     const n = (ics.match(/BEGIN:VEVENT/g) || []).length;
-    if (!n) { toast('No ' + label + ' wake-ups for ' + myRower + ' in range.'); return; }
+    if (!n) { toast('No ' + label + ' wake-ups for ' + nameOf(myRower) + ' in range.'); return; }
     const slug = myRower.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const shared = await openCalendarFile('grow-ocean-' + slug + '-wakeups.ics', ics);
-    if (shared) toast(n + ' wake-up' + (n > 1 ? 's' : '') + ' for ' + myRower + ' — tap “Add All” in Calendar.');
+    if (shared) toast(n + ' wake-up' + (n > 1 ? 's' : '') + ' for ' + nameOf(myRower) + ' — tap “Add All” in Calendar.');
   }
   const nextBtn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('next', 'next shift') }, '⏰ My next shift');
   const nightBtn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('night', 'night') }, '🌙 My night shifts');
   const next24Btn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('24h', 'next 24 h') }, '📅 My next 24 h');
 
   const alarmsBtn = h('button', { class: 'btn small secondary', onclick: async () => {
-    const ics = buildScheduleICS(currentInputs(), { count: 16, leadMin: 10 });
+    const ics = buildScheduleICS(currentInputs(), { count: 16, leadMin: 10, names: icsNames });
     const shared = await openCalendarFile('grow-ocean-schedule-alarms.ics', ics);
     if (shared) toast('Opening Calendar — tap “Add All” to set the alarms.');
   } }, '⏰ All handovers (both rowers)');
+
+  const removeBtn = h('button', { class: 'btn small secondary', onclick: async () => {
+    const ics = buildCancelICS(currentInputs(), { names: icsNames });
+    const shared = await openCalendarFile('grow-ocean-remove-alarms.ics', ics);
+    if (shared) toast('Opening Calendar — confirm to remove the old gROW alarms.');
+  } }, '🗑 Remove gROW alarms');
 
   scanPanel.append(video, scanHint, h('button', { class: 'btn small ghost', onclick: stopScan }, 'Close camera'));
   signal?.addEventListener('abort', stopScan, { once: true });
@@ -221,8 +232,9 @@ export async function renderSchedule(view, param, signal) {
       h('p', { class: 'hint' }, 'A Calendar alert is soft — it obeys silent mode / Focus. For a guaranteed wake-up, ' +
         'also set a Clock app alarm.'),
       h('p', { class: 'sheet-lbl' }, 'All handovers (both rowers)'),
-      h('p', { class: 'hint' }, 'Every handover for both of you — including the shifts you row.'),
-      h('div', { class: 'btnrow' }, [alarmsBtn])
+      h('p', { class: 'hint' }, 'Every handover for both of you — including the shifts you row. ' +
+        '“Remove gROW alarms” clears a previously-imported set before you add a new one.'),
+      h('div', { class: 'btnrow' }, [alarmsBtn, removeBtn])
     ])
   );
 

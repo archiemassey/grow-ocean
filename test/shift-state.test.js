@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
-import { createShiftStore, shiftDisplay, SHIFT_DEFAULTS } from '../js/shift-state.js';
+import { createShiftStore, shiftDisplay, rowerName, SHIFT_DEFAULTS } from '../js/shift-state.js';
 import { primaryTab, parentRoute, EMERGENCY_ROUTES } from '../js/navigation.js';
 
 function storage() {
@@ -40,9 +40,9 @@ test('shared shift state commits Start, duration, Swap and Reset without diverge
   assert.equal(store.snapshot().state.shiftStart, 1001);
   assert.equal(store.snapshot().state.activeRower, 'Rower 2');
   await store.change('reset');
-  assert.equal(store.snapshot().state.shiftStart, null);
+  assert.equal(store.snapshot().state.shiftStart, 1002, 'reset restarts the stint running from a fresh ID');
   await store.change('start');
-  assert.equal(store.snapshot().state.shiftStart, 1002, 'reset cannot reuse a same-millisecond ID');
+  assert.equal(store.snapshot().state.shiftStart, 1003, 'a new start cannot reuse a same-millisecond ID');
   assert.deepEqual(home, strip, 'both subscribers see exactly the same committed snapshots');
   assert.equal(broadcast, 6);
   unsub();
@@ -89,7 +89,91 @@ test('reset of a legacy running shift preserves its ID floor even after the cloc
   await store.refresh();
   await store.change('reset');
   await store.change('start');
-  assert.equal(store.snapshot().state.shiftStart, 2001);
+  assert.equal(store.snapshot().state.shiftStart, 2002);
+});
+
+test('pause freezes the remaining time and resume continues from exactly where it stopped', async () => {
+  const db = storage();
+  let clock = 1_000_000;
+  const store = createShiftStore(db, { now: () => clock });
+  await store.refresh();
+  await store.change('start');
+  assert.equal(shiftDisplay(store.snapshot().state, clock).time, '90:00');
+
+  clock += 30 * 60000; // 30 minutes of rowing
+  await store.change('pause');
+  let display = shiftDisplay(store.snapshot().state, clock);
+  assert.equal(display.paused, true);
+  assert.equal(display.running, false);
+  assert.equal(display.status, 'paused');
+  assert.equal(display.time, '60:00', 'paused clock freezes with 60 minutes left');
+  assert.equal(store.snapshot().state.shiftStart, null, 'paused shift has no running start');
+
+  clock += 45 * 60000; // time passes while paused — must not drain the timer
+  display = shiftDisplay(store.snapshot().state, clock);
+  assert.equal(display.time, '60:00', 'the frozen time does not drain while paused');
+
+  await store.change('start'); // resume
+  display = shiftDisplay(store.snapshot().state, clock);
+  assert.equal(display.paused, false);
+  assert.equal(display.running, true);
+  assert.equal(display.time, '60:00', 'resume continues from the frozen 60 minutes');
+});
+
+test('reset restarts a running stint to full length without rotating the shift identity', async () => {
+  const db = storage();
+  let clock = 2_000_000;
+  const store = createShiftStore(db, { now: () => clock });
+  await store.refresh();
+  await store.change('start');
+  const stintId = store.snapshot().state.shiftLastStart;
+  clock += 70 * 60000;
+  assert.equal(shiftDisplay(store.snapshot().state, clock).time, '20:00');
+  await store.change('reset');
+  const after = store.snapshot().state;
+  assert.equal(shiftDisplay(after, clock).time, '90:00', 'reset returns to the full configured length');
+  assert.equal(after.running ?? true, true);
+  assert.equal(shiftDisplay(after, clock).running, true, 'reset leaves the stint running');
+  assert.equal(after.shiftLastStart, stintId, 'reset keeps the same shift identity (perspective)');
+});
+
+test('a quick control in schedule mode seeds the manual stopwatch from the current stint', async () => {
+  const db = storage();
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  await db.updateSettings(SHIFT_DEFAULTS, saved => ({
+    ...saved, scheduleOn: true, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200
+  }));
+  const store = createShiftStore(db, { now: () => now });
+  await store.refresh();
+  assert.equal(store.snapshot().state.manualOn, false, 'schedule mode starts clock-driven');
+  const scheduled = shiftDisplay(store.snapshot().state, now);
+  assert.ok(scheduled.running, 'the deterministic schedule is running');
+
+  await store.change('swap');
+  const state = store.snapshot().state;
+  assert.equal(state.manualOn, true, 'the quick control takes over the dial');
+  assert.notEqual(state.activeRower, scheduled.rower, 'swap puts the other rower on oars');
+  assert.equal(shiftDisplay(state, now).rower, state.activeRower, 'the dial now follows the manual rower');
+});
+
+test('rowerName falls back to the id, trims custom names and tolerates missing state', () => {
+  assert.equal(rowerName({ rower1Name: '', rower2Name: '' }, 'Rower 1'), 'Rower 1');
+  assert.equal(rowerName({ rower1Name: 'Jess' }, 'Rower 1'), 'Jess');
+  assert.equal(rowerName({ rower2Name: 'Mim' }, 'Rower 2'), 'Mim');
+  assert.equal(rowerName({ rower1Name: '  Jess  ' }, 'Rower 1'), 'Jess', 'custom names are trimmed');
+  assert.equal(rowerName(null, 'Rower 2'), 'Rower 2', 'no state falls back to the id');
+});
+
+test('setNames persists trimmed display names without disturbing the timer', async () => {
+  const db = storage();
+  const store = createShiftStore(db, { now: () => 1000 });
+  await store.refresh();
+  await store.change('start');
+  await store.setNames('  Jess  ', 'Mim');
+  const state = store.snapshot().state;
+  assert.equal(state.rower1Name, 'Jess');
+  assert.equal(state.rower2Name, 'Mim');
+  assert.equal(state.shiftStart, 1000, 'saving names leaves the running shift untouched');
 });
 
 test('countdown uses wall-clock timestamps through warnings, zero, overdue and resume across midnight', () => {

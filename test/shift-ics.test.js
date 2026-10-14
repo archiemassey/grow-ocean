@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { nextHandovers, rowerAfter, icsStamp, buildWakeupICS, buildRowerWakeupsICS } from '../js/shift-ics.js';
+import { nextHandovers, rowerAfter, icsStamp, buildWakeupICS, buildRowerWakeupsICS, buildScheduleICS, buildCancelICS } from '../js/shift-ics.js';
 import { computeSchedule, nextHandovers as scheduleHandovers } from '../js/shift-schedule.js';
 
 const SCHED = { scheduleOn: true, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200 };
@@ -94,4 +94,46 @@ test('buildRowerWakeupsICS night keeps only night handovers', () => {
   const events = ics.match(/SUMMARY:[^\r\n]+/g) || [];
   assert.ok(events.length > 0);
   assert.ok(events.every(s => s.includes('(night)')), 'every kept handover is a night one');
+});
+
+test('custom names appear in the human-readable text but never in the stable UID', () => {
+  const names = { 'Rower 1': 'Jess', 'Rower 2': 'Mim' };
+  const wake = buildWakeupICS(RUNNING, { count: 1, now: RUNNING.shiftStart, names });
+  assert.ok(wake.includes('SUMMARY:Shift handover - Mim on oars'), 'display name used in SUMMARY');
+  assert.ok(wake.includes('UID:grow-ocean-handover-' + (RUNNING.shiftStart + 90 * 60000) + '@grow-ocean'),
+    'UID keeps the timestamp, never the name');
+  assert.ok(!wake.includes('UID:') || !/UID:[^\r\n]*Mim/.test(wake), 'name never leaks into a UID');
+
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const rower = buildRowerWakeupsICS(SCHED, { rower: 'Rower 2', horizon: 'next', now, names });
+  assert.ok(rower.includes('SUMMARY:Wake up Mim - on oars'), 'per-rower file uses the display name');
+  assert.ok(/UID:grow-ocean-wake-rower2-\d+@grow-ocean/.test(rower), 'UID keeps the fixed rower slug');
+});
+
+test('buildCancelICS withdraws the exact UIDs a prior schedule import published', () => {
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const schedule = buildScheduleICS(SCHED, { count: 30, now });
+  const publishedUids = (schedule.match(/UID:[^\r\n]+/g) || []).map(l => l.slice(4));
+  assert.ok(publishedUids.length > 0);
+
+  const cancel = buildCancelICS(SCHED, { days: 21, now });
+  assert.ok(cancel.includes('METHOD:CANCEL'), 'declares the CANCEL method');
+  assert.equal((cancel.match(/STATUS:CANCELLED/g) || []).length,
+    (cancel.match(/BEGIN:VEVENT/g) || []).length, 'every cancelled event is marked CANCELLED');
+  const cancelUids = new Set((cancel.match(/UID:[^\r\n]+/g) || []).map(l => l.slice(4)));
+  for (const uid of publishedUids) assert.ok(cancelUids.has(uid), 'cancels the published UID ' + uid);
+
+  const publishSeq = Number((schedule.match(/SEQUENCE:(\d+)/) || [])[1]);
+  const cancelSeq = Number((cancel.match(/SEQUENCE:(\d+)/) || [])[1]);
+  assert.ok(cancelSeq > publishSeq, 'cancel sequence outranks the publish so it wins');
+  assert.ok([...cancel].every(ch => ch.charCodeAt(0) < 128), 'ASCII only');
+});
+
+test('buildCancelICS also withdraws a running fixed-shift handover and per-rower wake UIDs', () => {
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const running = { ...SCHED, shiftMin: 90, shiftStart: now - 10 * 60000, activeRower: 'Rower 1' };
+  const cancel = buildCancelICS(running, { days: 1, now });
+  const uids = cancel.match(/UID:[^\r\n]+/g) || [];
+  assert.ok(uids.some(u => u.includes('grow-ocean-handover-')), 'includes the running fixed-shift UID');
+  assert.ok(uids.some(u => u.includes('grow-ocean-wake-rower')), 'includes per-rower wake UIDs');
 });

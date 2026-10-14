@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { getShiftPerspective, SHIFT_PERSPECTIVES } from '../js/shift-perspective.js';
-import { createShiftStore, shiftDisplay } from '../js/shift-state.js';
+import { createShiftStore, shiftDisplay, rowerName } from '../js/shift-state.js';
 import { computeSchedule, formatHours } from '../js/shift-schedule.js';
 
 function storage() {
@@ -90,7 +90,8 @@ function homeHarness(db) {
   let now = 1000, nodes = [], controller;
   const shiftStore = createShiftStore(db, { now: () => now });
   const render = vm.runInNewContext(homeSource + '\nrenderHome;', {
-    db, getShiftPerspective, shiftStore, shiftDisplay, computeSchedule, formatHours,
+    db, getShiftPerspective, shiftStore, shiftDisplay, rowerName, computeSchedule, formatHours,
+    buildWakeupICS: () => '', buildCancelICS: () => '', openCalendarFile() {},
     window: { confirm: () => true },
     APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',
     Date: { now: () => now }, clearInterval() {}, setInterval() { return 1; },
@@ -156,11 +157,14 @@ test('Home starts and swaps update This shift; duration edits, clock changes and
   await home.render();
   assert.equal(home.text(), swapped, 'rower name alone does not rotate the prompt');
   await home.button('↺').onclick();
-  assert.equal(home.text(), swapped);
+  assert.equal(home.text(), swapped, 'reset restarts the stint but keeps this shift’s prompt');
+  assert.equal(await db.getSetting('shiftStart'), 9999999, 'reset restarts running from now');
   await home.render();
-  assert.equal(home.text(), swapped, 'between shifts retains the last prompt');
+  assert.equal(home.text(), swapped, 'reopening the reset shift keeps its prompt');
+  await home.button('⏸').onclick();
+  assert.equal(home.text(), swapped, 'pausing does not rotate the prompt');
   await home.button('▶').onclick();
-  assert.notEqual(home.text(), swapped);
-  assert.equal(Object.keys(db.values.get('shift-perspective-v1').assignments).length, 4);
+  assert.equal(home.text(), swapped, 'resuming keeps the same shift prompt');
+  assert.equal(Object.keys(db.values.get('shift-perspective-v1').assignments).length, 3);
   assert.ok(![...db.values.keys()].some(key => key.startsWith('entertainment-progress')));
 });

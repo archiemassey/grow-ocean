@@ -458,10 +458,16 @@ html[data-theme="night"] .bx-overlay span{color:#4a0000}
 .bx-start.bx-running:hover,.bx-start.bx-running:focus-visible{opacity:1}
 
 /* Day / night schedule + QR sync */
-.sched-slider{grid-template-columns:7em 1fr 8em}
+/* Full-width schedule sliders: label + value on top row, track spanning full width
+   underneath, so the track is long enough to set values precisely on a phone. */
+.sched-slider{grid-template-columns:1fr auto;grid-template-areas:"lbl val" "trk trk";gap:4px 10px}
+.sched-slider>span:first-child{grid-area:lbl}
+.sched-slider .bx-val{grid-area:val}
+.sched-slider input[type=range]{grid-area:trk;width:100%}
 .sched-field{display:flex;align-items:center;gap:10px;margin:4px 0}
 .sched-field>span{font-size:.9rem}
 .sched-field input[type=time]{width:auto;flex:none}
+.sched-field input[type=text]{flex:1;min-width:0}
 .switch-row{display:flex;align-items:center;gap:12px;margin:4px 0 10px}
 .sched-totals{margin:8px 0 2px;font-size:1rem}
 .sched-totals span{color:var(--muted)}

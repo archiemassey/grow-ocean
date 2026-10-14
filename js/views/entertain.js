@@ -1,6 +1,7 @@
-/* entertain.js — Morale & Media: games, on-demand media, awe prompts, and the
-   live race/weather sub-page. The white-noise generator and game prompts work
-   fully offline. Music/podcasts/audiobooks are placeholders for side-loaded files. */
+/* entertain.js — Morale & Media: games, awe prompts, offline white-noise, and the
+   live race/weather sub-page. The white-noise generator and game prompts work fully
+   offline. Music, podcasts and audiobooks are handled by the native Apple apps, not
+   in-app (a PWA can't read those libraries and streaming fails mid-ocean). */
 
 import { h, go, toast, stopSpeaking } from '../app.js';
 import { CONTENT } from '../data/content.js';
@@ -95,6 +96,7 @@ async function gamesCard(signal) {
     const settings = (auto = false, read = true) => ({ auto, audio: read && audio.checked, pace: pace.value });
     const start = h('button', { id: 'hands-free-toggle', class: 'btn', 'aria-pressed': 'false', onclick: () => {
       if (busy || disposed || document.hidden) return;
+      speech.prime(); // iOS: unlock speech on this real tap before the async draw.
       if (player.snapshot().mode !== 'running') stopSpeaking();
       player.setAuto(!player.snapshot().auto, settings());
     } }, 'Auto Off');
@@ -147,6 +149,7 @@ async function gamesCard(signal) {
     function changeSettings() {
       savePreference('grow-ocean-audio', audio.checked);
       savePreference('grow-ocean-pace', pace.value);
+      if (audio.checked) speech.prime(); // iOS: unlock speech on the toggle gesture.
       return act(async () => deck.snapshot());
     }
     pace.addEventListener('change', changeSettings);
@@ -235,21 +238,6 @@ async function gamesCard(signal) {
         h('p', { class: 'hint' }, `Content ${pack.version} · ${pack.items.length.toLocaleString()} offline items. Progress stays on this device; only an explicit reset permits repeated draws.`)
       ])
     );
-    if (pack.schedule) {
-      const day = h('select', { 'aria-label': 'Optional crossing day' }, [...pack.schedule]
-        .sort((a, b) => a.day - b.day).map(entry => h('option', { value: entry.day }, `Day ${entry.day} · ${entry.title}`)));
-      const note = h('p', { style: 'white-space:pre-line', 'aria-live': 'polite' });
-      function showDay() {
-        const entry = pack.schedule.find(entry => entry.day === Number(day.value));
-        note.textContent = entry.note + '\nSource: ' + entry.source;
-      }
-      day.addEventListener('change', showDay);
-      showDay();
-      card.append(h('details', { class: 'player-details' }, [
-        h('summary', {}, 'Optional 44-day plan'), day, note,
-        h('p', { class: 'hint' }, 'Suggestions only. Use the category picker and Next for unseen items; this plan never advances or resets your progress.')
-      ]));
-    }
     draw(await deck.select('jokes'));
     if (!disposed && !document.hidden) player.present(settings(false, false));
   } catch {
@@ -258,16 +246,16 @@ async function gamesCard(signal) {
   return card;
 }
 
+/* Music, podcasts & audiobooks are intentionally NOT handled in-app: a PWA cannot read
+   the Apple Music / Podcasts libraries, and streaming fails mid-Atlantic. The pair use
+   the native apps (downloaded for offline before departure) alongside gROW. (Kept as a
+   small note card rather than deleted — the route test uses this declaration as a
+   source-slice boundary marker.) */
 function mediaCard() {
-  const card = h('div', { class: 'card' }, [h('h3', {}, '🎧 On-demand media')]);
-  CONTENT.media.filter((m) => m.id !== 'whitenoise').forEach((m) =>
-    card.append(h('button', { type: 'button', class: 'listrow', style: 'box-shadow:none;border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0', onclick: () => toast(m.title + ': add your own files before departure') }, [
-      h('span', { class: 'lead' }, m.icon),
-      h('span', { class: 'body' }, [h('span', { class: 't' }, m.title), h('span', { class: 'd' }, m.detail)]),
-      h('span', { class: 'mock' }, 'side-load')
-    ])));
-  card.append(h('p', { class: 'hint' }, 'Prototype: music/podcasts/audiobooks are placeholders. Before the row, load audio files onto the device so they play offline.'));
-  return card;
+  return h('div', { class: 'card' }, [
+    h('h3', {}, '🎧 Music, podcasts & audiobooks'),
+    h('p', { class: 'hint' }, 'Use the Apple Music and Apple Podcasts apps for your tunes and shows — download everything for offline before you leave. gROW keeps the white-noise generator above for the cabin.')
+  ]);
 }
 
 function renderLive(view) {

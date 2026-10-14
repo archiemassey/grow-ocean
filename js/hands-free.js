@@ -12,6 +12,19 @@ export function createSpeechReader({
 } = {}) {
   return {
     available: !!(synthesis && Utterance),
+    /* iOS Safari only grants speech if the FIRST speak() is synchronous inside a real
+       user gesture. The hands-free player's async draw loses that gesture, so we prime
+       a silent utterance directly on the tap/change event. Deliberately skips
+       configureVoice (which throws if no voice is loaded yet) — this is best-effort. */
+    prime() {
+      if (!synthesis || !Utterance) return;
+      try {
+        synthesis.cancel();
+        const u = new Utterance(' ');
+        u.volume = 0;
+        synthesis.speak(u);
+      } catch { /* ignore — real playback will surface any genuine failure */ }
+    },
     say(text, signal) {
       return new Promise((resolve, reject) => {
         if (!synthesis || !Utterance) { reject(new Error('Speech is unavailable')); return; }
@@ -123,7 +136,7 @@ export function createHandsFreePlayer({
         } else if (phase === 'prompt') {
           if (!current) { stop('All items seen. Stopped; reset manually only when you want repeats.'); return; }
           onItem(current);
-          report(options.audio ? 'Reading prompt…' : 'Read the prompt on screen.');
+          report(options.audio ? 'Reading aloud…' : 'Read the prompt on screen.');
           await read([current.prompt, current.instructions].filter(Boolean).join('. '), signal);
           if (!active(token)) return;
           phase = current.canReveal ? 'think' : current.answer ? 'answer' : 'gap';
@@ -134,7 +147,7 @@ export function createHandsFreePlayer({
           onItem(current);
           phase = 'answer';
         } else if (phase === 'answer') {
-          report(options.audio ? 'Reading answer…' : 'Answer shown.');
+          report(options.audio ? 'Reading the answer…' : 'Answer shown.');
           await read(current.answer, signal);
           if (!active(token)) return;
           phase = 'gap';

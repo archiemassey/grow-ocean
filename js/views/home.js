@@ -7,8 +7,8 @@ import { CONTENT } from '../data/content.js';
 import { getReminderState } from '../reminders.js';
 import { APP_RELEASE, checkForUpdates } from '../updates.js';
 import { getShiftPerspective } from '../shift-perspective.js';
-import { shiftStore, shiftDisplay } from '../shift-state.js';
-import { buildWakeupICS } from '../shift-ics.js';
+import { shiftStore, shiftDisplay, rowerName } from '../shift-state.js';
+import { buildWakeupICS, buildCancelICS } from '../shift-ics.js';
 import { computeSchedule, formatHours } from '../shift-schedule.js';
 
 const clock = ms => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -38,14 +38,31 @@ export async function renderHome(view, param, signal) {
       try {
         await shiftStore.change(action);
         await thoughtPending;
-        if (action === 'start') toast('Shift started');
-        if (action === 'swap') toast('Swapped — ' + shiftStore.snapshot().state.activeRower + ' on oars');
+        if (action === 'swap') toast('Swapped — ' + rowerName(shiftStore.snapshot().state, shiftStore.snapshot().state.activeRower) + ' on oars');
       } catch { /* The persistent error below and the shell expose storage failures. */ }
       finally { busy = false; updateControls(shiftStore.snapshot()); }
     } }, label);
     controls.push(button);
     return button;
   }
+  // Play / pause toggles between starting (or resuming) and pausing the manual timer.
+  // The glyph + action are set from the live display in the subscribe block below.
+  let playAction = 'start';
+  const playBtn = h('button', { class: 'dp right', type: 'button', 'aria-label': 'Start shift',
+    title: 'Start shift', disabled: true, onclick: async () => {
+    if (busy) return;
+    busy = true;
+    controls.forEach(b => b.disabled = true);
+    const action = playAction;
+    const wasPaused = shiftStore.snapshot().state?.pausedLeft > 0;
+    try {
+      await shiftStore.change(action);
+      await thoughtPending;
+      toast(action === 'pause' ? 'Shift paused' : wasPaused ? 'Shift resumed' : 'Shift started');
+    } catch { /* storage errors surfaced below */ }
+    finally { busy = false; updateControls(shiftStore.snapshot()); }
+  } }, '▶');
+  controls.push(playBtn);
   function updateControls({ state, error }) {
     controls.forEach(button => button.disabled = busy || !state || !!error);
   }
@@ -60,7 +77,7 @@ export async function renderHome(view, param, signal) {
     control('+5', 'longer', { cls: 'up', aria: 'Add 5 minutes to this shift' }),
     control('⇄', 'swap', { cls: 'left', aria: 'Swap rower on oars' }),
     control('↺', 'reset', { cls: 'mid', aria: 'Reset shift timer' }),
-    control('▶', 'start', { cls: 'right', aria: 'Start shift' }),
+    playBtn,
     control('−5', 'shorter', { cls: 'down', aria: 'Shorten this shift by 5 minutes' })
   ]);
   const heroMain = h('div', { class: 'hero-main' }, [ring, dpad]);
@@ -126,6 +143,8 @@ export async function renderHome(view, param, signal) {
     dayS.input.value = String(f.dayShiftMin); dayS.out.textContent = dayS.fmt(f.dayShiftMin);
     splitS.input.value = String(f.splitPct); splitS.out.textContent = splitS.fmt(f.splitPct);
     nightStartInput.value = timeLabel(f.nightStartMin);
+    r1NameInput.value = state.rower1Name || '';
+    r2NameInput.value = state.rower2Name || '';
     updatePreview();
   }
   const saveBtn = h('button', { class: 'btn', onclick: async () => {
@@ -136,13 +155,33 @@ export async function renderHome(view, param, signal) {
     } catch { toast('Could not save the schedule — storage unavailable.'); }
   } }, '✓ Save & re-calc');
 
+  // Rower names: optional labels shown instead of “Rower 1 / Rower 2” everywhere.
+  const r1NameInput = h('input', { type: 'text', id: 'homeR1Name', maxlength: '24', placeholder: 'Rower 1', 'aria-label': 'Rower 1 name' });
+  const r2NameInput = h('input', { type: 'text', id: 'homeR2Name', maxlength: '24', placeholder: 'Rower 2', 'aria-label': 'Rower 2 name' });
+  const saveNamesBtn = h('button', { class: 'btn', onclick: async () => {
+    try { await shiftStore.setNames(r1NameInput.value, r2NameInput.value); toast('Names saved'); }
+    catch { toast('Could not save names — storage unavailable.'); }
+  } }, '✓ Save names');
+
+  const names = state => ({ 'Rower 1': rowerName(state, 'Rower 1'), 'Rower 2': rowerName(state, 'Rower 2') });
+
   const wakeupsBtn = h('button', { class: 'btn small secondary sheet-wakeup', onclick: async () => {
     const { state, error } = shiftStore.snapshot();
     if (error || !state) { toast('Shift storage unavailable — retry first.'); return; }
-    const ics = buildWakeupICS(state, { count: 8, leadMin: 10 });
+    const ics = buildWakeupICS(state, { count: 8, leadMin: 10, names: names(state) });
     const shared = await openCalendarFile('grow-ocean-wake-ups.ics', ics);
     if (shared) toast('Opening Calendar — tap “Add All” to set the alarms.');
   } }, '⏰ Wake-up alarms (.ics)');
+
+  // Removes previously-imported gROW alarms via a METHOD:CANCEL .ics (best-effort —
+  // see shift-ics.js). Lets the pair clear old alarms before importing a fresh set.
+  const cancelBtn = h('button', { class: 'btn small secondary', onclick: async () => {
+    const { state, error } = shiftStore.snapshot();
+    if (error || !state) { toast('Shift storage unavailable — retry first.'); return; }
+    const ics = buildCancelICS(state, { names: names(state) });
+    const shared = await openCalendarFile('grow-ocean-remove-alarms.ics', ics);
+    if (shared) toast('Opening Calendar — confirm to remove the old gROW alarms.');
+  } }, '🗑 Remove gROW alarms (.ics)');
 
   const backdrop = h('div', { class: 'sheet-backdrop', hidden: true, onclick: closeSheet });
   const closeX = h('button', { class: 'sheet-x', type: 'button', 'aria-label': 'Close shift settings',
@@ -154,6 +193,10 @@ export async function renderHome(view, param, signal) {
     h('p', { class: 'hint' }, 'Both of you, together — nothing is sent to the other phone on its own. ' +
       'The +5 / −5 / ▶ keys beside the dial adjust just this phone’s timer.'),
     storageError, retry,
+    h('p', { class: 'sheet-lbl' }, 'Rower names'),
+    h('label', { class: 'sched-field' }, [h('span', {}, 'Rower 1'), r1NameInput]),
+    h('label', { class: 'sched-field' }, [h('span', {}, 'Rower 2'), r2NameInput]),
+    h('div', { class: 'btnrow' }, [saveNamesBtn]),
     h('p', { class: 'sheet-lbl' }, 'Day / night schedule'),
     h('label', { class: 'switch-row' }, [
       h('span', { class: 'switch' }, [schedToggle, h('span', { class: 'slider' })]),
@@ -166,9 +209,10 @@ export async function renderHome(view, param, signal) {
     h('p', { class: 'sheet-lbl' }, 'Sync & alarms'),
     h('a', { href: '#/schedule', class: 'sheet-link', onclick: closeSheet },
       [h('span', {}, '🔗 Show QR / scan partner’s phone'), h('span', { class: 'r' }, '›')]),
-    wakeupsBtn,
+    wakeupsBtn, cancelBtn,
     h('p', { class: 'hint' }, '−5 shortens just this shift on this phone — your partner’s wake-up ' +
-      'alarm won’t move on its own. Re-share the wake-up alarms after changing the schedule.')
+      'alarm won’t move on its own. Re-share the wake-up alarms after changing the schedule. ' +
+      '“Remove gROW alarms” clears a previously-imported set first.')
   ]);
 
   let sheetOpen = false, lastFocus = null;
@@ -222,31 +266,43 @@ export async function renderHome(view, param, signal) {
     ring.style.setProperty?.('--frac', error ? '0' : String(display.frac || 0));
     ringTime.textContent = error ? '—' : display.time;
     ringSub.textContent = error ? 'storage error'
-      : display.status === 'idle' ? 'ready' : display.status === 'overdue' ? 'overdue' : 'to handover';
+      : display.status === 'idle' ? 'ready' : display.status === 'paused' ? 'paused'
+      : display.status === 'overdue' ? 'overdue' : 'to handover';
+    // Play/pause: pause while a shift is actively running, otherwise start/resume.
+    playAction = display.running ? 'pause' : 'start';
+    playBtn.textContent = display.running ? '⏸' : '▶';
+    const playLbl = display.running ? 'Pause shift' : display.paused ? 'Resume shift' : 'Start shift';
+    playBtn.setAttribute?.('aria-label', playLbl);
+    if ('title' in playBtn) playBtn.title = playLbl;
     if (error) { kick.textContent = 'Shift unavailable'; handoverLine.textContent = ''; }
     else if (!state) { kick.textContent = 'Loading shift…'; handoverLine.textContent = ''; }
     else {
       const phaseLabel = display.phase ? (display.phase === 'night' ? 'Night shift' : 'Day shift') : '';
+      const onName = rowerName(state, display.rower);
+      const offName = rowerName(state, otherRower(display.rower));
       if (display.status === 'idle') {
         kick.textContent = phaseLabel || 'No shift running';
         handoverLine.textContent = state.scheduleOn
           ? 'Press ▶ to begin this stint'
           : 'Press ▶ to begin · ' + state.shiftMin + ' min shifts';
+      } else if (display.status === 'paused') {
+        kick.textContent = phaseLabel || 'Paused';
+        handoverLine.textContent = onName + ' on oars · paused — press ▶ to resume';
       } else {
         kick.textContent = phaseLabel || 'On oars';
         handoverLine.textContent = display.status === 'overdue'
-          ? 'Handover due now → ' + otherRower(display.rower)
-          : display.rower + ' on oars · hand to ' + otherRower(display.rower) +
+          ? 'Handover due now → ' + offName
+          : onName + ' on oars · hand to ' + offName +
             ' at ' + (display.endsAt ? clock(display.endsAt) : '—');
       }
     }
     storageError.hidden = retry.hidden = !error;
     storageError.textContent = error ? 'Could not read or save the shift on this device. No new shift change was confirmed. Retry before relying on the timer.' : '';
     updateControls(snapshot);
-    if (state && !error && thoughtKey !== state.shiftStart) {
-      thoughtKey = state.shiftStart;
+    if (state && !error && thoughtKey !== state.shiftLastStart) {
+      thoughtKey = state.shiftLastStart;
       const version = ++thoughtVersion;
-      thoughtPending = getShiftPerspective(db, state.shiftStart).then(selected => {
+      thoughtPending = getShiftPerspective(db, state.shiftLastStart).then(selected => {
         if (!signal?.aborted && version === thoughtVersion) perspective.textContent = selected.text;
       }).catch(() => {
         if (!signal?.aborted && version === thoughtVersion) {
