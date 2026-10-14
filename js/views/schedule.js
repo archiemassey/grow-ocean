@@ -13,16 +13,18 @@
    Both rowers stay awake and decide changes together, then re-sync by QR — there is no
    silent push from one phone to the other. */
 
-import { h, toast, shareOrDownload } from '../app.js';
+import { h, toast, shareOrDownload, openCalendarFile } from '../app.js';
 import { shiftStore } from '../shift-state.js';
 import { computeSchedule, formatHours } from '../shift-schedule.js';
 import { encodeSchedulePayload, decodeSchedulePayload } from '../shift-qr.js';
-import { buildScheduleICS } from '../shift-ics.js';
+import { buildScheduleICS, buildRowerWakeupsICS } from '../shift-ics.js';
+import { readPreference, savePreference } from '../speech.js';
 import qrcode from '../vendor/qrcode.js';
 import jsQR from '../vendor/jsqr.js';
 
 const mins = n => Math.round(n) + ' min';
 const timeLabel = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const MY_ROWER_KEY = 'grow-ocean-my-rower';
 
 export async function renderSchedule(view, param, signal) {
   await shiftStore.refresh().catch(() => {});
@@ -155,11 +157,36 @@ export async function renderSchedule(view, param, signal) {
     if (shared) toast('Schedule file shared — your partner can import it if scanning fails.');
   } }, 'Share as file (backup)');
   const scanBtn = h('button', { class: 'btn small secondary', onclick: () => (stream ? stopScan() : startScan()) }, '📷 Scan partner’s QR');
+
+  /* ---- per-rower wake-up alarms (only the handovers where YOU come on oars) ---- */
+  let myRower = readPreference(MY_ROWER_KEY, 'Rower 1');
+  if (myRower !== 'Rower 1' && myRower !== 'Rower 2') myRower = 'Rower 1';
+  const r1Btn = h('button', { type: 'button', onclick: () => setRower('Rower 1') }, 'I’m Rower 1');
+  const r2Btn = h('button', { type: 'button', onclick: () => setRower('Rower 2') }, 'I’m Rower 2');
+  function setRower(r) {
+    myRower = r; savePreference(MY_ROWER_KEY, r);
+    r1Btn.setAttribute('aria-pressed', String(r === 'Rower 1'));
+    r2Btn.setAttribute('aria-pressed', String(r === 'Rower 2'));
+  }
+  setRower(myRower);
+
+  async function addWakeups(horizon, label) {
+    const ics = buildRowerWakeupsICS(currentInputs(), { rower: myRower, horizon, leadMin: 10 });
+    const n = (ics.match(/BEGIN:VEVENT/g) || []).length;
+    if (!n) { toast('No ' + label + ' wake-ups for ' + myRower + ' in range.'); return; }
+    const slug = myRower.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    const shared = await openCalendarFile('grow-ocean-' + slug + '-wakeups.ics', ics);
+    if (shared) toast(n + ' wake-up' + (n > 1 ? 's' : '') + ' for ' + myRower + ' — tap “Add All” in Calendar.');
+  }
+  const nextBtn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('next', 'next shift') }, '⏰ My next shift');
+  const nightBtn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('night', 'night') }, '🌙 My night shifts');
+  const next24Btn = h('button', { class: 'btn small secondary', onclick: () => addWakeups('24h', 'next 24 h') }, '📅 My next 24 h');
+
   const alarmsBtn = h('button', { class: 'btn small secondary', onclick: async () => {
     const ics = buildScheduleICS(currentInputs(), { count: 16, leadMin: 10 });
-    const shared = await shareOrDownload('grow-ocean-schedule-alarms.ics', ics, 'text/calendar');
-    if (shared) toast('Schedule alarms ready — open the file to add them to Calendar.');
-  } }, '⏰ Schedule wake-up alarms (.ics)');
+    const shared = await openCalendarFile('grow-ocean-schedule-alarms.ics', ics);
+    if (shared) toast('Opening Calendar — tap “Add All” to set the alarms.');
+  } }, '⏰ All handovers (both rowers)');
 
   scanPanel.append(video, scanHint, h('button', { class: 'btn small ghost', onclick: stopScan }, 'Close camera'));
   signal?.addEventListener('abort', stopScan, { once: true });
@@ -186,8 +213,15 @@ export async function renderSchedule(view, param, signal) {
       scanPanel
     ]),
     h('section', { class: 'card' }, [
-      h('h3', {}, '⏰ Wake-ups from the schedule'),
-      h('p', { class: 'hint' }, 'Adds iPhone Calendar alerts 10 min before each handover, clocked off this schedule. Re-share after changing it.'),
+      h('h3', {}, '⏰ My wake-up alarms'),
+      h('p', { class: 'hint' }, 'Adds iPhone Calendar alerts 10 min before each handover where YOU come on oars — ' +
+        'your own rowing stints are left out. Say which phone this is, then pick a set. On iPhone it opens Calendar; tap “Add All”.'),
+      h('div', { class: 'sg-seg wake-seg' }, [r1Btn, r2Btn]),
+      h('div', { class: 'btnrow' }, [nextBtn, nightBtn, next24Btn]),
+      h('p', { class: 'hint' }, 'A Calendar alert is soft — it obeys silent mode / Focus. For a guaranteed wake-up, ' +
+        'also set a Clock app alarm.'),
+      h('p', { class: 'sheet-lbl' }, 'All handovers (both rowers)'),
+      h('p', { class: 'hint' }, 'Every handover for both of you — including the shifts you row.'),
       h('div', { class: 'btnrow' }, [alarmsBtn])
     ])
   );

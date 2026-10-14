@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { getShiftPerspective, SHIFT_PERSPECTIVES } from '../js/shift-perspective.js';
 import { createShiftStore, shiftDisplay } from '../js/shift-state.js';
+import { computeSchedule, formatHours } from '../js/shift-schedule.js';
 
 function storage() {
   const values = new Map();
@@ -89,7 +90,8 @@ function homeHarness(db) {
   let now = 1000, nodes = [], controller;
   const shiftStore = createShiftStore(db, { now: () => now });
   const render = vm.runInNewContext(homeSource + '\nrenderHome;', {
-    db, getShiftPerspective, shiftStore, shiftDisplay, window: { confirm: () => true },
+    db, getShiftPerspective, shiftStore, shiftDisplay, computeSchedule, formatHours,
+    window: { confirm: () => true },
     APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',
     Date: { now: () => now }, clearInterval() {}, setInterval() { return 1; },
     CONTENT: {
@@ -133,16 +135,16 @@ test('Home starts and swaps update This shift; duration edits, clock changes and
   const welcome = home.text();
   await home.render();
   assert.equal(home.text(), welcome);
-  await home.button('▶ Start').onclick();
+  await home.button('▶').onclick();
   const first = home.text();
   assert.notEqual(first, welcome);
   assert.equal(await db.getSetting('shiftStart'), 1000);
-  await home.button('+5 min').onclick();
+  await home.button('+5').onclick();
   await home.button('−5').onclick();
   assert.equal(home.text(), first);
   await home.render();
   assert.equal(home.text(), first, 'reopening the same running shift preserves its prompt');
-  await home.button('🔁 Swap').onclick();
+  await home.button('⇄').onclick();
   const swapped = home.text();
   assert.notEqual(swapped, first);
   assert.equal(await db.getSetting('shiftStart'), 1001, 'even same-millisecond starts have distinct IDs');
@@ -153,11 +155,11 @@ test('Home starts and swaps update This shift; duration edits, clock changes and
   await db.setSetting('activeRower', 'Rower 1');
   await home.render();
   assert.equal(home.text(), swapped, 'rower name alone does not rotate the prompt');
-  await home.button('Reset').onclick();
+  await home.button('↺').onclick();
   assert.equal(home.text(), swapped);
   await home.render();
   assert.equal(home.text(), swapped, 'between shifts retains the last prompt');
-  await home.button('▶ Start').onclick();
+  await home.button('▶').onclick();
   assert.notEqual(home.text(), swapped);
   assert.equal(Object.keys(db.values.get('shift-perspective-v1').assignments).length, 4);
   assert.ok(![...db.values.keys()].some(key => key.startsWith('entertainment-progress')));

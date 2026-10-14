@@ -28,6 +28,7 @@ const tabbar = document.getElementById('tabbar');
 const backBtn = document.getElementById('backBtn');
 const topTitle = document.getElementById('topTitle');
 const netStatus = document.getElementById('netStatus');
+const shiftStrip = document.getElementById('shiftStrip');
 
 const routes = {
   home: { title: 'gROW Ocean', tab: 'home', render: renderHome },
@@ -115,6 +116,31 @@ export async function shareOrDownload(filename, text, mime = 'application/json')
   }
 }
 
+/* ---------- iOS Calendar open ----------
+   Plain English: iOS only offers "Add to Calendar" when it OPENS an .ics, not when
+   it downloads one — a normal download just lands in Files. So on iPhone/iPad we
+   open the calendar file in a new tab via a blob URL (no `download` attribute):
+   Safari renders it and shows the "Add All" banner. Everywhere else we fall back to
+   the normal share/download path. */
+export async function openCalendarFile(filename, ics) {
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+    (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1); // iPadOS reports as Mac
+  if (isIOS) {
+    try {
+      const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return true;
+    } catch (e) {
+      console.warn('calendar open failed, falling back', e);
+    }
+  }
+  return shareOrDownload(filename, ics, 'text/calendar');
+}
+
 export function pickTextFile(accept = '.json,application/json') {
   return new Promise((resolve) => {
     const input = document.createElement('input');
@@ -148,6 +174,9 @@ async function router() {
   const controller = routeController = new AbortController();
   const { name, param } = parseHash();
   const route = routes[name];
+  // The Home hero already shows the live shift status, so hide the global strip
+  // there to avoid showing it twice; keep it on every other screen.
+  if (shiftStrip) shiftStrip.style.display = name === 'home' ? 'none' : '';
   topTitle.textContent = route.title;
 
   const parent = parentRoute(name, param);

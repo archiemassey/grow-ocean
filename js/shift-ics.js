@@ -77,6 +77,55 @@ export function buildWakeupICS(state, { count = 8, leadMin = 10, now = Date.now(
   return lines.join('\r\n') + '\r\n';
 }
 
+/* Build a .ics of wake-up alarms for ONE rower, clocked off the day/night schedule.
+   We keep ONLY the handovers where `rower` comes ON oars, so her own rowing stints
+   are excluded — these are the moments she actually needs waking. Horizons:
+     'next'  - just her very next on-oars handover (a single alarm)
+     'night' - her night on-oars handovers over the next 7 days
+     '24h'   - all her on-oars handovers in the next 24 hours
+   Each kept handover is a 1-minute event with a DISPLAY alarm `leadMin` before. */
+export function buildRowerWakeupsICS(settings, { rower = 'Rower 1', horizon = '24h', leadMin = 10, now = Date.now() } = {}) {
+  const schedule = computeSchedule(settings);
+  const all = scheduleHandovers(schedule, { count: 600, now });
+  const mine = all.filter(hv => hv.onNext === rower);
+  const DAY_MS = 24 * 60 * 60000;
+  let picks;
+  if (horizon === 'next') picks = mine.slice(0, 1);
+  else if (horizon === 'night') picks = mine.filter(hv => hv.part === 'night' && hv.at <= now + 7 * DAY_MS);
+  else picks = mine.filter(hv => hv.at <= now + DAY_MS); // '24h'
+
+  const slug = rower.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const dtstamp = icsStamp(now);
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//gROW Ocean//Rower Wake-ups//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:gROW Ocean wake-ups - ' + rower
+  ];
+  picks.forEach(({ at, part }, i) => {
+    const when = part === 'night' ? 'night' : 'day';
+    lines.push(
+      'BEGIN:VEVENT',
+      'UID:grow-ocean-wake-' + slug + '-' + at + '-' + i + '@grow-ocean',
+      'DTSTAMP:' + dtstamp,
+      'DTSTART:' + icsStamp(at),
+      'DTEND:' + icsStamp(at + 60000),
+      'SUMMARY:Wake up ' + rower + ' - on oars (' + when + ')',
+      'DESCRIPTION:' + leadMin + ' min warning. Your shift starts - get ready to row.',
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:On oars in ' + leadMin + ' minutes - ' + rower,
+      'TRIGGER:-PT' + leadMin + 'M',
+      'END:VALARM',
+      'END:VEVENT'
+    );
+  });
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n') + '\r\n';
+}
+
 /* Build a .ics clocked off the computed day/night schedule. Each handover is a
    1-minute event with a DISPLAY alarm `leadMin` minutes before. The schedule is
    deterministic from the settings + the phone clock, so the resting rower's wake-ups

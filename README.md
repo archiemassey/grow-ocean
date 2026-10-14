@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v16** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v17** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v16** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v17** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v16 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v17 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -264,7 +264,7 @@ grow-ocean-app/
 │  ├─ speech.js               Shared on-device English voice selection and saved playback preferences
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
 │  ├─ shift-state.js          Shared atomic shift settings, foreground clock and cross-tab refresh
-│  ├─ shift-ics.js            DOM-free wake-up alarm (.ics) builder for upcoming handovers
+│  ├─ shift-ics.js            DOM-free wake-up alarm (.ics) builders (all handovers + per-rower, filtered)
 │  ├─ shift-schedule.js       DOM-free day/night schedule maths (fair split, strict alternation)
 │  ├─ shift-qr.js             Encode/decode the schedule as a compact offline QR payload
 │  ├─ vendor/qrcode.js        Vendored public-domain QR generator (offline, SVG output)
@@ -395,19 +395,22 @@ Home opens on the **Deep Horizon** hero — a full-width gradient card with a ci
 countdown dial (the arc fills as the stint runs and tints amber/red as the handover nears),
 an SVG wave along the bottom, and a single **This shift** inspiration line beneath it.
 The hero carries the emergency control in plain view and a discreet **⚙️ cog** in its
-top-right. The cog is the only trigger for a **rising bottom sheet** that holds the shift
-controls — Start, 🔁 Swap, Reset, the one-time **+5 min / −5** nudges, and links to the
-day/night schedule and wake-up alarms. The sheet closes on Escape, a backdrop tap or its
-Done control; its open/closed state is driven entirely by CSS (no view-owned timer), and
-focus is trapped and restored. The inspiration text uses a small, dedicated set of gentle
+top-right. Beside the dial is a compact **D-pad**: up/down are the one-time **+5 / −5**
+nudges, left swaps rower, centre resets and right starts — small icons so the dial keeps
+the page. The cog opens a **rising bottom sheet** that holds the day/night schedule sliders
+(night stint, day stint and the Rower-1 balance split) inline, plus links to QR sync and the
+wake-up alarms. The sheet closes on Escape, a backdrop tap or its **✕**; its open/closed
+state is driven entirely by CSS (no view-owned timer), and focus is trapped and restored.
+The global shift strip is hidden on Home (the hero already shows the live status) and shown
+on every other screen. The inspiration text uses a small, dedicated set of gentle
 prompts with a Star guide link and a reminder that boat and watch duties come first. It
 never draws from or resets the entertainment deck.
 
 The **+5 / −5** buttons are a **one-time local nudge**: in day/night schedule mode they
 shift only the current stint's handover time (keyed to that stint's start, so the offset
 auto-expires at the next changeover) without rewriting the fixed daily schedule; in plain
-fixed mode they still adjust `shiftMin` by ±5. −5 confirms first, because it does not move
-the resting partner's native wake-up alarm.
+fixed mode they still adjust `shiftMin` by ±5. They apply silently (no confirm pop-up), and
+Reset applies without a confirm as well.
 
 Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap**
 each set a new `shiftStart` and assign a new prompt, excluding the immediately
@@ -430,19 +433,29 @@ on-screen timer, **not a reliable background alarm**; keep the existing native r
 setup and onboard watch procedures. Physical-device alarms remain a separate validation.
 
 **Wake-up alarms (.ics export).** Because an installed web app cannot set or move a native
-iPhone alarm on its own, Home's shift card has an **⏰ Wake-up alarms (.ics)** button. It
+iPhone alarm on its own, Home's ⚙️ sheet has an **⏰ Wake-up alarms (.ics)** button that
 builds a small calendar file of the next eight handovers, each with a Calendar alert 10 min
-before, and opens the iOS Share sheet to add them to Calendar — real alerts that fire offline
-and on the lock screen. The same file serves both rowers: it wakes the resting partner and
+before. On iPhone/iPad the file is **opened** (blob URL, no `download` attribute) so Safari
+shows the native **“Add All”** banner rather than silently saving to Files; everywhere else
+it falls back to the Share sheet / download. The shared `openCalendarFile` helper in
+`js/app.js` handles this. The same file serves both rowers: it wakes the resting partner and
 cues the rower on oars to rouse her. The maths lives in the DOM-free `js/shift-ics.js`
 (`nextHandovers`, `rowerAfter`, `buildWakeupICS`) with ASCII-only, UTC-stamped output.
-Because a web app cannot move an alarm already imported, **−5 (shorten) now warns** when a
-shift is running: the handover comes forward but the resting partner's alarm will not, so
-re-share the alarms or wake her. **+5 is safe** (she only wakes slightly early) and is not
-gated. Re-download the alarms after changing the shift length.
+Calendar alerts are **soft** (they obey silent mode / Focus), so the resting rower should
+also set a Clock-app alarm for a guaranteed wake-up.
 
-**Day / night schedule + offline QR sync (`#/schedule`).** Home's shift card links to a
-**🗓️ Day / night schedule** screen. Two sliders set the **night** stint (one long unbroken
+**Per-rower wake-ups (`#/schedule`).** The schedule screen carries a small **“I'm Rower 1 /
+I'm Rower 2”** toggle, remembered on that phone (`localStorage` key `grow-ocean-my-rower`).
+Three buttons — **⏰ My next shift**, **🌙 My night shifts** and **📅 My next 24 h** — build a
+calendar of **only the handovers where that rower comes ON oars**, excluding the stints she
+is already rowing, so she is woken exactly when her shift starts and not mid-rest. The
+builder `buildRowerWakeupsICS(settings, { rower, horizon, leadMin })` filters the computed
+schedule handovers by `onNext === rower` and the chosen horizon. An **⏰ All handovers (both
+rowers)** button still exports the full handover list.
+
+**Day / night schedule + offline QR sync (`#/schedule`).** Home's ⚙️ sheet links to a
+**🗓️ Day / night schedule** screen (the same sliders also appear inline in the sheet). Two
+sliders set the **night** stint (one long unbroken
 rest each) and the **day** stint; a **balance** slider shares the rowing time if one rower is
 stronger. The maths (DOM-free `js/shift-schedule.js`) guarantees each rower's daily total is
 exactly her balance share of 24h — 50/50 → 12h each, 60/40 → 14h24 / 9h36 — whatever the
@@ -453,12 +466,13 @@ than the fixed length. The schedule is deterministic from the settings plus the 
 (anchored to local midnight + night start), so two phones holding the same settings compute
 identical handovers with **no shared start time**. The rowers stay awake and agree changes
 together, then re-sync by **QR**: one phone shows the schedule QR (`js/shift-qr.js` payload),
-the other scans it in-app with the camera — fully offline, no wifi, cloud or push. QR encode
-uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the vendored Apache-2.0
-`js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms are also
-provided. There is deliberately **no autonomous push** between phones.
+the other scans it in-app with the camera — fully offline, no wifi, cloud or push. The QR
+code and in-app camera scan are **always visible** on the screen (no collapsed section). QR
+encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the vendored
+Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
+are also provided. There is deliberately **no autonomous push** between phones.
 
-The v16 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v17 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build

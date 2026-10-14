@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { nextHandovers, rowerAfter, icsStamp, buildWakeupICS } from '../js/shift-ics.js';
+import { nextHandovers, rowerAfter, icsStamp, buildWakeupICS, buildRowerWakeupsICS } from '../js/shift-ics.js';
+import { computeSchedule, nextHandovers as scheduleHandovers } from '../js/shift-schedule.js';
+
+const SCHED = { scheduleOn: true, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200 };
 
 const RUNNING = { shiftMin: 90, shiftStart: 1_000_000_000_000, activeRower: 'Rower 1', shiftLastStart: 1_000_000_000_000 };
 
@@ -62,4 +65,33 @@ test('buildWakeupICS honours a custom lead time', () => {
   const ics = buildWakeupICS(RUNNING, { count: 1, leadMin: 15, now: RUNNING.shiftStart });
   assert.ok(ics.includes('TRIGGER:-PT15M'));
   assert.ok(ics.includes('Handover in 15 minutes'));
+});
+
+test('buildRowerWakeupsICS next returns a single alarm for the chosen rower only', () => {
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const ics = buildRowerWakeupsICS(SCHED, { rower: 'Rower 2', horizon: 'next', now });
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 1);
+  assert.ok(ics.includes('SUMMARY:Wake up Rower 2 - on oars'));
+  assert.ok(!ics.includes('Wake up Rower 1'), 'never wakes the other rower');
+  assert.ok(ics.includes('TRIGGER:-PT10M'));
+  assert.ok([...ics].every(ch => ch.charCodeAt(0) < 128), 'ASCII only');
+});
+
+test('buildRowerWakeupsICS 24h keeps only that rower coming on, excluding her own stints', () => {
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const schedule = computeSchedule(SCHED);
+  const expected = scheduleHandovers(schedule, { count: 600, now })
+    .filter(hv => hv.onNext === 'Rower 1' && hv.at <= now + 24 * 60 * 60000).length;
+  const ics = buildRowerWakeupsICS(SCHED, { rower: 'Rower 1', horizon: '24h', now });
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, expected);
+  assert.ok(expected > 0);
+  assert.ok(!ics.includes('Wake up Rower 2'));
+});
+
+test('buildRowerWakeupsICS night keeps only night handovers', () => {
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  const ics = buildRowerWakeupsICS(SCHED, { rower: 'Rower 1', horizon: 'night', now });
+  const events = ics.match(/SUMMARY:[^\r\n]+/g) || [];
+  assert.ok(events.length > 0);
+  assert.ok(events.every(s => s.includes('(night)')), 'every kept handover is a night one');
 });

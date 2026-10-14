@@ -1,7 +1,7 @@
 /* Home — Deep Horizon hero (dial + wave + inspiration) over a calm layout, with the
    shift controls tucked into a rising sheet behind the ⚙️ cog. Perspective stays
    first-class, Emergency + reminders always visible. */
-import { h, go, toast, shareOrDownload } from '../app.js';
+import { h, go, toast, openCalendarFile } from '../app.js';
 import { db } from '../db.js';
 import { CONTENT } from '../data/content.js';
 import { getReminderState } from '../reminders.js';
@@ -9,55 +9,30 @@ import { APP_RELEASE, checkForUpdates } from '../updates.js';
 import { getShiftPerspective } from '../shift-perspective.js';
 import { shiftStore, shiftDisplay } from '../shift-state.js';
 import { buildWakeupICS } from '../shift-ics.js';
+import { computeSchedule, formatHours } from '../shift-schedule.js';
 
-/* −5 pulls the handover EARLIER, so a resting partner's Calendar alarm (set when the
-   old schedule was shared) will not move itself earlier — she could be woken late.
-   +5 is safe (she only wakes slightly early), so only −5 needs this warning. */
-const SHORTEN_WARNING = 'Shorten this shift by 5 min? The handover comes forward 5 minutes. ' +
-  'If your partner is resting, her wake-up alarm will NOT move earlier on its own — ' +
-  're-share the wake-up alarms, or wake her, so she is not caught out.';
-
-const cap = s => s ? s[0].toUpperCase() + s.slice(1) : '';
 const clock = ms => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const otherRower = r => (r === 'Rower 1' ? 'Rower 2' : 'Rower 1');
+const mins = n => Math.round(n) + ' min';
+const timeLabel = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+/* Saved schedule fields with the same fallbacks the schedule screen uses. */
+const schedFields = (s = {}) => ({
+  scheduleOn: !!s.scheduleOn,
+  nightShiftMin: Number.isFinite(s.nightShiftMin) ? s.nightShiftMin : 180,
+  dayShiftMin: Number.isFinite(s.dayShiftMin) ? s.dayShiftMin : 90,
+  splitPct: Number.isFinite(s.splitPct) ? s.splitPct : 50,
+  nightStartMin: Number.isFinite(s.nightStartMin) ? s.nightStartMin : 1200
+});
 
 export async function renderHome(view, param, signal) {
-  // ---- Hero (gradient + conic dial + wave + inspiration) ----
-  const kick = h('div', { class: 'hero-kick' }, 'Loading shift…');
-  const ringTime = h('b', {}, '--:--');
-  const ringSub = h('span', {}, 'to handover');
-  const ring = h('div', { class: 'hero-ring', role: 'img', 'aria-label': 'Shift progress' },
-    [h('div', { class: 'hero-ring-t' }, [ringTime, ringSub])]);
-  const handoverLine = h('div', { class: 'hero-handover' }, '');
-  const cog = h('button', { class: 'hero-cog', type: 'button', 'aria-label': 'Shift controls & settings',
-    'aria-haspopup': 'dialog', onclick: openSheet }, '⚙️');
-  const waveWrap = h('div', { class: 'hero-wave-wrap', 'aria-hidden': 'true' });
-  waveWrap.innerHTML = '<svg class="hero-wave" viewBox="0 0 320 26" preserveAspectRatio="none">' +
-    '<path d="M0 14 Q 54 0 107 14 T 214 14 T 322 14 V26 H0 Z"/></svg>';
-  const hero = h('section', { class: 'hero', 'aria-label': 'Shift timer' },
-    [cog, kick, ring, handoverLine, waveWrap]);
-
-  const storageError = h('p', { class: 'callout crit', role: 'status', hidden: true });
-  const retry = h('button', { class: 'btn small secondary', hidden: true, onclick: () =>
-    shiftStore.refresh().catch(() => {}) }, 'Retry shift storage');
-
-  // ---- Inspiration + primary action ----
-  const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
-  const inspiration = h('section', { class: 'card inspiration', 'aria-label': 'This shift' }, [
-    perspective, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
-  ]);
-  const primary = h('a', { href: '#/log/watch', class: 'btn handover-action primary-home' }, '⬤ Record handover');
-
-  // ---- Shift controls (live in the rising sheet) ----
   let busy = false, thoughtKey, thoughtVersion = 0, thoughtPending = Promise.resolve();
+
+  // ---- Shift quick-controls (D-pad beside the dial) ----
   const controls = [];
-  function control(label, action, className = 'secondary') {
-    const button = h('button', { class: 'btn small ' + className, disabled: true, onclick: async () => {
+  function control(label, action, opts = {}) {
+    const button = h('button', { class: 'dp ' + (opts.cls || ''), type: 'button',
+      'aria-label': opts.aria || label, title: opts.aria || label, disabled: true, onclick: async () => {
       if (busy) return;
-      if (action === 'reset' && !window.confirm('Reset this shift timer? Saved logs and the current perspective are kept.')) return;
-      const snapshot = shiftStore.snapshot();
-      const running = !!snapshot.state && (snapshot.state.shiftStart || snapshot.state.scheduleOn);
-      if (action === 'shorter' && running && !window.confirm(SHORTEN_WARNING)) return;
       busy = true;
       controls.forEach(b => b.disabled = true);
       try {
@@ -74,36 +49,126 @@ export async function renderHome(view, param, signal) {
   function updateControls({ state, error }) {
     controls.forEach(button => button.disabled = busy || !state || !!error);
   }
+
+  // ---- Hero (gradient + conic dial + D-pad + wave) ----
+  const kick = h('div', { class: 'hero-kick' }, 'Loading shift…');
+  const ringTime = h('b', {}, '--:--');
+  const ringSub = h('span', {}, 'to handover');
+  const ring = h('div', { class: 'hero-ring', role: 'img', 'aria-label': 'Shift progress' },
+    [h('div', { class: 'hero-ring-t' }, [ringTime, ringSub])]);
+  const dpad = h('div', { class: 'dpad', role: 'group', 'aria-label': 'Shift quick controls' }, [
+    control('+5', 'longer', { cls: 'up', aria: 'Add 5 minutes to this shift' }),
+    control('⇄', 'swap', { cls: 'left', aria: 'Swap rower on oars' }),
+    control('↺', 'reset', { cls: 'mid', aria: 'Reset shift timer' }),
+    control('▶', 'start', { cls: 'right', aria: 'Start shift' }),
+    control('−5', 'shorter', { cls: 'down', aria: 'Shorten this shift by 5 minutes' })
+  ]);
+  const heroMain = h('div', { class: 'hero-main' }, [ring, dpad]);
+  const handoverLine = h('div', { class: 'hero-handover' }, '');
+  const cog = h('button', { class: 'hero-cog', type: 'button', 'aria-label': 'Shift settings',
+    'aria-haspopup': 'dialog', onclick: openSheet }, '⚙️');
+  const waveWrap = h('div', { class: 'hero-wave-wrap', 'aria-hidden': 'true' });
+  waveWrap.innerHTML = '<svg class="hero-wave" viewBox="0 0 320 26" preserveAspectRatio="none">' +
+    '<path d="M0 14 Q 54 0 107 14 T 214 14 T 322 14 V26 H0 Z"/></svg>';
+  const hero = h('section', { class: 'hero', 'aria-label': 'Shift timer' },
+    [cog, kick, heroMain, handoverLine, waveWrap]);
+
+  const storageError = h('p', { class: 'callout crit', role: 'status', hidden: true });
+  const retry = h('button', { class: 'btn small secondary', hidden: true, onclick: () =>
+    shiftStore.refresh().catch(() => {}) }, 'Retry shift storage');
+
+  // ---- Inspiration + primary action ----
+  const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
+  const inspiration = h('section', { class: 'card inspiration', 'aria-label': 'This shift' }, [
+    perspective, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
+  ]);
+  const primary = h('a', { href: '#/log/watch', class: 'btn handover-action primary-home' }, '⬤ Record handover');
+
+  // ---- Embedded day / night schedule (sliders moved into the sheet) ----
+  const init = schedFields(shiftStore.snapshot().state || {});
+  const schedToggle = h('input', { type: 'checkbox', id: 'homeSchedOn', ...(init.scheduleOn ? { checked: true } : {}) });
+  const slider = (id, label, min, max, step, value, fmt) => {
+    const input = h('input', { type: 'range', id, min: String(min), max: String(max), step: String(step),
+      value: String(value), 'aria-label': label });
+    const out = h('span', { class: 'bx-val' }, fmt(value));
+    input.addEventListener?.('input', () => { out.textContent = fmt(+input.value); updatePreview(); });
+    return { row: h('label', { class: 'bx-slider sched-slider' }, [h('span', {}, label), input, out]), input, out, fmt };
+  };
+  const nightS = slider('homeNight', 'Night stint (one each)', 30, 300, 15, init.nightShiftMin, v => formatHours(v));
+  const dayS = slider('homeDay', 'Day stint (target)', 20, 180, 5, init.dayShiftMin, v => mins(v));
+  const splitS = slider('homeSplit', 'Balance · R1 share', 35, 65, 5, init.splitPct,
+    v => 'R1 ' + v + '% / R2 ' + (100 - v) + '%');
+  const nightStartInput = h('input', { type: 'time', id: 'homeNightStart', value: timeLabel(init.nightStartMin) });
+  nightStartInput.addEventListener?.('input', () => updatePreview());
+  function currentInputs() {
+    const [hh, mm] = (nightStartInput.value || '20:00').split(':').map(n => parseInt(n, 10) || 0);
+    return {
+      splitPct: +splitS.input.value,
+      nightShiftMin: +nightS.input.value,
+      dayShiftMin: +dayS.input.value,
+      nightStartMin: hh * 60 + mm
+    };
+  }
+  const totalsEl = h('div', { class: 'sched-totals', 'aria-live': 'polite' });
+  function updatePreview() {
+    const sched = computeSchedule(currentInputs());
+    const r1 = formatHours(sched.perRowerMin['Rower 1']);
+    const r2 = formatHours(sched.perRowerMin['Rower 2']);
+    const even = Math.abs(sched.perRowerMin['Rower 1'] - sched.perRowerMin['Rower 2']) < 1;
+    totalsEl.replaceChildren(
+      h('strong', {}, 'Rower 1 ' + r1), h('span', {}, ' · '),
+      h('strong', {}, 'Rower 2 ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
+  }
+  function syncSchedule(state) {
+    const f = schedFields(state);
+    schedToggle.checked = f.scheduleOn;
+    nightS.input.value = String(f.nightShiftMin); nightS.out.textContent = nightS.fmt(f.nightShiftMin);
+    dayS.input.value = String(f.dayShiftMin); dayS.out.textContent = dayS.fmt(f.dayShiftMin);
+    splitS.input.value = String(f.splitPct); splitS.out.textContent = splitS.fmt(f.splitPct);
+    nightStartInput.value = timeLabel(f.nightStartMin);
+    updatePreview();
+  }
+  const saveBtn = h('button', { class: 'btn', onclick: async () => {
+    try {
+      await shiftStore.setSchedule({ ...currentInputs(), scheduleOn: schedToggle.checked });
+      updatePreview();
+      toast(schedToggle.checked ? 'Schedule saved — now driving the timer' : 'Schedule saved');
+    } catch { toast('Could not save the schedule — storage unavailable.'); }
+  } }, '✓ Save & re-calc');
+
   const wakeupsBtn = h('button', { class: 'btn small secondary sheet-wakeup', onclick: async () => {
     const { state, error } = shiftStore.snapshot();
     if (error || !state) { toast('Shift storage unavailable — retry first.'); return; }
     const ics = buildWakeupICS(state, { count: 8, leadMin: 10 });
-    const shared = await shareOrDownload('grow-ocean-wake-ups.ics', ics, 'text/calendar');
-    if (shared) toast('Wake-up alarms ready — open the file to add them to Calendar.');
+    const shared = await openCalendarFile('grow-ocean-wake-ups.ics', ics);
+    if (shared) toast('Opening Calendar — tap “Add All” to set the alarms.');
   } }, '⏰ Wake-up alarms (.ics)');
 
   const backdrop = h('div', { class: 'sheet-backdrop', hidden: true, onclick: closeSheet });
-  const doneBtn = h('button', { class: 'btn small sheet-done', type: 'button', onclick: closeSheet }, 'Done');
+  const closeX = h('button', { class: 'sheet-x', type: 'button', 'aria-label': 'Close shift settings',
+    onclick: closeSheet }, '✕');
   const sheet = h('div', { class: 'shift-sheet', role: 'dialog', 'aria-modal': 'true',
     'aria-label': 'Shift controls & settings', tabindex: '-1', hidden: true }, [
     h('div', { class: 'sheet-grab', 'aria-hidden': 'true' }),
-    h('h3', {}, 'Shift controls'),
-    h('p', { class: 'hint' }, 'Both of you, together — nothing is sent to the other phone on its own.'),
+    h('div', { class: 'sheet-head' }, [h('h3', {}, 'Shift controls & settings'), closeX]),
+    h('p', { class: 'hint' }, 'Both of you, together — nothing is sent to the other phone on its own. ' +
+      'The +5 / −5 / ▶ keys beside the dial adjust just this phone’s timer.'),
     storageError, retry,
-    h('p', { class: 'sheet-lbl' }, 'Adjust this shift · one-time nudge'),
-    h('div', { class: 'btnrow' }, [control('−5', 'shorter'), control('+5 min', 'longer')]),
-    h('p', { class: 'sheet-lbl' }, 'Shift'),
-    h('div', { class: 'btnrow' }, [
-      control('▶ Start', 'start', ''), control('🔁 Swap', 'swap'), control('Reset', 'reset', 'ghost')
+    h('p', { class: 'sheet-lbl' }, 'Day / night schedule'),
+    h('label', { class: 'switch-row' }, [
+      h('span', { class: 'switch' }, [schedToggle, h('span', { class: 'slider' })]),
+      h('span', {}, 'Drive the timer & alarms from this schedule')
     ]),
-    h('p', { class: 'sheet-lbl' }, 'Set up'),
+    nightS.row, dayS.row, splitS.row,
+    h('label', { class: 'sched-field' }, [h('span', {}, 'Night starts at'), nightStartInput]),
+    totalsEl,
+    h('div', { class: 'btnrow' }, [saveBtn]),
+    h('p', { class: 'sheet-lbl' }, 'Sync & alarms'),
     h('a', { href: '#/schedule', class: 'sheet-link', onclick: closeSheet },
-      [h('span', {}, '🗓️ Day / night schedule & QR sync'), h('span', { class: 'r' }, '›')]),
+      [h('span', {}, '🔗 Show QR / scan partner’s phone'), h('span', { class: 'r' }, '›')]),
     wakeupsBtn,
     h('p', { class: 'hint' }, '−5 shortens just this shift on this phone — your partner’s wake-up ' +
-      'alarm won’t move on its own. Wake-up alarms add iPhone Calendar alerts 10 min before each ' +
-      'handover; re-download after changing the shift length.'),
-    doneBtn
+      'alarm won’t move on its own. Re-share the wake-up alarms after changing the schedule.')
   ]);
 
   let sheetOpen = false, lastFocus = null;
@@ -161,12 +226,19 @@ export async function renderHome(view, param, signal) {
     if (error) { kick.textContent = 'Shift unavailable'; handoverLine.textContent = ''; }
     else if (!state) { kick.textContent = 'Loading shift…'; handoverLine.textContent = ''; }
     else {
-      const phase = display.phase ? cap(display.phase) + ' · ' : '';
-      kick.textContent = display.status === 'idle' ? phase + 'No shift running' : phase + display.rower + ' on oars';
-      handoverLine.textContent = display.status === 'idle'
-        ? 'Press ▶ Start to begin · ' + state.shiftMin + ' min shifts'
-        : display.status === 'overdue' ? 'Handover due now → ' + otherRower(display.rower)
-        : 'Handover ' + (display.endsAt ? clock(display.endsAt) : '—') + ' → ' + otherRower(display.rower);
+      const phaseLabel = display.phase ? (display.phase === 'night' ? 'Night shift' : 'Day shift') : '';
+      if (display.status === 'idle') {
+        kick.textContent = phaseLabel || 'No shift running';
+        handoverLine.textContent = state.scheduleOn
+          ? 'Press ▶ to begin this stint'
+          : 'Press ▶ to begin · ' + state.shiftMin + ' min shifts';
+      } else {
+        kick.textContent = phaseLabel || 'On oars';
+        handoverLine.textContent = display.status === 'overdue'
+          ? 'Handover due now → ' + otherRower(display.rower)
+          : display.rower + ' on oars · hand to ' + otherRower(display.rower) +
+            ' at ' + (display.endsAt ? clock(display.endsAt) : '—');
+      }
     }
     storageError.hidden = retry.hidden = !error;
     storageError.textContent = error ? 'Could not read or save the shift on this device. No new shift change was confirmed. Retry before relying on the timer.' : '';
@@ -190,6 +262,8 @@ export async function renderHome(view, param, signal) {
   await shiftStore.refresh().catch(() => {});
   await thoughtPending;
   if (signal?.aborted) return;
+  const refreshed = shiftStore.snapshot();
+  if (refreshed.state && !refreshed.error) syncSchedule(refreshed.state);
 
   const remBody = h('div', { class: 'hint' }, 'Loading reminders…');
   view.append(h('section', { class: 'card', 'aria-label': 'Next reminders' }, [
