@@ -166,7 +166,6 @@ body{
 /* Inspiration + primary */
 .inspiration{border:0;background:var(--sand)}
 .inspiration #shift-perspective{font-size:15.5px;line-height:1.45;margin:0}
-.inspiration .morale-line{margin:8px 0 0;font-size:14.5px;line-height:1.4;font-weight:600;color:var(--accent)}
 .inspiration .totals-line{margin:6px 0 0;font-size:12.5px;opacity:.85}
 .inspiration .star-link{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:600;text-decoration:none}
 .primary-home{font-weight:800}
@@ -474,6 +473,15 @@ html[data-theme="night"] .bx-overlay span{color:#4a0000}
 .sched-totals{margin:8px 0 2px;font-size:1rem}
 .sched-totals span{color:var(--muted)}
 .sched-actual{margin:2px 0 8px;font-weight:600;color:var(--accent)}
+.sched-plan{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.sched-plan>summary{cursor:pointer;font-weight:600;font-size:15px;padding:6px 2px;list-style:revert}
+.sched-plan-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.plan-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:14px;
+  padding:7px 10px;border-radius:9px;background:var(--sand)}
+.plan-row.now{outline:2px solid var(--aqua);font-weight:600}
+.plan-time{font-variant-numeric:tabular-nums;white-space:nowrap}
+.plan-rower{flex:1;text-align:center}
+.plan-dur{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .sched-qr{display:grid;place-items:center;background:#fff;border-radius:12px;padding:12px;margin:6px 0}
 .sched-qr svg{width:min(66vw,260px);height:auto;display:block}
 .sched-scan{margin-top:10px;display:flex;flex-direction:column;gap:8px}

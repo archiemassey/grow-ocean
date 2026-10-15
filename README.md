@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v20** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v21** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v20** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v21** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v20 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v21 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -442,13 +442,14 @@ who rowed and for how long (IndexedDB `stintLog`, DB v3). A pure reconciler
 (`js/stint-log.js`) appends one record per completed stint in both modes: schedule handovers
 are **back-filled deterministically** on reopen (record ids derive from the stint start, so it
 is idempotent — no duplicates), and manual stints are keyed to `shiftLastStart` so pause/resume
-never splits one. The **This shift** card shows a rotating **morale line** — warm praise for the rower coming
-**off** at a handover (optional real stint/hour totals folded in; the incoming rower is *not*
-welcomed here) and a separate gentle **welcome + encouragement ~5 minutes into a fresh stint**
-for the rower now on the oars — plus a quiet **totals readout** (stints logged · hours on the
-oars · nm made). The handover praise also pops as an on-screen notice that stays for **20
-seconds** so it can actually be read on deck, and when opt-in GPS has logged any distance the
-notice ends with the real **miles made so far**. Messages live in `js/data/encouragement.js`
+never splits one. Both morale beats now appear **only as on-screen pop-up notices**, so they
+never clutter the card through the stint: warm praise for the rower coming **off** fires at a
+handover (optional real stint/hour totals folded in; the incoming rower is *not* welcomed here),
+and a separate gentle **welcome + encouragement ~5 minutes into a fresh stint** pops for the
+rower now on the oars. The **This shift** card keeps only a quiet **totals readout** (stints
+logged · hours on the oars · nm made). Each notice stays for **20 seconds** so it can actually
+be read on deck, and when opt-in GPS has logged any distance the off-notice ends with the real
+**miles made so far**. Messages live in `js/data/encouragement.js`
 and rotate without repeating. The old “Swapped” toast is gone; the
 handover praise replaces it. **Miles made is opt-in GPS**: a toggle in the ⚙️ sheet captures a
 real `navigator.geolocation` fix at each handover (and on demand via **📍 Mark position**), and
@@ -517,7 +518,11 @@ exactly her balance share of 24h — 50/50 → 12h each, 60/40 → 14h24 / 9h36 
 slider lengths, because every segment length (never the count) scales by the split, so strict
 alternation is preserved. When **“Use this schedule”** is on, Home's live countdown and the
 `.ics` alarms are clocked off the computed stints (`currentSegment`, `nextHandovers`) rather
-than the fixed length. The schedule is deterministic from the settings plus the phone clock
+than the fixed length. **Save** re-runs the maths and snaps the day slider to the nearest
+whole computed stint (the live **“Actual day stint ≈ … min”** readout above it confirms the
+figure it actually uses), and a collapsible **“Next 24 hours — N stints”** section lists every
+upcoming stint — `clock–clock`, ☀️/🌙 and named rower, with the current stint marked **now** —
+rebuilt live from the sliders and the phone clock. The schedule is deterministic from the settings plus the phone clock
 (anchored to local midnight + night start), so two phones holding the same settings compute
 identical handovers with **no shared start time**. The rowers stay awake and agree changes
 together, then re-sync by **QR**: one phone shows the schedule QR (`js/shift-qr.js` payload),
@@ -527,7 +532,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v20 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v21 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork

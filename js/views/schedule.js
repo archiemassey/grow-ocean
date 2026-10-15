@@ -15,7 +15,7 @@
 
 import { h, toast, shareOrDownload, openCalendarFile } from '../app.js';
 import { shiftStore, rowerName } from '../shift-state.js';
-import { computeSchedule, formatHours } from '../shift-schedule.js';
+import { computeSchedule, formatHours, currentSegment, nextHandovers } from '../shift-schedule.js';
 import { encodeSchedulePayload, decodeSchedulePayload } from '../shift-qr.js';
 import { buildScheduleICS, buildRowerWakeupsICS, buildCancelICS } from '../shift-ics.js';
 import { readPreference, savePreference } from '../speech.js';
@@ -24,6 +24,7 @@ import jsQR from '../vendor/jsqr.js';
 
 const mins = n => Math.round(n) + ' min';
 const timeLabel = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const clockOf = ms => { const d = new Date(ms); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
 const MY_ROWER_KEY = 'grow-ocean-my-rower';
 
 export async function renderSchedule(view, param, signal) {
@@ -73,6 +74,33 @@ export async function renderSchedule(view, param, signal) {
   const totalsEl = h('div', { class: 'sched-totals', 'aria-live': 'polite' });
   const detailEl = h('p', { class: 'hint' });
   const actualEl = h('p', { class: 'sched-actual hint', 'aria-live': 'polite' });
+  // Collapsible preview of the actual stints for the next 24 hours, clocked off the
+  // current slider values (and the phone clock), refreshed on every change / Save.
+  const planList = h('div', { class: 'sched-plan-list' });
+  const planSummary = h('summary', {}, 'Next 24 hours');
+  const planDetails = h('details', { class: 'sched-plan' }, [planSummary, planList]);
+  function renderPlan() {
+    const now = Date.now();
+    const sched = computeSchedule(currentInputs());
+    const horizon = now + 24 * 60 * 60 * 1000;
+    const rows = [];
+    const cur = currentSegment(sched, now);
+    if (cur) rows.push({ start: now, end: cur.endsAt, rower: cur.rower, part: cur.part, now: true });
+    const points = nextHandovers(sched, { count: 120, now });
+    for (let k = 0; k < points.length - 1; k++) {
+      if (points[k].at >= horizon) break;
+      rows.push({ start: points[k].at, end: points[k + 1].at, rower: points[k].onNext, part: points[k].part });
+    }
+    planSummary.textContent = 'Next 24 hours — ' + rows.length + ' stints';
+    planList.replaceChildren(...rows.map(r => {
+      const dur = Math.max(1, Math.round((r.end - r.start) / 60000));
+      return h('div', { class: 'plan-row' + (r.now ? ' now' : '') }, [
+        h('span', { class: 'plan-time' }, clockOf(r.start) + '–' + clockOf(r.end)),
+        h('span', { class: 'plan-rower' }, (r.part === 'night' ? '🌙 ' : '☀️ ') + nameOf(r.rower)),
+        h('span', { class: 'plan-dur' }, (r.now ? 'now · ' : '') + dur + ' min')
+      ]);
+    }));
+  }
   function updatePreview() {
     const sched = computeSchedule(currentInputs());
     const r1 = formatHours(sched.perRowerMin['Rower 1']);
@@ -90,6 +118,7 @@ export async function renderSchedule(view, param, signal) {
       'Day: ' + dayStints + ' stints — ' + r1Name + ' ' + mins(sched.dayShiftActual['Rower 1']) +
       ' / ' + r2Name + ' ' + mins(sched.dayShiftActual['Rower 2']) + '. ' +
       'Night starts ' + timeLabel(sched.nightStartMin) + '.';
+    renderPlan();
   }
 
   /* ---- QR share ---- */
@@ -226,7 +255,8 @@ export async function renderSchedule(view, param, signal) {
       nightS.row, dayS.row, splitS.row,
       h('label', { class: 'sched-field' }, [h('span', {}, 'Night starts at'), nightStartInput]),
       totalsEl, detailEl,
-      h('div', { class: 'btnrow' }, [saveBtn])
+      h('div', { class: 'btnrow' }, [saveBtn]),
+      planDetails
     ]),
     h('section', { class: 'card' }, [
       h('h3', {}, '🔗 Sync to the other phone'),

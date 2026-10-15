@@ -99,12 +99,13 @@ export async function renderHome(view, param, signal) {
 
   // ---- Inspiration + primary action ----
   const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
-  // Warm, rotating morale line (praise at a handover; encouragement ~5 min in) plus an
-  // honest on-device tally of stints/hours rowed and, if GPS is on, nautical miles made.
-  const moraleLine = h('p', { class: 'morale-line', 'aria-live': 'polite', hidden: true });
+  // Morale lines (praise at a handover; a welcome ~5 min into a fresh stint) are shown as a
+  // brief pop-up only — see firePraise / the tick below — so they never clutter the card
+  // through the whole stint. The card keeps just an honest on-device tally of stints/hours
+  // rowed and, if GPS is on, nautical miles made.
   const totalsLine = h('p', { class: 'totals-line hint', 'aria-live': 'polite', hidden: true });
   const inspiration = h('section', { class: 'card inspiration', 'aria-label': 'This shift' }, [
-    perspective, moraleLine, totalsLine, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
+    perspective, totalsLine, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
   ]);
   const primary = h('a', { href: '#/log/watch', class: 'btn handover-action primary-home' }, '⬤ Record handover');
 
@@ -124,7 +125,7 @@ export async function renderHome(view, param, signal) {
     totalsLine.hidden = !parts.length;
     totalsLine.textContent = parts.join(' · ');
   }
-  function showMorale(msg) { moraleLine.textContent = msg; moraleLine.hidden = false; }
+  function showMorale(msg) { toast(msg, 20000); }
   async function refreshTotals() {
     try {
       const [records, fixes] = await Promise.all([db.all('stintLog'), db.getSetting('gps-fixes', [])]);
@@ -138,7 +139,7 @@ export async function renderHome(view, param, signal) {
     let msg = fillMessage(HANDOVER_PRAISE[nextCycleIndex('grow-praise', HANDOVER_PRAISE.length)],
       { off, on, n: totals ? totals.totalStints : '', h: totals ? formatHours(totals.totalMinutes) : '' });
     if (totals && totals.milesMade >= 0.1) msg += ' That\u2019s ' + totals.milesMade.toFixed(1) + ' nm made so far.';
-    showMorale(msg); toast(msg, 20000);
+    showMorale(msg);
   }
   // Append one real GPS fix (foreground-only). Caller handles permission/timeout failures.
   function getPosition() {
