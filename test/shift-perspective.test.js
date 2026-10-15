@@ -5,14 +5,22 @@ import vm from 'node:vm';
 import { getShiftPerspective, SHIFT_PERSPECTIVES } from '../js/shift-perspective.js';
 import { createShiftStore, shiftDisplay, rowerName } from '../js/shift-state.js';
 import { computeSchedule, formatHours } from '../js/shift-schedule.js';
+import { currentStint, reconcile, summariseStints } from '../js/stint-log.js';
+import { HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex } from '../js/data/encouragement.js';
 
 function storage() {
   const values = new Map();
+  const stores = new Map();
   let queue = Promise.resolve();
   return {
     values,
     async getSetting(key, fallback) { return structuredClone(values.get(key) ?? fallback); },
     async setSetting(key, value) { values.set(key, structuredClone(value)); },
+    async put(store, value) {
+      if (!stores.has(store)) stores.set(store, new Map());
+      stores.get(store).set(value.id, structuredClone(value));
+    },
+    async all(store) { return [...(stores.get(store)?.values() ?? [])].map(structuredClone); },
     async getSettings(defaults) {
       return Object.fromEntries(Object.entries(defaults).map(([key, fallback]) =>
         [key, values.has(key) ? values.get(key) : fallback]));
@@ -91,6 +99,8 @@ function homeHarness(db) {
   const shiftStore = createShiftStore(db, { now: () => now });
   const render = vm.runInNewContext(homeSource + '\nrenderHome;', {
     db, getShiftPerspective, shiftStore, shiftDisplay, rowerName, computeSchedule, formatHours,
+    currentStint, reconcile, summariseStints,
+    HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex,
     buildWakeupICS: () => '', buildCancelICS: () => '', openCalendarFile() {},
     window: { confirm: () => true },
     APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',

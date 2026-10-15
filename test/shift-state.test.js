@@ -156,6 +156,57 @@ test('a quick control in schedule mode seeds the manual stopwatch from the curre
   assert.equal(shiftDisplay(state, now).rower, state.activeRower, 'the dial now follows the manual rower');
 });
 
+test('±5 in schedule mode is a one-off nudge to the current handover only — not a mode switch', async () => {
+  const db = storage();
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  await db.updateSettings(SHIFT_DEFAULTS, saved => ({
+    ...saved, scheduleOn: true, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200
+  }));
+  const store = createShiftStore(db, { now: () => now });
+  await store.refresh();
+  const baseEnds = shiftDisplay(store.snapshot().state, now).endsAt;
+
+  await store.change('longer');
+  let state = store.snapshot().state;
+  assert.equal(state.manualOn, false, '±5 never flips to the manual stopwatch');
+  assert.equal(state.adjustMin, 5, 'the one-off nudge is recorded in minutes');
+  assert.ok(state.adjustSeg > 0, 'the nudge is pinned to the current stint');
+  assert.equal(shiftDisplay(state, now).endsAt, baseEnds + 5 * 60000, 'this handover moves +5 min');
+
+  await store.change('longer');
+  state = store.snapshot().state;
+  assert.equal(state.adjustMin, 10, 'repeated nudges accumulate within the same stint');
+  assert.equal(shiftDisplay(state, now).endsAt, baseEnds + 10 * 60000);
+
+  // The nudge is tied to adjustSeg, so it self-expires once the stint changes: a later
+  // segment reads the un-nudged schedule.
+  const laterStart = state.adjustSeg + 10 * 60 * 60000; // well into a subsequent stint
+  assert.equal(shiftDisplay(state, laterStart).endsAt > laterStart, true, 'a later stint still runs');
+});
+
+test('reset in schedule mode reverts to the pure schedule (clears nudge and manual takeover)', async () => {
+  const db = storage();
+  const now = Date.UTC(2026, 0, 9, 12, 0, 0);
+  await db.updateSettings(SHIFT_DEFAULTS, saved => ({
+    ...saved, scheduleOn: true, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200
+  }));
+  const store = createShiftStore(db, { now: () => now });
+  await store.refresh();
+  const scheduled = shiftDisplay(store.snapshot().state, now);
+
+  await store.change('longer'); // one-off nudge
+  await store.change('swap');   // manual takeover
+  assert.equal(store.snapshot().state.manualOn, true);
+
+  await store.change('reset');
+  const state = store.snapshot().state;
+  assert.equal(state.manualOn, false, 'reset hands the dial back to the schedule');
+  assert.equal(state.adjustMin, 0, 'the one-off nudge is cleared');
+  assert.equal(state.adjustSeg, 0);
+  assert.equal(state.pausedLeft, 0);
+  assert.equal(shiftDisplay(state, now).rower, scheduled.rower, 'the schedule rower is back on oars');
+});
+
 test('rowerName falls back to the id, trims custom names and tolerates missing state', () => {
   assert.equal(rowerName({ rower1Name: '', rower2Name: '' }, 'Rower 1'), 'Rower 1');
   assert.equal(rowerName({ rower1Name: 'Jess' }, 'Rower 1'), 'Jess');

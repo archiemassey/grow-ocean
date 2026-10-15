@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v18** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v19** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v18** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v19** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v18 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v19 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -264,6 +264,7 @@ grow-ocean-app/
 │  ├─ speech.js               Shared on-device English voice selection and saved playback preferences
 │  ├─ shift-perspective.js    Stable, persisted Home perspective per actual shift start
 │  ├─ shift-state.js          Shared atomic shift settings, foreground clock and cross-tab refresh
+│  ├─ stint-log.js            DOM-free per-rower stint ledger (deterministic back-fill, totals, GPS haversine)
 │  ├─ shift-ics.js            DOM-free wake-up alarm (.ics) builders (all handovers + per-rower, filtered)
 │  ├─ shift-schedule.js       DOM-free day/night schedule maths (fair split, strict alternation)
 │  ├─ shift-qr.js             Encode/decode the schedule as a compact offline QR payload
@@ -273,6 +274,7 @@ grow-ocean-app/
 │  ├─ safety.js               Action-critical operating conditions (separate from crew edits)
 │  ├─ rules.js                Read-only official reference and page links
 │  ├─ data/content.js         Prototype wiki, reminders, checklists and legacy game titles
+│  ├─ data/encouragement.js   Rotating handover-praise and mid-stint encouragement message pools
 │  ├─ data/entertainment-pack.json  Versioned built-in entertainment with provenance
 │  ├─ data/rules-data.js      Page-exact text and SHA-256 of the original PDF
 │  └─ views/                  One file per screen: home, wiki, reminders, checklists, log, entertain, feedback
@@ -417,22 +419,39 @@ prompts with a Star guide link and a reminder that boat and watch duties come fi
 never draws from or resets the entertainment deck.
 
 **Manual stopwatch seeded by the schedule.** In day/night schedule mode the dial normally
-follows the deterministic clock, but the moment a quick control (▶/⏸/↺/⇄/±5) is used it
-hands the dial to a **manual stopwatch**, seeded from the current stint (same rower, same
-remaining) so the switch is seamless. **▶** starts or resumes, **⏸** freezes the remaining
-time, **↺** restarts the current stint from its full configured length (running, no confirm
-pop-up), and **⇄** swaps the rower onto a fresh stint. The schedule still clocks the wake-up
-alarms and QR sync throughout, so the two phones stay in agreement even while one rower drives
-the dial by hand. **Rower names** entered in the sheet (and on `#/schedule`) replace
-“Rower 1 / Rower 2” everywhere the pair are named — the live strip, handover line, swap toast
-and the `.ics` text — while the internal ids never change, so saved alarms still match.
+follows the deterministic clock, but the moment **▶/⏸/⇄** is used it hands the dial to a
+**manual stopwatch**, seeded from the current stint (same rower, same remaining) so the switch
+is seamless. **▶** starts or resumes, **⏸** freezes the remaining time, and **⇄** swaps the
+rower onto a fresh stint. The schedule still clocks the wake-up alarms and QR sync throughout,
+so the two phones stay in agreement even while one rower drives the dial by hand. In schedule
+mode **↺** does the opposite of a takeover: it hands the dial **back** to the pure schedule,
+clearing any one-off nudge or manual takeover (in plain fixed mode it restarts the current
+stint from its full configured length). **Rower names** entered in the sheet (and on
+`#/schedule`) replace “Rower 1 / Rower 2” everywhere the pair are named — the live strip,
+handover line, morale messages and the `.ics` text — while the internal ids never change, so
+saved alarms still match.
 
-The **+5 / −5** buttons are a **one-time local nudge**: in day/night schedule mode, before the
-manual stopwatch takes over, they shift only the current stint's handover time (keyed to that
-stint's start, so the offset auto-expires at the next changeover) without rewriting the fixed
-daily schedule; in plain fixed mode (and once the stopwatch owns the dial) they adjust
-`shiftMin` by ±5. They apply silently (no confirm pop-up), and Reset applies without a confirm
-as well.
+The **+5 / −5** buttons are a **one-off local nudge** and never change modes: in day/night
+schedule mode they shift only the *current* stint's handover time on this phone (keyed to that
+stint's start, so the offset auto-expires at the next changeover) and the next rower's
+scheduled end is untouched; in plain fixed mode (or once the stopwatch owns the dial) they
+adjust `shiftMin` by ±5. They apply silently (no confirm pop-up), as does ↺.
+
+**Stint log, morale and real miles (v19).** The app now keeps an honest, on-device ledger of
+who rowed and for how long (IndexedDB `stintLog`, DB v3). A pure reconciler
+(`js/stint-log.js`) appends one record per completed stint in both modes: schedule handovers
+are **back-filled deterministically** on reopen (record ids derive from the stint start, so it
+is idempotent — no duplicates), and manual stints are keyed to `shiftLastStart` so pause/resume
+never splits one. The **This shift** card shows a rotating **morale line** — warm praise at a
+handover (the rower coming *off* is thanked, the one going *on* welcomed; optional real
+stint/hour totals folded in) and gentle **encouragement ~5 minutes into a fresh stint** — plus
+a quiet **totals readout** (stints logged · hours on the oars · nm made). Messages live in
+`js/data/encouragement.js` and rotate without repeating. The old “Swapped” toast is gone; the
+handover praise replaces it. **Miles made is opt-in GPS**: a toggle in the ⚙️ sheet captures a
+real `navigator.geolocation` fix at each handover (and on demand via **📍 Mark position**), and
+miles are summed by haversine between consecutive fixes. It is **foreground-only** (iPhone can't
+track GPS in the background), default **off**, and nothing leaves the phone. The static
+“distance” figures elsewhere in the app remain mocked and are never presented as real.
 
 Before the first shift, one welcome prompt is saved on the device. **Start** and **Swap**
 each begin a genuinely new shift (a new `shiftLastStart`) and assign a new prompt, excluding
@@ -505,8 +524,9 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v18 worker precaches every `js/**` module with the shell — including `theme.js`,
-`star-math.js`, `breathe-math.js`, `views/stars.js` and `views/breathe.js`, which earlier
+The v19 worker precaches every `js/**` module with the shell — including `theme.js`,
+`star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
+`stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
 offline; `test/offline-content.test.js` now guards against it). The existing native build
 copies them automatically. Bump the HTML release marker,

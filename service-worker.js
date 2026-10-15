@@ -5,7 +5,7 @@
    internet at all (essential mid-Atlantic). Release bumps must also update the
    index.html app-release marker and updates.js APP_RELEASE (see README). */
 
-const CACHE_VERSION = 'grow-ocean-v18';
+const CACHE_VERSION = 'grow-ocean-v19';
 const APP_SHELL = [
   './',
   './index.html',
@@ -25,6 +25,7 @@ const APP_SHELL = [
   './js/shift-state.js',
   './js/shift-ics.js',
   './js/shift-schedule.js',
+  './js/stint-log.js',
   './js/shift-qr.js',
   './js/vendor/qrcode.js',
   './js/vendor/jsqr.js',
@@ -36,6 +37,7 @@ const APP_SHELL = [
   './js/rules.js',
   './js/procedures.js',
   './js/data/content.js',
+  './js/data/encouragement.js',
   './js/data/entertainment-pack.json',
   './js/data/entertainment-base.json',
   './js/data/rules-data.js',

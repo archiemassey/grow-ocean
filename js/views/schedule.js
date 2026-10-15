@@ -72,6 +72,7 @@ export async function renderSchedule(view, param, signal) {
   /* ---- live preview ---- */
   const totalsEl = h('div', { class: 'sched-totals', 'aria-live': 'polite' });
   const detailEl = h('p', { class: 'hint' });
+  const actualEl = h('p', { class: 'sched-actual hint', 'aria-live': 'polite' });
   function updatePreview() {
     const sched = computeSchedule(currentInputs());
     const r1 = formatHours(sched.perRowerMin['Rower 1']);
@@ -80,6 +81,8 @@ export async function renderSchedule(view, param, signal) {
     totalsEl.replaceChildren(
       h('strong', {}, r1Name + ' ' + r1), h('span', {}, ' · '),
       h('strong', {}, r2Name + ' ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
+    actualEl.textContent = 'Actual day stint ≈ ' + Math.round(sched.dayShiftActualMin) +
+      ' min · ' + (sched.dayPairs * 2) + ' day stints · Save snaps the slider to this.';
     const dayStints = sched.dayPairs * 2;
     detailEl.textContent =
       'Night: one stint each — ' + r1Name + ' ' + formatHours(sched.nightShiftActual['Rower 1']) +
@@ -149,7 +152,15 @@ export async function renderSchedule(view, param, signal) {
   /* ---- persist ---- */
   async function save(message = 'Schedule saved') {
     try {
-      await shiftStore.setSchedule({ ...currentInputs(), scheduleOn: toggle.checked });
+      // Snap the Day-stint slider to the stint length the maths actually uses (dispatch
+      // 'input' so the label + preview + QR refresh), then persist that value.
+      const snap = Math.max(20, Math.min(180,
+        Math.round(computeSchedule(currentInputs()).dayShiftActualMin / 5) * 5));
+      if (snap !== +dayS.input.value) { dayS.input.value = String(snap); dayS.input.dispatchEvent(new Event('input')); }
+      const partial = { ...currentInputs(), scheduleOn: toggle.checked };
+      // Hand the dial back to the live schedule so the recalculated stint shows at once.
+      if (toggle.checked) partial.manualOn = false;
+      await shiftStore.setSchedule(partial);
       updatePreview(); renderQR();
       toast(message);
     } catch { toast('Could not save the schedule — storage unavailable.'); }
@@ -211,6 +222,7 @@ export async function renderSchedule(view, param, signal) {
         h('span', { class: 'switch' }, [toggle, h('span', { class: 'slider' })]),
         h('span', {}, 'Use this schedule to drive the shift timer & alarms')
       ]),
+      actualEl,
       nightS.row, dayS.row, splitS.row,
       h('label', { class: 'sched-field' }, [h('span', {}, 'Night starts at'), nightStartInput]),
       totalsEl, detailEl,

@@ -4,8 +4,8 @@
    audio, reminder on/off state) so everything survives offline and app restarts. */
 
 const DB_NAME = 'grow-ocean';
-const DB_VERSION = 2;
-const STORES = ['logs', 'voiceNotes', 'checkState', 'reminderState', 'settings', 'wiki', 'feedback'];
+const DB_VERSION = 3;
+const STORES = ['logs', 'voiceNotes', 'checkState', 'reminderState', 'settings', 'wiki', 'feedback', 'stintLog'];
 
 let _db = null;
 
@@ -30,6 +30,11 @@ function open() {
         db.createObjectStore('wiki', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('feedback'))
         db.createObjectStore('feedback', { keyPath: 'id' }).createIndex('ts', 'ts');
+      // v3: per-rower stint ledger (who rowed, when, for how long). Record ids are
+      // derived from the stint start so reconciliation is idempotent. Distinct from
+      // 'logs' (the ship's-log / voice-note feature).
+      if (!db.objectStoreNames.contains('stintLog'))
+        db.createObjectStore('stintLog', { keyPath: 'id' }).createIndex('ts', 'ts');
     };
     req.onsuccess = () => { _db = req.result; resolve(_db); };
     req.onerror = () => reject(req.error);

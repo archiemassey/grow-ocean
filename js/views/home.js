@@ -10,6 +10,8 @@ import { getShiftPerspective } from '../shift-perspective.js';
 import { shiftStore, shiftDisplay, rowerName } from '../shift-state.js';
 import { buildWakeupICS, buildCancelICS } from '../shift-ics.js';
 import { computeSchedule, formatHours } from '../shift-schedule.js';
+import { currentStint, reconcile, summariseStints } from '../stint-log.js';
+import { HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex } from '../data/encouragement.js';
 
 const clock = ms => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const otherRower = r => (r === 'Rower 1' ? 'Rower 2' : 'Rower 1');
@@ -38,7 +40,8 @@ export async function renderHome(view, param, signal) {
       try {
         await shiftStore.change(action);
         await thoughtPending;
-        if (action === 'swap') toast('Swapped — ' + rowerName(shiftStore.snapshot().state, shiftStore.snapshot().state.activeRower) + ' on oars');
+        // A ⇄ swap's morale message is fired by the stint reconciler below (which also
+        // logs the completed stint), so no separate toast here.
       } catch { /* The persistent error below and the shell expose storage failures. */ }
       finally { busy = false; updateControls(shiftStore.snapshot()); }
     } }, label);
@@ -96,10 +99,87 @@ export async function renderHome(view, param, signal) {
 
   // ---- Inspiration + primary action ----
   const perspective = h('p', { id: 'shift-perspective', 'aria-live': 'polite' }, 'Loading this shift’s perspective…');
+  // Warm, rotating morale line (praise at a handover; encouragement ~5 min in) plus an
+  // honest on-device tally of stints/hours rowed and, if GPS is on, nautical miles made.
+  const moraleLine = h('p', { class: 'morale-line', 'aria-live': 'polite', hidden: true });
+  const totalsLine = h('p', { class: 'totals-line hint', 'aria-live': 'polite', hidden: true });
   const inspiration = h('section', { class: 'card inspiration', 'aria-label': 'This shift' }, [
-    perspective, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
+    perspective, moraleLine, totalsLine, h('a', { href: '#/stars', class: 'star-link' }, '✦ Star guide →')
   ]);
   const primary = h('a', { href: '#/log/watch', class: 'btn handover-action primary-home' }, '⬤ Record handover');
+
+  // ---- Per-rower stint log, morale + opt-in GPS "miles made" ----
+  // Everything here is on-device and honest: stints are logged as they complete (schedule
+  // handovers are back-filled deterministically on reopen), and miles come only from real
+  // GPS fixes captured at handovers / "Mark position" (foreground-only on iOS).
+  let totals = null, openPtr = null, openId = 'none', reconciling = false, stintFails = 0, stintReady = false;
+  let encourageKey = null, gpsOn = false;
+  const ptrId = p => (p ? p.mode + ':' + p.startedAt + ':' + p.rower : 'none');
+
+  function renderTotals() {
+    const parts = [];
+    if (totals && totals.totalStints) parts.push(totals.totalStints + ' stints logged');
+    if (totals && totals.totalMinutes) parts.push(formatHours(totals.totalMinutes) + ' on the oars');
+    if (totals && totals.milesMade >= 0.1) parts.push(totals.milesMade.toFixed(1) + ' nm made');
+    totalsLine.hidden = !parts.length;
+    totalsLine.textContent = parts.join(' · ');
+  }
+  function showMorale(msg) { moraleLine.textContent = msg; moraleLine.hidden = false; }
+  async function refreshTotals() {
+    try {
+      const [records, fixes] = await Promise.all([db.all('stintLog'), db.getSetting('gps-fixes', [])]);
+      totals = summariseStints(records, fixes || []);
+      renderTotals();
+    } catch { /* keep the last good totals on a storage hiccup */ }
+  }
+  function firePraise(state, rec) {
+    const off = rowerName(state, rec.rower);
+    const on = rowerName(state, otherRower(rec.rower));
+    const msg = fillMessage(HANDOVER_PRAISE[nextCycleIndex('grow-praise', HANDOVER_PRAISE.length)],
+      { off, on, n: totals ? totals.totalStints : '', h: totals ? formatHours(totals.totalMinutes) : '' });
+    showMorale(msg); toast(msg);
+  }
+  // Append one real GPS fix (foreground-only). Caller handles permission/timeout failures.
+  function getPosition() {
+    return new Promise((resolve, reject) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) { reject(new Error('no-geo')); return; }
+      navigator.geolocation.getCurrentPosition(
+        p => resolve({ at: Date.now(), lat: p.coords.latitude, lon: p.coords.longitude }),
+        reject, { enableHighAccuracy: true, maximumAge: 60000, timeout: 15000 });
+    });
+  }
+  async function captureFix() {
+    const fix = await getPosition();
+    const fixes = (await db.getSetting('gps-fixes', [])) || [];
+    fixes.push(fix);
+    if (fixes.length > 5000) fixes.splice(0, fixes.length - 5000);
+    await db.setSetting('gps-fixes', fixes);
+    return fixes;
+  }
+  // Append newly-completed stints to the on-device ledger. Fires praise only for a stint
+  // that just finished in real time (not for ones back-filled after the app was closed).
+  async function syncStints(state, now) {
+    if (!stintReady || reconciling || stintFails > 4) return;
+    const curr = currentStint(state, now);
+    if (ptrId(curr) === openId) return;
+    reconciling = true;
+    try {
+      const result = reconcile({ open: openPtr, state, now });
+      for (const r of result.records) await db.put('stintLog', r);
+      openPtr = result.open; openId = ptrId(openPtr);
+      await db.setSetting('stint-open', openPtr);
+      if (result.records.length) {
+        await refreshTotals();
+        const fresh = result.records.filter(r => now - r.end <= 120000);
+        if (fresh.length) {
+          firePraise(state, fresh[fresh.length - 1]);
+          if (gpsOn) { try { await captureFix(); await refreshTotals(); } catch { /* no fix available */ } }
+        }
+      }
+      stintFails = 0;
+    } catch { stintFails += 1; }
+    finally { reconciling = false; }
+  }
 
   // ---- Embedded day / night schedule (sliders moved into the sheet) ----
   const init = schedFields(shiftStore.snapshot().state || {});
@@ -127,6 +207,7 @@ export async function renderHome(view, param, signal) {
     };
   }
   const totalsEl = h('div', { class: 'sched-totals', 'aria-live': 'polite' });
+  const actualEl = h('p', { class: 'sched-actual hint', 'aria-live': 'polite' });
   function updatePreview() {
     const sched = computeSchedule(currentInputs());
     const r1 = formatHours(sched.perRowerMin['Rower 1']);
@@ -135,6 +216,8 @@ export async function renderHome(view, param, signal) {
     totalsEl.replaceChildren(
       h('strong', {}, 'Rower 1 ' + r1), h('span', {}, ' · '),
       h('strong', {}, 'Rower 2 ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
+    actualEl.textContent = 'Actual day stint ≈ ' + Math.round(sched.dayShiftActualMin) +
+      ' min · ' + (sched.dayPairs * 2) + ' day stints · Save snaps the slider to this.';
   }
   function syncSchedule(state) {
     const f = schedFields(state);
@@ -149,7 +232,16 @@ export async function renderHome(view, param, signal) {
   }
   const saveBtn = h('button', { class: 'btn', onclick: async () => {
     try {
-      await shiftStore.setSchedule({ ...currentInputs(), scheduleOn: schedToggle.checked });
+      // Snap the Day-stint slider to the stint length the maths actually uses, so the
+      // target you see matches reality, then persist that.
+      const snap = Math.max(20, Math.min(180,
+        Math.round(computeSchedule(currentInputs()).dayShiftActualMin / 5) * 5));
+      if (snap !== +dayS.input.value) { dayS.input.value = String(snap); dayS.out.textContent = dayS.fmt(snap); }
+      const partial = { ...currentInputs(), scheduleOn: schedToggle.checked };
+      // Hand the dial back to the live schedule so the recalculated stint shows at once
+      // (a prior ▶/⏸/↺/±5 would otherwise leave the manual stopwatch owning the timer).
+      if (schedToggle.checked) partial.manualOn = false;
+      await shiftStore.setSchedule(partial);
       updatePreview();
       toast(schedToggle.checked ? 'Schedule saved — now driving the timer' : 'Schedule saved');
     } catch { toast('Could not save the schedule — storage unavailable.'); }
@@ -183,6 +275,25 @@ export async function renderHome(view, param, signal) {
     if (shared) toast('Opening Calendar — confirm to remove the old gROW alarms.');
   } }, '🗑 Remove gROW alarms (.ics)');
 
+  // Opt-in GPS: captures a position fix at each handover (and on demand) to show real
+  // nautical miles made. Foreground-only on iOS — handovers with the app closed are
+  // covered by pressing "Mark position" next time it's open. Default OFF.
+  const gpsToggle = h('input', { type: 'checkbox', id: 'homeGpsOn' });
+  gpsToggle.addEventListener?.('change', async () => {
+    gpsOn = gpsToggle.checked;
+    try { await db.setSetting('gps-track', gpsOn); } catch { /* storage surfaced elsewhere */ }
+    if (gpsOn) {
+      try { await captureFix(); await refreshTotals(); toast('GPS on — captured a starting fix.'); }
+      catch { toast('GPS on — allow location, then “Mark position” on deck to log miles.'); }
+    } else toast('GPS off — no new positions will be recorded.');
+  });
+  const markBtn = h('button', { class: 'btn small secondary', onclick: async () => {
+    markBtn.disabled = true;
+    try { await captureFix(); await refreshTotals(); toast('Position marked — miles made updated.'); }
+    catch { toast('Couldn’t get a GPS fix — try again on deck with a clear view of the sky.'); }
+    finally { markBtn.disabled = false; }
+  } }, '📍 Mark position');
+
   const backdrop = h('div', { class: 'sheet-backdrop', hidden: true, onclick: closeSheet });
   const closeX = h('button', { class: 'sheet-x', type: 'button', 'aria-label': 'Close shift settings',
     onclick: closeSheet }, '✕');
@@ -202,6 +313,7 @@ export async function renderHome(view, param, signal) {
       h('span', { class: 'switch' }, [schedToggle, h('span', { class: 'slider' })]),
       h('span', {}, 'Drive the timer & alarms from this schedule')
     ]),
+    actualEl,
     nightS.row, dayS.row, splitS.row,
     h('label', { class: 'sched-field' }, [h('span', {}, 'Night starts at'), nightStartInput]),
     totalsEl,
@@ -212,7 +324,16 @@ export async function renderHome(view, param, signal) {
     wakeupsBtn, cancelBtn,
     h('p', { class: 'hint' }, '−5 shortens just this shift on this phone — your partner’s wake-up ' +
       'alarm won’t move on its own. Re-share the wake-up alarms after changing the schedule. ' +
-      '“Remove gROW alarms” clears a previously-imported set first.')
+      '“Remove gROW alarms” clears a previously-imported set first.'),
+    h('p', { class: 'sheet-lbl' }, 'Miles made (GPS)'),
+    h('label', { class: 'switch-row' }, [
+      h('span', { class: 'switch' }, [gpsToggle, h('span', { class: 'slider' })]),
+      h('span', {}, 'Log real nautical miles from GPS fixes')
+    ]),
+    markBtn,
+    h('p', { class: 'hint' }, 'Fixes are taken at each handover while the app is open (iPhone can’t ' +
+      'track GPS in the background). Press “Mark position” any time to log where you are now. ' +
+      'Nothing leaves the phone.')
   ]);
 
   let sheetOpen = false, lastFocus = null;
@@ -311,6 +432,22 @@ export async function renderHome(view, param, signal) {
         }
       });
     }
+    if (state && !error) {
+      const nowMs = Date.now();
+      // Warm nudge ~5 min into a fresh running stint (once per stint, this phone only).
+      if (display.running && display.startedAt) {
+        const elapsed = nowMs - display.startedAt;
+        const key = display.rower + '@' + display.startedAt;
+        if (elapsed >= 300000 && elapsed < 1200000 && encourageKey !== key) {
+          encourageKey = key;
+          showMorale(fillMessage(STINT_ENCOURAGEMENT[nextCycleIndex('grow-encourage', STINT_ENCOURAGEMENT.length)],
+            { on: rowerName(state, display.rower) }));
+        }
+      }
+      // Log any just-completed stint(s) and fire handover praise. Fire-and-forget: its
+      // own in-flight guard keeps the 1 s ticks from overlapping.
+      syncStints(state, nowMs);
+    }
   });
   function cleanup() { unsubscribe(); if (typeof document !== 'undefined') document.removeEventListener('keydown', onKey, true); }
   signal?.addEventListener('abort', cleanup, { once: true });
@@ -320,6 +457,18 @@ export async function renderHome(view, param, signal) {
   if (signal?.aborted) return;
   const refreshed = shiftStore.snapshot();
   if (refreshed.state && !refreshed.error) syncSchedule(refreshed.state);
+
+  // Load the persisted stint ledger state so the first tick back-fills any stints that
+  // completed while the app was closed, then show the running totals + GPS state.
+  try {
+    openPtr = (await db.getSetting('stint-open', null)) || null;
+    openId = ptrId(openPtr);
+    gpsOn = !!(await db.getSetting('gps-track', false));
+    gpsToggle.checked = gpsOn;
+    await refreshTotals();
+  } catch { /* storage errors already surface via the shift error path */ }
+  finally { stintReady = true; }
+  if (signal?.aborted) return;
 
   const remBody = h('div', { class: 'hint' }, 'Loading reminders…');
   view.append(h('section', { class: 'card', 'aria-label': 'Next reminders' }, [

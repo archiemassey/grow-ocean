@@ -48,7 +48,7 @@ function databaseHarness() {
   const indexedDB = {
     open(name, version) {
       assert.equal(name, 'grow-ocean');
-      assert.equal(version, 2, 'no destructive schema upgrade');
+      assert.equal(version, 3, 'additive schema upgrade only (v3 adds the stintLog store)');
       const request = {};
       setImmediate(() => { request.result = database; request.onsuccess(); });
       return request;

@@ -6,12 +6,12 @@ export const SHIFT_DEFAULTS = Object.freeze({
   // Day/night schedule (deterministic from these settings + the phone clock, so two
   // phones with the same settings stay in sync without sharing a start time).
   scheduleOn: false, splitPct: 50, nightShiftMin: 180, dayShiftMin: 90, nightStartMin: 1200,
-  // Legacy one-time schedule nudge — kept for stored-data compatibility; the manual
-  // stopwatch below now owns ±5 adjustments.
+  // One-off current-stint nudge (±5): adjustMin shifts ONLY this phone's live handover
+  // for the stint whose start is adjustSeg, then self-expires at the next changeover.
   adjustMin: 0, adjustSeg: 0,
-  // Manual stopwatch: once a quick control (▶/⏸/↺/⇄/±5) is used, the dial is driven
-  // manually — seeded from the schedule's current stint so the switch is seamless —
-  // while the schedule still clocks the wake-up alarms + QR sync.
+  // Manual stopwatch: ▶/⏸/⇄ hand the dial to a stopwatch — seeded from the schedule's
+  // current stint so the switch is seamless — while the schedule still clocks the
+  // wake-up alarms + QR sync. ±5 does NOT flip this; ↺ in schedule mode clears it.
   manualOn: false, pausedLeft: 0,
   // Optional display names for the pair. Internal ids stay 'Rower 1'/'Rower 2'.
   rower1Name: '', rower2Name: ''
@@ -45,10 +45,10 @@ function validate(state) {
 }
 
 export function shiftDisplay(state, now = Date.now()) {
-  if (!state) return { status: 'unavailable', label: 'Shift unavailable', time: '—', rower: null, phase: null, frac: 0, endsAt: null, running: false, paused: false };
-  // Schedule mode shows the deterministic clock UNTIL a quick control is pressed; from
-  // then on the manual stopwatch owns the dial (manualOn) while the schedule still
-  // clocks the wake-up alarms + QR sync.
+  if (!state) return { status: 'unavailable', label: 'Shift unavailable', time: '—', rower: null, phase: null, frac: 0, endsAt: null, startedAt: null, running: false, paused: false };
+  // Schedule mode shows the deterministic clock, including a one-off ±5 nudge, UNTIL
+  // ▶/⏸/⇄ hand the dial to the manual stopwatch (manualOn); from then on the stopwatch
+  // owns the dial while the schedule still clocks the wake-up alarms + QR sync.
   if (state.scheduleOn && !state.manualOn) return scheduleDisplay(state, now);
   return manualDisplay(state, now);
 }
@@ -76,16 +76,16 @@ function manualDisplay(state, now) {
     : status === 'warning' ? base + 'Handover in ≤10 min' : base + 'On oars';
   const frac = idle ? 0 : Math.min(1, Math.max(0, (total - Math.max(0, Math.min(total, left))) / total));
   const endsAt = idle || paused ? null : state.shiftStart + total;
-  return { status, label, time, rower: state.activeRower, phase, frac, endsAt, running: !idle && !paused, paused };
+  return { status, label, time, rower: state.activeRower, phase, frac, endsAt, startedAt: idle || paused ? null : state.shiftStart, running: !idle && !paused, paused };
 }
 
 /* Live countdown for the computed day/night schedule — clocked off the current stint.
-   A one-time ±5 nudge (adjustMin, tied to this stint's start) shifts only the live
-   handover on this phone; it self-expires when the stint changes. Used only until the
-   rower touches a quick control, after which manualDisplay takes over. */
+   A one-off ±5 nudge (adjustMin, tied to this stint's start) shifts only the live
+   handover on this phone; it self-expires when the stint changes. Used until ▶/⏸/⇄
+   hand over to manualDisplay. */
 function scheduleDisplay(state, now) {
   const seg = currentSegment(computeSchedule(state), now);
-  if (!seg) return { status: 'idle', label: 'No schedule', time: '--:--', rower: null, phase: null, frac: 0, endsAt: null, running: false, paused: false };
+  if (!seg) return { status: 'idle', label: 'No schedule', time: '--:--', rower: null, phase: null, frac: 0, endsAt: null, startedAt: null, running: false, paused: false };
   const adjust = state.adjustSeg === seg.startedAt ? (Number(state.adjustMin) || 0) * 60000 : 0;
   const endsAt = seg.endsAt + adjust;
   const left = endsAt - now;
@@ -97,7 +97,7 @@ function scheduleDisplay(state, now) {
     (status === 'overdue' ? 'Overdue — handover' : status === 'warning' ? 'Handover in ≤10 min' : 'On oars');
   const total = Math.max(60000, endsAt - seg.startedAt);
   const frac = Math.min(1, Math.max(0, (now - seg.startedAt) / total));
-  return { status, label, time, rower: seg.rower, phase: seg.part, frac, endsAt, running: true, paused: false };
+  return { status, label, time, rower: seg.rower, phase: seg.part, frac, endsAt, startedAt: seg.startedAt, running: true, paused: false };
 }
 
 /* Seed the manual stopwatch from the schedule's current stint, so touching a quick
@@ -140,15 +140,36 @@ export function createShiftStore(storage, { now = Date.now, broadcast = () => {}
     async change(action) {
       const result = await enqueue(() => storage.updateSettings(SHIFT_DEFAULTS, saved => {
         const base = validate(saved);
-        const next = { ...base, ...seedManual(base, now()) };
+        const nowMs = now();
+        // Schedule mode, before any manual takeover, keeps the deterministic clock.
+        if (base.scheduleOn && !base.manualOn && (action === 'longer' || action === 'shorter')) {
+          // ±5 is a ONE-OFF nudge to the CURRENT handover only: it shifts just this
+          // stint's end on this phone and self-expires at the next changeover, so the
+          // next rower's scheduled end is untouched. It never flips to manual mode.
+          const seg = currentSegment(computeSchedule(base), nowMs);
+          if (seg) {
+            const delta = action === 'longer' ? 5 : -5;
+            const same = base.adjustSeg === seg.startedAt;
+            return validate({ ...base, adjustSeg: seg.startedAt,
+              adjustMin: (same ? (Number(base.adjustMin) || 0) : 0) + delta });
+          }
+        }
+        // Reset in schedule mode always hands the dial back to the pure schedule: it
+        // drops any one-off nudge AND any manual takeover (from ▶/⏸/⇄), rather than
+        // starting a free-running stopwatch.
+        if (action === 'reset' && base.scheduleOn) {
+          return validate({ ...base, adjustMin: 0, adjustSeg: 0, manualOn: false, pausedLeft: 0 });
+        }
+        // Manual stopwatch — fixed mode, or schedule mode once ▶/⏸/⇄ have taken over.
+        const next = { ...base, ...seedManual(base, nowMs) };
         const total = () => next.shiftMin * 60000;
         // Strictly-increasing start id (perspective key + ICS UID uniqueness) even if
         // the clock moves backwards.
-        const freshStart = () => Math.max(now(), (base.shiftStart || 0) + 1, base.shiftLastStart + 1);
+        const freshStart = () => Math.max(nowMs, (base.shiftStart || 0) + 1, base.shiftLastStart + 1);
         if (action === 'start') {
           if (next.pausedLeft > 0) {
             // Resume from pause, preserving the elapsed time.
-            next.shiftStart = now() - (total() - next.pausedLeft);
+            next.shiftStart = nowMs - (total() - next.pausedLeft);
             next.pausedLeft = 0;
           } else {
             next.shiftStart = freshStart();
@@ -156,7 +177,7 @@ export function createShiftStore(storage, { now = Date.now, broadcast = () => {}
           }
         } else if (action === 'pause') {
           if (next.pausedLeft === 0 && next.shiftStart !== null) {
-            next.pausedLeft = Math.max(0, next.shiftStart + total() - now());
+            next.pausedLeft = Math.max(0, next.shiftStart + total() - nowMs);
             next.shiftStart = null;
           }
         } else if (action === 'reset') {
