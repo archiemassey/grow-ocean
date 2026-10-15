@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { getShiftPerspective, SHIFT_PERSPECTIVES } from '../js/shift-perspective.js';
 import { createShiftStore, shiftDisplay, rowerName } from '../js/shift-state.js';
-import { computeSchedule, formatHours } from '../js/shift-schedule.js';
+import { computeSchedule, formatHours, currentSegment, nextHandovers } from '../js/shift-schedule.js';
 import { currentStint, reconcile, summariseStints } from '../js/stint-log.js';
 import { HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex } from '../js/data/encouragement.js';
 
@@ -96,15 +96,19 @@ const homeSource = (await readFile(new URL('../js/views/home.js', import.meta.ur
 
 function homeHarness(db) {
   let now = 1000, nodes = [], controller;
+  // Real Date subclass so home.js's clock()/new Date(ms) work in the sandbox, while
+  // Date.now() stays pinned to the deterministic fixture clock.
+  class FakeDate extends Date { static now() { return now; } }
   const shiftStore = createShiftStore(db, { now: () => now });
   const render = vm.runInNewContext(homeSource + '\nrenderHome;', {
     db, getShiftPerspective, shiftStore, shiftDisplay, rowerName, computeSchedule, formatHours,
+    currentSegment, nextHandovers,
     currentStint, reconcile, summariseStints,
     HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex,
     buildWakeupICS: () => '', buildCancelICS: () => '', openCalendarFile() {},
     window: { confirm: () => true },
     APP_RELEASE: 'fixture', checkForUpdates: async () => 'No update',
-    Date: { now: () => now }, clearInterval() {}, setInterval() { return 1; },
+    Date: FakeDate, clearInterval() {}, setInterval() { return 1; },
     CONTENT: {
       scheduled: [], meta: { disclaimer: 'Fixture notice' },
       live: ['speed', 'vmg24', 'dist', 'made'].map(id => ({ id, label: id, value: 1, unit: 'unit' }))

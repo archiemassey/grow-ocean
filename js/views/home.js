@@ -9,7 +9,7 @@ import { APP_RELEASE, checkForUpdates } from '../updates.js';
 import { getShiftPerspective } from '../shift-perspective.js';
 import { shiftStore, shiftDisplay, rowerName } from '../shift-state.js';
 import { buildWakeupICS, buildCancelICS } from '../shift-ics.js';
-import { computeSchedule, formatHours } from '../shift-schedule.js';
+import { computeSchedule, formatHours, currentSegment, nextHandovers } from '../shift-schedule.js';
 import { currentStint, reconcile, summariseStints } from '../stint-log.js';
 import { HANDOVER_PRAISE, STINT_ENCOURAGEMENT, fillMessage, nextCycleIndex } from '../data/encouragement.js';
 
@@ -210,6 +210,37 @@ export async function renderHome(view, param, signal) {
   }
   const totalsEl = h('div', { class: 'sched-totals', 'aria-live': 'polite' });
   const actualEl = h('p', { class: 'sched-actual hint', 'aria-live': 'polite' });
+  // Collapsible preview of the actual stints for the next 24 hours, clocked off the
+  // current slider values and the phone clock, refreshed on every change / Save.
+  const planList = h('div', { class: 'sched-plan-list' });
+  const planSummary = h('summary', {}, 'Next 24 hours');
+  const planDetails = h('details', { class: 'sched-plan' }, [planSummary, planList]);
+  const planName = r => {
+    const typed = (r === 'Rower 2' ? r2NameInput?.value : r1NameInput?.value || '').trim();
+    return typed || (r === 'Rower 2' ? 'Rower 2' : 'Rower 1');
+  };
+  function renderPlan() {
+    const now = Date.now();
+    const sched = computeSchedule(currentInputs());
+    const horizon = now + 24 * 60 * 60 * 1000;
+    const rows = [];
+    const cur = currentSegment(sched, now);
+    if (cur) rows.push({ start: now, end: cur.endsAt, rower: cur.rower, part: cur.part, now: true });
+    const points = nextHandovers(sched, { count: 120, now });
+    for (let k = 0; k < points.length - 1; k++) {
+      if (points[k].at >= horizon) break;
+      rows.push({ start: points[k].at, end: points[k + 1].at, rower: points[k].onNext, part: points[k].part });
+    }
+    planSummary.textContent = 'Next 24 hours — ' + rows.length + ' stints';
+    planList.replaceChildren(...rows.map(r => {
+      const dur = Math.max(1, Math.round((r.end - r.start) / 60000));
+      return h('div', { class: 'plan-row' + (r.now ? ' now' : '') }, [
+        h('span', { class: 'plan-time' }, clock(r.start) + '–' + clock(r.end)),
+        h('span', { class: 'plan-rower' }, (r.part === 'night' ? '🌙 ' : '☀️ ') + planName(r.rower)),
+        h('span', { class: 'plan-dur' }, (r.now ? 'now · ' : '') + dur + ' min')
+      ]);
+    }));
+  }
   function updatePreview() {
     const sched = computeSchedule(currentInputs());
     const r1 = formatHours(sched.perRowerMin['Rower 1']);
@@ -220,6 +251,7 @@ export async function renderHome(view, param, signal) {
       h('strong', {}, 'Rower 2 ' + r2), h('span', {}, ' ' + (even ? '✓ even' : '· chosen split')));
     actualEl.textContent = 'Actual day stint ≈ ' + Math.round(sched.dayShiftActualMin) +
       ' min · ' + (sched.dayPairs * 2) + ' day stints · Save snaps the slider to this.';
+    renderPlan();
   }
   function syncSchedule(state) {
     const f = schedFields(state);
@@ -320,6 +352,7 @@ export async function renderHome(view, param, signal) {
     h('label', { class: 'sched-field' }, [h('span', {}, 'Night starts at'), nightStartInput]),
     totalsEl,
     h('div', { class: 'btnrow' }, [saveBtn]),
+    planDetails,
     h('p', { class: 'sheet-lbl' }, 'Sync & alarms'),
     h('a', { href: '#/schedule', class: 'sheet-link', onclick: closeSheet },
       [h('span', {}, '🔗 Show QR / scan partner’s phone'), h('span', { class: 'r' }, '›')]),
