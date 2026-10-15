@@ -5,7 +5,7 @@
    internet at all (essential mid-Atlantic). Release bumps must also update the
    index.html app-release marker and updates.js APP_RELEASE (see README). */
 
-const CACHE_VERSION = 'grow-ocean-v19';
+const CACHE_VERSION = 'grow-ocean-v20';
 const APP_SHELL = [
   './',
   './index.html',

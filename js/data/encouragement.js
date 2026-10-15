@@ -1,30 +1,31 @@
 /* encouragement.js — warm, British, non-cheesy morale lines for two women rowing
    the Atlantic as a pair. Two pools:
-   - HANDOVER_PRAISE fires when a stint finishes (the rower coming OFF the oars is
-     praised, the one going ON is welcomed). Optional {n}/{h} fold in real totals.
-   - STINT_ENCOURAGEMENT fires ~5 minutes into a fresh stint, for the rower now ON.
+   - HANDOVER_PRAISE fires when a stint finishes — it praises ONLY the rower coming
+     OFF the oars. Optional {n}/{h} fold in real totals.
+   - STINT_ENCOURAGEMENT fires ~5 minutes into a fresh stint, welcoming and cheering
+     on the rower now ON.
 
    Tokens: {off} outgoing rower, {on} incoming/current rower, {n} total stints so
    far, {h} total hours so far (both pre-formatted strings). Lines are written to
    read fine even if a totals token happens to be absent. */
 
 export const HANDOVER_PRAISE = [
-  'Beautifully rowed, {off}. {on}, she kept her steady — over to you.',
-  'Strong stint, {off}. Rest those arms. {on}, the boat\u2019s yours now.',
-  'That\u2019s {n} stints between you now. Cracking work, {off} — {on}, your turn.',
-  '{off}, you held a lovely rhythm out there. {on}, pick it up and keep her tracking.',
-  'Clean handover. {off}, go and refuel; {on}, ease in and find your stroke.',
-  'Every pull counts and you both know it. Well rowed, {off}. {on}, you\u2019ve got this.',
-  '{off} done brilliantly. That\u2019s {h} on the oars across the pair so far.',
-  'Smooth as you like, {off}. {on}, settle in — no need to chase it.',
-  'Proud of you both. {off}, head down for a rest; {on}, head up and row.',
-  '{off}, that was graft and grace. {on}, carry it on — short strokes, strong finish.',
-  'Another one in the bank. {off}, nicely done; {on}, the Atlantic\u2019s waiting.',
-  'You\u2019re a team and it shows. Lovely work, {off}. {on}, over to you, pal.',
-  '{off}, you dug in when it mattered. {on}, keep her pointing at home.',
-  'Handover sorted. {off}, get warm and watered; {on}, find that easy power.',
-  'That\u2019s {n} changeovers nailed together. Top rowing, {off}. {on}, away you go.',
-  '{off}, you made that look easy (it isn\u2019t). {on}, your moment \u2014 enjoy it.'
+  'Beautifully rowed, {off}. Rest those arms now \u2014 you\u2019ve earned it.',
+  'Strong stint, {off}. Head down, get warm and watered.',
+  'That\u2019s {n} stints in the bank between you. Cracking work, {off}.',
+  '{off}, you held a lovely rhythm out there. Go and refuel.',
+  'Clean handover, {off}. Put your feet up and recover.',
+  'Every pull counts and you know it. Well rowed, {off}.',
+  '{off} done brilliantly \u2014 that\u2019s {h} on the oars across the pair so far.',
+  'Smooth as you like, {off}. Rest easy, you\u2019ve done your bit.',
+  'Proud of you, {off}. Head down for a proper rest now.',
+  '{off}, that was graft and grace. Go and look after yourself.',
+  'Another one in the bank, {off}. Nicely done.',
+  'You\u2019re a team and it shows. Lovely work, {off} \u2014 rest up.',
+  '{off}, you dug in when it mattered. Time to refuel and recover.',
+  'Handover sorted, {off}. Get warm, get watered, get comfy.',
+  'That\u2019s {n} changeovers nailed together. Top rowing, {off}.',
+  '{off}, you made that look easy (it isn\u2019t). Rest well.'
 ];
 
 export const STINT_ENCOURAGEMENT = [

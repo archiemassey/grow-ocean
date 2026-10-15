@@ -62,11 +62,11 @@ export function h(tag, attrs = {}, children) {
 }
 
 let toastTimer;
-export function toast(msg) {
+export function toast(msg, duration = 2600) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
 }
 
 /* Text-to-speech — reads wiki/instructions aloud, hands-free. Works offline. */

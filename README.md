@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v19** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v20** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v19** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v20** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,7 +52,7 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v19 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+**v20 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
 Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
@@ -442,11 +442,14 @@ who rowed and for how long (IndexedDB `stintLog`, DB v3). A pure reconciler
 (`js/stint-log.js`) appends one record per completed stint in both modes: schedule handovers
 are **back-filled deterministically** on reopen (record ids derive from the stint start, so it
 is idempotent — no duplicates), and manual stints are keyed to `shiftLastStart` so pause/resume
-never splits one. The **This shift** card shows a rotating **morale line** — warm praise at a
-handover (the rower coming *off* is thanked, the one going *on* welcomed; optional real
-stint/hour totals folded in) and gentle **encouragement ~5 minutes into a fresh stint** — plus
-a quiet **totals readout** (stints logged · hours on the oars · nm made). Messages live in
-`js/data/encouragement.js` and rotate without repeating. The old “Swapped” toast is gone; the
+never splits one. The **This shift** card shows a rotating **morale line** — warm praise for the rower coming
+**off** at a handover (optional real stint/hour totals folded in; the incoming rower is *not*
+welcomed here) and a separate gentle **welcome + encouragement ~5 minutes into a fresh stint**
+for the rower now on the oars — plus a quiet **totals readout** (stints logged · hours on the
+oars · nm made). The handover praise also pops as an on-screen notice that stays for **20
+seconds** so it can actually be read on deck, and when opt-in GPS has logged any distance the
+notice ends with the real **miles made so far**. Messages live in `js/data/encouragement.js`
+and rotate without repeating. The old “Swapped” toast is gone; the
 handover praise replaces it. **Miles made is opt-in GPS**: a toggle in the ⚙️ sheet captures a
 real `navigator.geolocation` fix at each handover (and on demand via **📍 Mark position**), and
 miles are summed by haversine between consecutive fixes. It is **foreground-only** (iPhone can't
@@ -524,7 +527,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v19 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v20 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork

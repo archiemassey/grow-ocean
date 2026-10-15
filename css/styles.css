@@ -361,8 +361,8 @@ audio{width:100%;margin-top:6px}
 
 /* Toast */
 .toast{position:fixed;left:50%;bottom:calc(var(--dock-height) + 12px);transform:translateX(-50%) translateY(20px);
-  background:var(--navy);color:#fff;padding:12px 18px;border:1px solid var(--aqua);border-radius:12px;font-size:14px;
-  opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
+  background:var(--navy);color:#fff;padding:18px 27px;border:1px solid var(--aqua);border-radius:14px;font-size:21px;line-height:1.35;
+  opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* Live report rows */

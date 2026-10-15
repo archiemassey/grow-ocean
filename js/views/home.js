@@ -135,9 +135,10 @@ export async function renderHome(view, param, signal) {
   function firePraise(state, rec) {
     const off = rowerName(state, rec.rower);
     const on = rowerName(state, otherRower(rec.rower));
-    const msg = fillMessage(HANDOVER_PRAISE[nextCycleIndex('grow-praise', HANDOVER_PRAISE.length)],
+    let msg = fillMessage(HANDOVER_PRAISE[nextCycleIndex('grow-praise', HANDOVER_PRAISE.length)],
       { off, on, n: totals ? totals.totalStints : '', h: totals ? formatHours(totals.totalMinutes) : '' });
-    showMorale(msg); toast(msg);
+    if (totals && totals.milesMade >= 0.1) msg += ' That\u2019s ' + totals.milesMade.toFixed(1) + ' nm made so far.';
+    showMorale(msg); toast(msg, 20000);
   }
   // Append one real GPS fix (foreground-only). Caller handles permission/timeout failures.
   function getPosition() {
