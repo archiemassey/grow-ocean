@@ -176,6 +176,37 @@ test('speed changes timing; reduced motion uses static frames and pauses on pref
   guide.controller.abort();
 });
 
+test('rope movement can override iOS reduced motion and be turned off again', () => {
+  const guide = renderGuide('bowline', { reduced: true });
+  const animate = guide.nodes.find(node => node.id === 'knotAnimate');
+  const play = guide.find('Play animation');
+  assert.equal(animate.checked, false, 'respects device preference initially');
+  guide.click(guide.find('Next step'));
+  animate.checked = true;
+  animate.events.change();
+  const start = guide.draws.length;
+  guide.click(play);
+  guide.tick(10);
+  const moving = guide.draws.slice(start);
+  assert.ok(moving.every(draw => draw.step === 1), 'animates the selected step');
+  assert.ok(moving.some(draw => draw.u > 0 && draw.u < 1), 'renders intermediate rope positions');
+  assert.ok(moving.at(-1).u > moving[0].u, 'motion progresses between animation frames');
+  animate.checked = false;
+  animate.events.change();
+  assert.equal(guide.frames.size, 0, 'changing motion pauses playback');
+  const stopped = guide.draws.length;
+  guide.click(play);
+  guide.tick(50);
+  assert.ok(guide.draws.slice(stopped).every(draw => draw.u === 1), 'can return to static steps');
+  animate.checked = true;
+  animate.events.change();
+  guide.click(play);
+  guide.media.dispatchEvent(Object.assign(new Event('change'), { matches: true }));
+  assert.equal(animate.checked, false, 'a new device preference resets the override');
+  assert.equal(guide.frames.size, 0);
+  guide.controller.abort();
+});
+
 test('backgrounding, emergency opening, page hide and route abort cancel playback', () => {
   const guide = renderGuide(), play = guide.find('Play animation');
   guide.click(play);

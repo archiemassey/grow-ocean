@@ -29,7 +29,8 @@ function knotList(view) {
 function animationPlayer(knot, signal) {
   let step = 0, elapsed = 0, frame = null, last = null, playing = false, speed = 1, failed = false;
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let reducedMotion = motionPreference.matches;
+  const animate = h('input', { type: 'checkbox', id: 'knotAnimate' });
+  animate.checked = !motionPreference.matches;
   const height = knot.height || 800;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const canvas = h('canvas', { class: 'knot-canvas', width: 600 * dpr, height: height * dpr,
@@ -68,6 +69,9 @@ function animationPlayer(knot, signal) {
     bar,
     h('div', { class: 'knot-animation-controls', role: 'group', 'aria-label': 'Animation controls' },
       [previous, play, next, restart, rate]),
+    h('div', { class: 'check' }, [animate, h('label', { for: 'knotAnimate' }, 'Animate rope movement')]),
+    h('p', { class: 'sub' },
+      'Starts off if your device requests reduced motion. Turn it on, then press Play for smooth movement, including on iOS.'),
     h('p', { class: 'knot-legend' },
       'Marked tip = working end. Dashed line = next movement. Arrow = pull.'),
     h('p', { class: 'knot-night-warning' },
@@ -77,7 +81,7 @@ function animationPlayer(knot, signal) {
     h('details', { class: 'knot-storyboard-details' }, [h('summary', {}, 'Storyboard'), board])
   ]);
 
-  function motion(index) { return index === 0 || reducedMotion ? 0 : (knot.steps[index].motion || 2.4); }
+  function motion(index) { return index === 0 || !animate.checked ? 0 : (knot.steps[index].motion || 2.4); }
   function hold() { return step === 0 ? 1.8 : step === knot.steps.length - 1 ? 3.2 : 1.6; }
   function palette() {
     const night = document.documentElement.getAttribute('data-theme') === 'night';
@@ -164,6 +168,9 @@ function animationPlayer(knot, signal) {
   play.addEventListener('click', () => { if (playing) stop(); else start(); });
   restart.addEventListener('click', () => { selectStep(0); start(); });
   rate.addEventListener('change', () => { speed = Number(rate.value); });
+  animate.addEventListener('change', () => {
+    stop(); elapsed = 0; paint();
+  });
   player.addEventListener('keydown', event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.target.tagName === 'SELECT') return;
     if (event.key === 'ArrowRight' && step < knot.steps.length - 1) { event.preventDefault(); selectStep(step + 1); }
@@ -176,7 +183,7 @@ function animationPlayer(knot, signal) {
   window.addEventListener('pagehide', stop, { signal });
   window.addEventListener('emergencyopen', stop, { signal });
   motionPreference.addEventListener('change', event => {
-    reducedMotion = event.matches; selectStep(step);
+    animate.checked = !event.matches; selectStep(step);
   }, { signal });
   const observer = new MutationObserver(() => { paint(); drawBoard(); });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
