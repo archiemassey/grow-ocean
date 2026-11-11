@@ -67,13 +67,15 @@ function animationPlayer(knot, signal) {
   const board = h('div', { class: 'knot-storyboard' }, thumbnails.map(item => item.button));
   const player = h('section', { class: 'card knot-animation', 'aria-label': 'Animated knot steps' }, [
     h('div', { class: 'knot-stage' }, [
-      h('div', { class: 'knot-canvas-surface' }, canvas),
-      h('div', { class: 'knot-side' }, [pad, h('div', { class: 'knot-now' }, [
+      h('div', { class: 'knot-canvas-surface' }, [
+        canvas, pad,
+        h('p', { class: 'knot-pad-key' },
+          '↺ restart · ‹ › previous and next step · ▶ play or pause · 1× change speed')
+      ]),
+      h('div', { class: 'knot-now' }, [
         h('div', { 'aria-live': 'polite', 'aria-atomic': 'true' }, [progress, title, caption]), bar
-      ])])
+      ])
     ]), error,
-    h('p', { class: 'knot-pad-key' },
-      '↺ restart · ‹ › previous and next step · ▶ play or pause · 1× change speed'),
     h('div', { class: 'check' }, [animate, h('label', { for: 'knotAnimate' }, 'Animate rope movement')]),
     h('p', { class: 'sub' }, 'Turn off to see a still picture for each step.'),
     h('p', { class: 'knot-legend' },

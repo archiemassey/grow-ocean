@@ -152,12 +152,17 @@ test('manual steps, storyboard, keyboard and playback keep the same instruction 
   guide.controller.abort();
 });
 
-test('keypad sits beside the animation and the speed key cycles timing', () => {
+test('keypad is embedded in the animation and the speed key cycles timing', () => {
   const layout = renderGuide();
   const stage = layout.nodes.find(node => node.class === 'knot-stage');
+  const surface = layout.nodes.find(node => node.class === 'knot-canvas-surface');
+  const canvas = layout.nodes.find(node => node.class === 'knot-canvas');
   const pad = layout.nodes.find(node => node.class === 'dpad knot-pad');
-  assert.ok(stage.children.some(child => child.class === 'knot-canvas-surface'));
-  assert.ok(stage.children.some(child => child.class === 'knot-side' && child.children.includes(pad)));
+  assert.ok(stage.children.includes(surface));
+  assert.ok(surface.children.includes(canvas));
+  assert.ok(surface.children.includes(pad));
+  assert.ok(surface.children.some(child => child.class === 'knot-pad-key'));
+  assert.ok(stage.children.some(child => child.class === 'knot-now'));
   assert.deepEqual(Array.from(pad.children, node => node['aria-label']),
     ['Restart', 'Previous step', 'Play animation', 'Next step', 'Speed 1x. Change speed']);
   layout.controller.abort();
