@@ -4,6 +4,7 @@ import { readFile, access, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 import { RULES_DOCUMENT, RULES_ARTICLES } from '../js/rules.js';
+import { CONTENT } from '../js/data/content.js';
 
 const root = new URL('../', import.meta.url);
 
@@ -44,6 +45,23 @@ test('every runtime JS module under js/ is precached, so no screen 503s offline'
     .map(f => './js/' + String(f).split('\\').join('/'))
     .filter(f => f.endsWith('.js'));
   for (const module of modules) assert.ok(entries.has(module), 'not precached for offline: ' + module);
+});
+
+test('Boat opens the bundled water maker guide without a new route or network request', async () => {
+  const boat = await readFile(new URL('js/views/boat.js', root), 'utf8');
+  const nodes = [];
+  const render = vm.runInNewContext(boat.slice(boat.indexOf('export function renderBoat'))
+    .replace('export function', 'function') + '\nrenderBoat;', {
+    h(tag, attrs, children) { const node = { tag, ...attrs, children }; nodes.push(node); return node; },
+    screenCard: () => ({})
+  });
+  render({ append() {} });
+  const link = nodes.find(node => node.tag === 'a' && node.href === '#/wiki/watermaker');
+  assert.ok(link);
+  const article = CONTENT.wiki.find(article => '#/wiki/' + article.id === link.href);
+  assert.ok(article?.body.includes('#/wiki/watermaker-run'));
+  const worker = await readFile(new URL('service-worker.js', root), 'utf8');
+  assert.ok(worker.includes("'./js/data/watermaker-guide.js'"));
 });
 
 test('offline missing PDF and JSON return an honest failure, not app HTML', async () => {

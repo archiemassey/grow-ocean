@@ -5,7 +5,8 @@ import { db } from '../js/db.js';
 import { CONTENT } from '../js/data/content.js';
 import { RULES_ARTICLES } from '../js/rules.js';
 import { ACTION_CONDITIONS } from '../js/safety.js';
-import { getArticle, getEditable, saveArticle, importWiki, resetArticle } from '../js/wikiStore.js';
+import { getArticle, getEditable, saveArticle, exportWiki, importWiki, resetArticle } from '../js/wikiStore.js';
+import { WATERMAKER_ARTICLES } from '../js/data/watermaker-guide.js';
 
 // Only entity decoding is needed by the store's plain-text editor conversion.
 globalThis.document = { createElement: () => ({
@@ -93,4 +94,52 @@ test('wiki imports validate all records before writing and cannot replace offici
   assert.ok(article.body.includes('&lt;img'));
   assert.equal(article.ref, '');
   records.clear();
+});
+
+test('water maker topics resolve offline, preserve crew notes and round-trip through sharing', async () => {
+  for (const base of WATERMAKER_ARTICLES) {
+    const article = await getArticle(base.id);
+    assert.equal(article.body, base.body);
+    assert.ok(await getEditable(base.id));
+    for (const [, id] of article.body.matchAll(/href="#\/wiki\/([^"]+)"/g))
+      assert.ok(await getArticle(id), 'missing guide topic: ' + id);
+  }
+  await saveArticle('watermaker-run', {
+    title: 'Our daily water run', summary: 'Crew notes', category: 'Water maker',
+    body: 'Our installer confirmed the fitted shutdown control.'
+  });
+  assert.match((await getArticle('watermaker-run')).body, /installer confirmed/);
+  assert.equal((await getArticle('watermaker-faults'))._edited, false);
+  const exported = await exportWiki();
+  await resetArticle('watermaker-run');
+  assert.equal((await getArticle('watermaker-run'))._edited, false);
+  await importWiki(exported);
+  assert.equal((await getArticle('watermaker-run')).title, 'Our daily water run');
+  await resetArticle('watermaker-run');
+});
+
+test('water maker follows the Call Summary, uses compatible manual gaps and retains safety boundaries', async () => {
+  const overview = (await getArticle('watermaker')).body;
+  const run = (await getArticle('watermaker-run')).body;
+  const care = (await getArticle('watermaker-care')).body;
+  const faults = (await getArticle('watermaker-faults')).body;
+  const sources = (await getArticle('watermaker-sources')).body;
+  assert.match(overview, /Call Summary is the primary rowing guidance/);
+  assert.match(run, /Stop on a clunk/);
+  assert.match(run, /at least 12 volts/);
+  assert.match(run, /6-8 bar/);
+  assert.match(run, /first output to waste for a minute or two/);
+  assert.doesNotMatch(run, /wait about one second|6\.5-7\.5 bar/);
+  assert.match(run, /not a\s+24 V machine/);
+  assert.match(run, /Do not dilute salty startup water/);
+  assert.match(care, /through\s+<strong>once<\/strong>/);
+  assert.match(care, /exact treatment and pack size/);
+  assert.match(care, /80-100 running hours/);
+  assert.match(sources, /manual fills compatible gaps/);
+  assert.match(faults, /Do not adjust the pressure switch/);
+  assert.match(faults, /summary appears to swap the reset and depressurization/);
+  assert.match(faults, /manual closes the reset valve before restart/);
+  assert.doesNotMatch(faults, /2 flashes|Flashing buttons/);
+  assert.match(faults, /Isolate electrical power and\s+release pressure/);
+  assert.match(faults, /brine discharge outside the\s+feed bucket/);
 });

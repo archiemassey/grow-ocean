@@ -2,6 +2,8 @@
    Plain English: this file is the app's built-in knowledge. Editing text here changes
    what appears in the app. Everything lives on the device, so it all works offline. */
 
+import { WATERMAKER_ARTICLES } from './watermaker-guide.js';
+
 export const CONTENT = {
   meta: {
     crew: ['Rower 1', 'Rower 2'],
@@ -10,6 +12,7 @@ export const CONTENT = {
 
   /* ---------- 1. QUICK-ACCESS WIKI (Type: Document) ---------- */
   wiki: [
+    ...WATERMAKER_ARTICLES,
     {
       id: 'mob', title: 'Man Overboard (MOB)', category: 'Safety', priority: 1, voice: true,
       summary: 'Two crew. One person overboard. One rescuer aboard.',

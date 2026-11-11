@@ -49,6 +49,7 @@ export function renderBoat(view) {
   view.append(
     group('Knowledge & references', [
       ['#/wiki', 'Quick Wiki', 'Search safety, equipment and how-to guides'],
+      ['#/wiki/watermaker', 'Water maker guide', 'ZEN 30 daily use, faults, filters and rowing guidance'],
       ['#/knots', 'Knot guide', 'Fourteen animated knots with steps and storyboards'],
       ['#/procedures', 'Emergency procedures', 'Official Crisis Ops · offline · rower actions first'],
       ['#/wiki/official-rules', 'Official race rules', 'Atlantic 2025 v1.0 · offline reference'],

@@ -37,6 +37,7 @@ const APP_SHELL = [
   './js/rules.js',
   './js/procedures.js',
   './js/data/content.js',
+  './js/data/watermaker-guide.js',
   './js/data/encouragement.js',
   './js/data/entertainment-pack.json',
   './js/data/entertainment-base.json',

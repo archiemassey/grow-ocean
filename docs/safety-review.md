@@ -71,6 +71,87 @@ Public reference checks alone do not close them.
 | Essential kit locations | Supply exact reachable locations for pump, tools, medical kit, repair kit, spare oars/gates, grab bag and beacons. The app's general access sentence is not a completed location map. |
 | Checklists / grab bag | Match contents to the actual equipment/medical requirements and accessibility plan. Existing lists are not a complete mandatory inventory. |
 | Event reminders | Manual prompts only; no boat sensors are connected. Do not infer automatic incident detection from the UI. |
+| Water maker (v29) | Crew selected the Call Summary as primary rowing guidance, with compatible manual gap-filling. Confirm installed voltage, positively identified reset controls, emergency-set compatibility, exact preservative product/dose and drinking-water acceptance protocol. Source selection is not equipment-specific review or technical approval. |
+
+## Water maker source record - 11 November 2026
+
+The five v29 Wiki pages in `js/data/watermaker-guide.js` are original factual summaries,
+not copied manual chapters or a reproduction of private training material:
+
+- Manufacturer [ZEN 30 manual, 30Z12/24.B.2021](https://cruiserservices.com/wp-content/uploads/2025/01/MANUAL-ZEN30-12_24V-TRASD-ENG.pdf):
+  44 physical PDF pages. Printed page numbers are one lower than PDF page numbers.
+  Supply/model/output: PDF pp.11-12; controller/first start/daily operation: pp.30-33;
+  reset: pp.33-35; filters: pp.36-37; preservation/winterizing: pp.37-41;
+  fault table: p.43; cruising spares: p.44.
+- [Mactra Ocean Rowers Access Page](https://www.mactramarine.co.uk/ocean-rowers-access-page):
+  its written race-spares section specifies the emergency pump set with relay card and
+  pressure switch, SC1 and a 5-micron, 5-inch cartridge for ZEN/Smart 30. The page was
+  accessed with crew-supplied authorization; no access secret is stored in this repository.
+  The two ZEN videos have not been independently transcribed or verified.
+- The crew supplied an imperfect 514-line training-call transcript on 11 November 2026.
+  It includes demonstrations of multiple installations, ambiguous "this/that" gestures,
+  unrelated personal conversation and apparent transcription errors. Only concise
+  equipment-related summaries are used. The raw call and personal anecdotes are not bundled.
+- The crew subsequently supplied the speaker's 76-line summary of the same call.
+  Its listed call timestamps help locate the subjects but are not independently checked
+  video timestamps. It is secondary evidence, not independent technical confirmation.
+
+The call supports rowing-specific advice on charging/weather-aware planning, avoiding
+pollution, near-surface air ingestion, loose filter seals, complete emergency-set
+preparation, a hand-maker's brine discharge being separate from a bucket feed, and planning
+preservation at the finish. It does not settle this boat's final plumbing layout.
+
+**User-directed source order:** on 11 November the crew asked, "Can you use the Call Summary
+as the definitive guidance and just use the manual to fill in any blanks?" The guide now
+uses that precedence for the simpler rowing controller and unpressurised collection
+arrangement described by the crew. This is a publishing/content decision, not a claim that
+the summary has been independently certified. Compatible manufacturer details fill gaps;
+yacht-only button controls, LED fault codes and automatic-flushing routines are excluded.
+
+**Differences and remaining limits:**
+
+- Shutdown: the call repeatedly says "on the clunk"; manual section 5.3.1 (PDF p.32)
+  explicitly says avoid the beat and wait about one second. Per the crew's direction,
+  the daily rowing instructions select the summary's stop-on-clunk method; the difference
+  remains recorded on the sources page rather than as a competing daily routine.
+- Flushing: the manual's recommended automatic flush assumes a freshwater pressure supply,
+  carbon filter and flushing circuit. No "never flush during the crossing" rule is established
+  by the supplied call. The app does not infer a universal no-flushing rule; it omits the
+  yacht automatic cycle from the simple-controller routine. A pressurised flushing inlet
+  is distinct from product-water collection.
+- Preservation: the call recommends doing it at the finish and describes reduced-volume,
+  once-through treatment. Manual section 6.5 describes roughly 15 litres and 20 minutes'
+  recirculation. The rowing guide selects the summary's once-through method, with the
+  depressurization control slightly open. It reports the summary's quantities only with
+  the condition that the exact demonstrated product/pack and current label dosage match.
+  There is no universal half-bottle SC1 recipe. Keep chemical solution out of drinking storage.
+- The call describes about 3 bar accumulator charge; the manual describes about 4 bar.
+  Neither is used as an app adjustment instruction. The daily guide now uses the summary's
+  approximate 6-8 bar working range, with explicit stop conditions for abnormal behaviour.
+- The call's 12 V minimum and voltage examples cannot be transferred to 24 V equipment.
+  Its pressure-switch/relay arrangement may not implement the manual's transducer alarms.
+- The summary's reset table says close depressurization, leave reset open and then close
+  reset gradually. This appears to reverse the controls described in the call's restart/
+  air-purge demonstration. Manual section 5.4 closes reset before restart (PDF p.35).
+  No summary-derived valve sequence is adopted; the app highlights the discrepancy.
+- The summary's "pump and motor in separate compartments" is not adopted: the call
+  distinguishes the hydraulic water-maker unit from the electric pump/motor assembly.
+  Likewise the 5-micron cartridge protects the membrane; the intake mesh protects the pump.
+- Neither source establishes a numerical product-water acceptance threshold or universal
+  discard time. The call's suggestion of diluting initial salty water is not adopted.
+
+Safety-control bypasses, pressure-switch adjustment, filter/accumulator bypasses,
+live wiring demonstrations, open-flame hose work and experimental plastic repairs are
+not converted into self-service checklists. Reset is a referral to the illustrated,
+trained method, not an invented mapping of gesture-dependent transcript instructions.
+Filter opening retains isolation/depressurization, seal care and subsequent air purge.
+The rowing preservation overview follows the summary with chemical-label safeguards;
+cold storage remains a referral to the full manufacturer procedure.
+
+The public manual explicitly restricts copying/reuse. The app links to it online rather
+than redistributing its bytes or diagrams; protected videos and passwords are not shipped.
+Crew edits remain editable and survive upgrades; reset/export/import retain existing behavior.
+This source record does not close the water-maker review.
 
 ## Sources and verification limits
 

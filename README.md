@@ -128,6 +128,36 @@ qualified to avoid promising safe rescue, towing, sea-anchor, jackstay or person
 applications. These are practice guides, not boat-specific approved procedures.
 Practise with an instructor and follow the boat's approved methods for critical connections.
 
+### Water maker guide (Boat → Water maker guide, `#/wiki/watermaker`)
+
+Release **v29** adds five searchable, read-aloud Wiki pages for the **Schenker ZEN 30**:
+overview, daily use, fault checks, care/spares/finish, and sources/equipment differences.
+The original summaries combine manufacturer manual **30Z12/24.B.2021**, Mactra's written
+race-spares guidance, the crew-supplied imperfect training-call transcript and the speaker's
+summary received on 11 November 2026. They are not a verified transcript of the videos or Mactra-approved procedures.
+The guide text is bundled offline; external manual and training links need internet.
+No manual PDF, training video, access password or personal conversation is redistributed.
+
+At the crew's direction, the **Call Summary is the definitive rowing guidance**; the manual
+fills compatible gaps only. This guide targets the simpler pressure-switch/relay controller
+and unpressurised product-water collection. Daily use follows the summary's 12 V minimum
+for its 12 V setup, approximate 6-8 bar working range, initial output discard and
+**stop on a clunk** instruction. Finish-line preservation follows its once-through method,
+not the yacht manual's recirculation cycle. Yacht-controller button/flash-code instructions
+are excluded; the sources page records the differences without presenting competing routines.
+
+Rowing additions also cover intake pollution/air, filter O-rings, compatible emergency-set
+preparation and keeping bucket feed separate from brine discharge. The summary's apparent
+reset/depressurization valve mix-up is not adopted; the guide refers to positively identified,
+trained controls. Safety bypasses, pressure-switch tuning and improvised heat repairs are
+not supplied as operating steps. Chemical quantities require the exact demonstrated
+treatment/pack and current label confirmation; there is no universal half-bottle recipe
+or invented drinking-water acceptance threshold.
+
+Pages use the existing crew-edit/export/import system; updates preserve local edits.
+Use **Reset to original** to restore a built-in guide page. Source and open-review records
+are in `docs/safety-review.md`; content is in `js/data/watermaker-guide.js`.
+
 ### Screen modes: sunlight & night vision
 
 A single **screen-mode button in the top bar** cycles four modes so the crew can read the
