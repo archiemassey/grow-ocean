@@ -50,7 +50,7 @@ function renderGuide(id = 'bowline', { reduced = false, canvasAvailable = true }
   render(view, id, controller.signal);
   return {
     nodes, frames, document, window, media, controller, draws, errors, observers,
-    find(text) { return nodes.find(node => node.textContent === text); },
+    find(text) { return nodes.find(node => node.textContent === text || node['aria-label'] === text); },
     click(node) { if (!node.disabled) node.events.click(); },
     tick(count = 1) {
       for (let i = 0; i < count; i++) {
@@ -152,40 +152,42 @@ test('manual steps, storyboard, keyboard and playback keep the same instruction 
   guide.controller.abort();
 });
 
-test('speed changes timing; reduced motion uses static frames and pauses on preference changes', () => {
-  function advance(rate) {
+test('keypad sits beside the animation and the speed key cycles timing', () => {
+  const layout = renderGuide();
+  const stage = layout.nodes.find(node => node.class === 'knot-stage');
+  const pad = layout.nodes.find(node => node.class === 'dpad knot-pad');
+  assert.ok(stage.children.some(child => child.class === 'knot-canvas-surface'));
+  assert.ok(stage.children.some(child => child.class === 'knot-side' && child.children.includes(pad)));
+  assert.deepEqual(Array.from(pad.children, node => node['aria-label']),
+    ['Restart', 'Previous step', 'Play animation', 'Next step', 'Speed 1x. Change speed']);
+  layout.controller.abort();
+  function advance(presses) {
     const guide = renderGuide();
-    const speed = guide.nodes.find(node => node.tag === 'select');
-    speed.value = rate;
-    speed.events.change();
+    const speed = guide.nodes.find(node => node.class === 'dp down rate');
+    for (let i = 0; i < presses; i++) guide.click(speed);
     guide.click(guide.find('Play animation'));
     guide.tick(25);
     const step = guide.nodes.find(node => node.class === 'knot-animation-step').textContent;
     guide.controller.abort();
-    return step;
+    return [step, speed.textContent];
   }
-  assert.match(advance('0.5'), /^Step 1/);
-  assert.match(advance('1.5'), /^Step 2/);
-  const guide = renderGuide('bowline', { reduced: true });
-  guide.click(guide.find('Play animation'));
-  guide.tick(100);
-  assert.ok(guide.draws.every(draw => draw.u === 1), 'no interpolated motion');
-  const event = Object.assign(new Event('change'), { matches: false });
-  guide.media.dispatchEvent(event);
-  assert.equal(guide.frames.size, 0);
-  guide.controller.abort();
+  const [slow, slowLabel] = advance(2), [fast, fastLabel] = advance(1);
+  assert.match(slow, /^Step 1/);
+  assert.equal(slowLabel, '0.5×');
+  assert.match(fast, /^Step 2/);
+  assert.equal(fastLabel, '1.5×');
 });
 
-test('rope movement can override iOS reduced motion and be turned off again', () => {
+test('rope moves on iOS even with Reduce Motion set, and can be turned off', () => {
   const guide = renderGuide('bowline', { reduced: true });
   const animate = guide.nodes.find(node => node.id === 'knotAnimate');
   const play = guide.find('Play animation');
-  assert.equal(animate.checked, false, 'respects device preference initially');
+  assert.equal(animate.checked, true, 'animates by default because Play is user-initiated');
   guide.click(guide.find('Next step'));
-  animate.checked = true;
-  animate.events.change();
   const start = guide.draws.length;
   guide.click(play);
+  assert.equal(play.textContent, '❚❚');
+  assert.equal(play['aria-label'], 'Pause animation');
   guide.tick(10);
   const moving = guide.draws.slice(start);
   assert.ok(moving.every(draw => draw.step === 1), 'animates the selected step');
@@ -194,16 +196,13 @@ test('rope movement can override iOS reduced motion and be turned off again', ()
   animate.checked = false;
   animate.events.change();
   assert.equal(guide.frames.size, 0, 'changing motion pauses playback');
+  assert.equal(play.textContent, '▶');
   const stopped = guide.draws.length;
   guide.click(play);
   guide.tick(50);
   assert.ok(guide.draws.slice(stopped).every(draw => draw.u === 1), 'can return to static steps');
-  animate.checked = true;
-  animate.events.change();
-  guide.click(play);
-  guide.media.dispatchEvent(Object.assign(new Event('change'), { matches: true }));
-  assert.equal(animate.checked, false, 'a new device preference resets the override');
-  assert.equal(guide.frames.size, 0);
+  guide.media.dispatchEvent(Object.assign(new Event('change'), { matches: false }));
+  assert.equal(animate.checked, false, 'a device preference change keeps the user choice');
   guide.controller.abort();
 });
 
