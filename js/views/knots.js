@@ -28,8 +28,11 @@ function knotList(view) {
 
 function animationPlayer(knot, signal) {
   let step = 0, elapsed = 0, frame = null, last = null, playing = false, speed = 1, failed = false;
-  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let reducedMotion = motionPreference.matches;
+  // Movement only runs after the user presses Play, so it is on by default even when
+  // iOS Reduce Motion is set; the switch below gives still pictures instead.
+  const animate = h('input', { type: 'checkbox', id: 'knotAnimate' });
+  animate.checked = true;
+  const speeds = [0.5, 1, 1.5];
   const height = knot.height || 800;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const canvas = h('canvas', { class: 'knot-canvas', width: 600 * dpr, height: height * dpr,
@@ -42,15 +45,15 @@ function animationPlayer(knot, signal) {
     'Animation unavailable on this device. You can still follow the written steps below.');
   const bar = h('progress', { class: 'knot-animation-progress', max: 1, value: 0,
     'aria-label': 'Current step playback' });
-  const previous = h('button', { type: 'button', class: 'btn secondary' }, 'Previous step');
-  const play = h('button', { type: 'button', class: 'btn', 'aria-pressed': 'false' }, 'Play animation');
-  const next = h('button', { type: 'button', class: 'btn secondary' }, 'Next step');
-  const restart = h('button', { type: 'button', class: 'btn secondary' }, 'Restart');
-  const rate = h('select', { 'aria-label': 'Animation speed' }, [
-    h('option', { value: '0.5' }, '0.5x speed'),
-    h('option', { value: '1', selected: true }, '1x speed'),
-    h('option', { value: '1.5' }, '1.5x speed')
-  ]);
+  const key = (cls, glyph, label, extra = {}) => h('button', { type: 'button', class: 'dp ' + cls,
+    'aria-label': label, title: label, ...extra }, glyph);
+  const restart = key('up', '↺', 'Restart');
+  const previous = key('left', '‹', 'Previous step');
+  const play = key('mid play', '▶', 'Play animation', { 'aria-pressed': 'false' });
+  const next = key('right', '›', 'Next step');
+  const rate = key('down rate', '1×', 'Speed 1x. Change speed');
+  const pad = h('div', { class: 'dpad knot-pad', role: 'group', 'aria-label': 'Animation controls' },
+    [restart, previous, play, next, rate]);
   const stepButtons = knot.steps.map((item, index) => h('button', {
     type: 'button', onclick: () => selectStep(index)
   }, `${index + 1}. ${item.title}`));
@@ -63,11 +66,18 @@ function animationPlayer(knot, signal) {
   });
   const board = h('div', { class: 'knot-storyboard' }, thumbnails.map(item => item.button));
   const player = h('section', { class: 'card knot-animation', 'aria-label': 'Animated knot steps' }, [
-    h('div', { class: 'knot-canvas-surface' }, canvas), error,
-    h('div', { 'aria-live': 'polite', 'aria-atomic': 'true' }, [progress, title, caption]),
-    bar,
-    h('div', { class: 'knot-animation-controls', role: 'group', 'aria-label': 'Animation controls' },
-      [previous, play, next, restart, rate]),
+    h('div', { class: 'knot-stage' }, [
+      h('div', { class: 'knot-canvas-surface' }, [
+        canvas, pad,
+        h('p', { class: 'knot-pad-key' },
+          '↺ restart · ‹ › previous and next step · ▶ play or pause · 1× change speed')
+      ]),
+      h('div', { class: 'knot-now' }, [
+        h('div', { 'aria-live': 'polite', 'aria-atomic': 'true' }, [progress, title, caption]), bar
+      ])
+    ]), error,
+    h('div', { class: 'check' }, [animate, h('label', { for: 'knotAnimate' }, 'Animate rope movement')]),
+    h('p', { class: 'sub' }, 'Turn off to see a still picture for each step.'),
     h('p', { class: 'knot-legend' },
       'Marked tip = working end. Dashed line = next movement. Arrow = pull.'),
     h('p', { class: 'knot-night-warning' },
@@ -77,7 +87,7 @@ function animationPlayer(knot, signal) {
     h('details', { class: 'knot-storyboard-details' }, [h('summary', {}, 'Storyboard'), board])
   ]);
 
-  function motion(index) { return index === 0 || reducedMotion ? 0 : (knot.steps[index].motion || 2.4); }
+  function motion(index) { return index === 0 || !animate.checked ? 0 : (knot.steps[index].motion || 2.4); }
   function hold() { return step === 0 ? 1.8 : step === knot.steps.length - 1 ? 3.2 : 1.6; }
   function palette() {
     const night = document.documentElement.getAttribute('data-theme') === 'night';
@@ -91,8 +101,14 @@ function animationPlayer(knot, signal) {
     playing = false; last = null;
     if (frame !== null) cancelAnimationFrame(frame);
     frame = null;
-    play.textContent = 'Play animation';
-    play.setAttribute('aria-pressed', 'false');
+    setPlayLabel(false);
+  }
+  function setPlayLabel(on) {
+    const label = on ? 'Pause animation' : 'Play animation';
+    play.textContent = on ? '❚❚' : '▶';
+    play.setAttribute('aria-label', label);
+    play.setAttribute('title', label);
+    play.setAttribute('aria-pressed', String(on));
   }
   function unavailable(reason) {
     console.error('Knot animation failed', reason);
@@ -154,18 +170,26 @@ function animationPlayer(knot, signal) {
   function start() {
     if (failed || signal.aborted || document.hidden) return;
     if (step === knot.steps.length - 1) selectStep(0);
+    else if (elapsed >= motion(step)) elapsed = 0;
     playing = true; last = null;
-    play.textContent = 'Pause animation';
-    play.setAttribute('aria-pressed', 'true');
+    setPlayLabel(true);
     frame = requestAnimationFrame(tick);
   }
   previous.addEventListener('click', () => { if (step > 0) selectStep(step - 1); });
   next.addEventListener('click', () => { if (step < knot.steps.length - 1) selectStep(step + 1); });
   play.addEventListener('click', () => { if (playing) stop(); else start(); });
   restart.addEventListener('click', () => { selectStep(0); start(); });
-  rate.addEventListener('change', () => { speed = Number(rate.value); });
+  rate.addEventListener('click', () => {
+    speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length];
+    rate.textContent = `${speed}×`;
+    rate.setAttribute('aria-label', `Speed ${speed}x. Change speed`);
+    rate.setAttribute('title', `Speed ${speed}x. Change speed`);
+  });
+  animate.addEventListener('change', () => {
+    stop(); elapsed = 0; paint();
+  });
   player.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.target.tagName === 'SELECT') return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.key === 'ArrowRight' && step < knot.steps.length - 1) { event.preventDefault(); selectStep(step + 1); }
     else if (event.key === 'ArrowLeft' && step > 0) { event.preventDefault(); selectStep(step - 1); }
     else if (event.key === ' ' && event.target === canvas) {
@@ -175,9 +199,6 @@ function animationPlayer(knot, signal) {
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { signal });
   window.addEventListener('pagehide', stop, { signal });
   window.addEventListener('emergencyopen', stop, { signal });
-  motionPreference.addEventListener('change', event => {
-    reducedMotion = event.matches; selectStep(step);
-  }, { signal });
   const observer = new MutationObserver(() => { paint(); drawBoard(); });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   signal.addEventListener('abort', () => { stop(); observer.disconnect(); }, { once: true });

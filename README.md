@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v24** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v28** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v24** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v28** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -115,10 +115,16 @@ and two half hitches, figure-eight stopper, cleat hitch, trucker's hitch, rollin
 sheet bend and double sheet bend. Extras cover clove hitch, constrictor, alpine butterfly,
 highwayman's hitch, Prusik and reef knot.
 
-Use Previous/Next, choose a written step or storyboard frame, or press Play for animation.
-Playback starts paused, supports three speeds and stops at the end, on navigation,
-emergency opening or backgrounding. Arrow keys select steps; Space on the focused canvas
-toggles playback. Reduced-motion mode shows static steps rather than animated movement.
+Use the keypad at the top-right of the animation (the same style as Home's session controls): ‹ and ›
+step back and forward, the centre key plays or pauses, ↺ restarts and the bottom key cycles
+speed (0.5×, 1×, 1.5×). The picture has its own space so the controls do not cover it;
+on narrow screens the keypad sits above the picture to keep it readable. You can also choose
+a written step or storyboard frame.
+Playback starts paused, replays the current step's movement and stops at the end, on
+navigation, emergency opening or backgrounding. Arrow keys select steps; Space on the focused
+canvas toggles playback. **Animate rope movement** is on by default, including when iOS Reduce
+Motion is set, because movement only runs after the user presses Play. Turn it off to see a
+still picture for each step; changing it pauses playback and applies only to the current knot.
 All content is bundled offline. Night vision draws red-on-black; practise the colour
 references in daylight. Animation geometry and instructions are in `js/data/knot-library.js`;
 `js/knot-engine.js` renders them and `js/views/knots.js` owns the native player and lifecycle.
@@ -587,7 +593,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v24 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v25 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
