@@ -343,9 +343,9 @@ body{
 html[data-theme="night"] .knot-pad .dp.right:active{background:#2a0000}
 .knot-pad .dp:disabled{opacity:.4;cursor:default;filter:none}
 .knot-pad-key{grid-area:key;align-self:center;color:var(--muted);font-size:12px;margin:0}
-html[data-theme="night"] .knot-pad .dp{background:#2a0000;color:var(--hero-fg);border:1px solid var(--line)}
-html[data-theme="night"] .knot-pad .dp.play{background:#5a0000;color:var(--hero-fg)}
-html[data-theme="night"] .knot-pad-key{color:var(--hero-fg)}
+html[data-theme="night"] .knot-pad .dp{background:#200000;color:#ff0000;border:1px solid #380000}
+html[data-theme="night"] .knot-pad .dp.play{background:#300000;color:#ff0000;border-color:#ff0000}
+html[data-theme="night"] .knot-pad-key{color:#ff0000}
 @media (max-width:520px){
   .knot-canvas-surface{grid-template-areas:"key pad" "canvas canvas"}
 }

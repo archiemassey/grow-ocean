@@ -47,7 +47,10 @@ test('night knot controls and their key have readable contrast', () => {
     ['button', color(button, 'color'), color(button, 'background')],
     ['play', color(play, 'color'), color(play, 'background')],
     ['key', color(key, 'color'), color(surface, 'background')]
-  ]) assert.ok(ratio(fg, bg) >= 4.5, `${name}: ${fg} on ${bg}`);
+  ]) {
+    assert.ok(ratio(fg, bg) >= 4.5, `${name}: ${fg} on ${bg}`);
+    for (const value of [fg, bg]) assert.match(value, /^(#[a-f\d]{2}0000|#000)$/i, `${name}: ${value}`);
+  }
 });
 
 test('Home puts the compact thought first, then actions, with review prose out of the app', async () => {
