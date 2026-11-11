@@ -321,6 +321,41 @@ body{
   padding:10px 12px;margin:10px 0}
 .callout.crit{border-color:var(--crit);background:var(--crit-bg);color:var(--ink)}
 
+/* Knot guide */
+.knot-safety,.knot-terms{font-size:14px;margin:10px 0}
+.knot-terms{color:var(--muted)}
+.knot-animation{padding:14px}
+.knot-animation [hidden]{display:none!important}
+.knot-canvas-surface{background:var(--foam);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.knot-canvas{display:block;width:100%;height:auto;max-height:65vh;object-fit:contain}
+html[data-theme="night"] .knot-canvas-surface,
+html[data-theme="night"] .knot-thumb canvas{background:#000}
+.knot-night-warning{display:none;font-size:14px}
+html[data-theme="night"] .knot-night-warning{display:block}
+.knot-animation-step{font-size:13px;font-weight:700;color:var(--muted);margin:0 0 4px}
+.knot-animation-title{font-size:18px;margin:0 0 6px}
+.knot-instruction{min-height:3.5em;margin:0 0 14px}
+.knot-animation-progress{display:block;width:100%;height:8px;accent-color:var(--link);margin-bottom:14px}
+.knot-animation-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.knot-animation-controls .btn{min-width:0;min-height:48px;padding:8px 4px;font-size:14px}
+.knot-animation-controls select{grid-column:1/-1;min-height:44px;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit}
+.knot-animation-controls .btn:disabled{cursor:default;opacity:.5}
+.knot-legend{color:var(--muted);font-size:13px}
+.knot-step-list{list-style:none;padding:0;display:grid;gap:6px}
+.knot-step-list button{width:100%;min-height:44px;text-align:left;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+.knot-step-list button[aria-current="step"],.knot-thumb[aria-current="step"]{border:2px solid var(--link);font-weight:700}
+.knot-storyboard-details>summary{min-height:44px;padding:10px 0;font-weight:600}
+.knot-storyboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.knot-thumb{min-width:0;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;
+  padding:6px;font:inherit;font-size:13px}
+.knot-thumb canvas{display:block;width:100%;height:auto;background:var(--foam);border-radius:6px}
+.knot-thumb span{display:block;margin-top:6px}
+.knot-tips h3{margin-top:0}
+.knot-tips ul{padding-left:22px;margin-bottom:0}
+.knot-tips li{margin:8px 0}
+
 /* Checklist items */
 .check{display:flex;align-items:center;gap:12px;padding:12px 6px;border-bottom:1px solid var(--line)}
 .check:last-child{border-bottom:0}

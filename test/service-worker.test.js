@@ -157,7 +157,8 @@ test('upgraded shell, content and nested modules open offline, including explici
   for (const path of ['./', 'index.html', '?from=homescreen', 'crew-route'])
     assert.equal(await (await sw.fetch(path, true)).text(), html);
   for (const path of ['js/views/entertain.js', 'js/updates.js', 'js/data/entertainment-pack.json',
-    'references/race-rules-wtr-atlantic-2025-v1.0.pdf'])
+    'references/race-rules-wtr-atlantic-2025-v1.0.pdf', 'js/views/knots.js', 'js/data/knot-library.js',
+    'js/knot-engine.js'])
     assert.equal((await sw.fetch(path)).status, 200);
   for (const path of ['missing.pdf', 'missing.json', 'js/missing.js'])
     assert.equal((await sw.fetch(path, true)).status, 503);

@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v22** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v24** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v22** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v24** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -52,8 +52,8 @@ release process where service workers are unavailable.
 
 ## Navigation and boat functions
 
-**v22 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
-Quick Wiki and official rules, checklists, reminders, star guide, feedback and Siri setup.
+**v24 has four primary destinations: Home, Boat, Log and Entertainment.** Boat groups
+Quick Wiki and official rules, the knot guide, checklists, reminders, star guide, feedback and Siri setup.
 Existing `#/wiki`, `#/checklists`, `#/reminders`, `#/log/...` and `#/entertain/...` URLs,
 Siri links and manifest quick actions remain valid. Wiki/checklist/reminder detail screens
 highlight Boat. The app Back button goes to the section parent (then Boat), including
@@ -84,6 +84,7 @@ Entertainment. Log forms, recordings, settings and entertainment no-repeat histo
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
 | 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, a note pointing to the native Apple Music / Podcasts apps, and journal/live-data links. Awe/perspective is on Home. | Media + Games |
+| 7 | **Knot guide** | Fourteen offline animated knots with written steps, selectable storyboards and safety cautions. | Visual guide |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
 and one-tap emergency procedures on Home, a **Live race data** page (race/VMG/weather routing via
@@ -104,6 +105,28 @@ Canopus and, near the end, a low Southern Cross climb into the south. It carries
 CANIS MAJOR/MINOR, TAURUS, GEMINI, AURIGA, LEO, BOÖTES, SCORPIUS, CARINA (Canopus) and CRUX.
 Pure geometry is in `js/star-math.js` (unit-tested); the themed SVG view is in
 `js/views/stars.js`. In **Night-vision** mode it redraws red-on-black. No network or data feed.
+
+### Knot guide (Boat → Knot guide, `#/knots`)
+
+The crew-supplied **ocean-rowing-knots.html** replaces the earlier picture guide completely;
+the old pictures and credits are removed. Its fourteen knots and 81 animation steps are
+integrated into the app, not embedded from SharePoint. Core knots cover bowline, round turn
+and two half hitches, figure-eight stopper, cleat hitch, trucker's hitch, rolling hitch,
+sheet bend and double sheet bend. Extras cover clove hitch, constrictor, alpine butterfly,
+highwayman's hitch, Prusik and reef knot.
+
+Use Previous/Next, choose a written step or storyboard frame, or press Play for animation.
+Playback starts paused, supports three speeds and stops at the end, on navigation,
+emergency opening or backgrounding. Arrow keys select steps; Space on the focused canvas
+toggles playback. Reduced-motion mode shows static steps rather than animated movement.
+All content is bundled offline. Night vision draws red-on-black; practise the colour
+references in daylight. Animation geometry and instructions are in `js/data/knot-library.js`;
+`js/knot-engine.js` renders them and `js/views/knots.js` owns the native player and lifecycle.
+
+The supplied animation geometry is retained, but general usage text and cautions have been
+qualified to avoid promising safe rescue, towing, sea-anchor, jackstay or personal-support
+applications. These are practice guides, not boat-specific approved procedures.
+Practise with an instructor and follow the boat's approved methods for critical connections.
 
 ### Screen modes: sunlight & night vision
 
@@ -534,7 +557,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v22 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v24 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork

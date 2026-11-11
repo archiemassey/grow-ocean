@@ -5,6 +5,7 @@
 
 import { renderHome } from './views/home.js';
 import { renderBoat } from './views/boat.js';
+import { renderKnots } from './views/knots.js';
 import { renderWiki } from './views/wiki.js';
 import { renderReminders } from './views/reminders.js';
 import { renderChecklists } from './views/checklists.js';
@@ -33,6 +34,7 @@ const shiftStrip = document.getElementById('shiftStrip');
 const routes = {
   home: { title: 'gROW Ocean', tab: 'home', render: renderHome },
   boat: { title: 'Boat', tab: 'boat', render: renderBoat },
+  knots: { title: 'Knot guide', tab: 'boat', render: renderKnots },
   wiki: { title: 'Quick Wiki', tab: 'wiki', render: renderWiki },
   reminders: { title: 'Reminders', tab: 'reminders', render: renderReminders },
   checklists: { title: 'Checklists', tab: 'checklists', render: renderChecklists },

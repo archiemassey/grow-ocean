@@ -65,6 +65,7 @@ Public reference checks alone do not close them.
 | First aid | Medical adviser review required for treatment/escalation wording, including bleeding, hypothermia, heat illness and seasickness. One patient leaves one caregiver with boat responsibilities. This change did not medically validate the legacy treatment lines. |
 | Blisters / wounds | Medical adviser must review treatment and infection escalation, especially the legacy blister-puncture wording. |
 | Breathwork | Review suitability after incidents, dizziness and attention/watchkeeping. Read-aloud does not pace breathing intervals. Exercises belong to safe rest, not active incident handling or watchkeeping. |
+| Knot guide | Have the crew and a qualified instructor check all fourteen supplied animations, instructions, intended uses and limitations against the actual ropes, fittings and training. Confirm the boat-specific methods for mooring, towing, sea anchors and personal-safety connections; the generic illustrations are not approval for those uses. |
 | Navigation lights | Check recognition and collision-response wording against navigation training and regulations. A pair has no spare dedicated lookout. |
 | Hatches / stowage | Supply actual hatch contents, load/trim plan and access for one capable rower. Prior example bow/day/aft contents and emptying order are withdrawn rather than represented as verified boat details. |
 | Essential kit locations | Supply exact reachable locations for pump, tools, medical kit, repair kit, spare oars/gates, grab bag and beacons. The app's general access sentence is not a completed location map. |
@@ -84,6 +85,16 @@ Checked on **11 September 2026**:
 - The crew-provided **Atlantic 2025 v1.0 race rules**, PDF page 2, contain the cabin-hatch
   closure rule and jackstay/harness requirements. These are attributed race requirements,
   not a bespoke recovery sequence.
+
+The crew-supplied **ocean-rowing-knots.html** now replaces the previous six-knot
+photographic guide; its pictures and credits have been removed. The fourteen supplied
+animations and tying instructions retain their original geometry. Usage text and tips
+have been qualified, and every knot has an explicit caution: the illustrations do not
+approve rescue loops, towing/sea-anchor attachments, jackstay clip-in points or personal
+support. The locked cleat-hitch finish is explicitly excluded where rapid release is
+needed. Friction-hitch grip and extra turns are not presented as guarantees.
+No independent instructor or crew approval of this replacement is established.
+The earlier photograph comparisons do not validate these animations or close the review.
 
 Other legacy reference links are topic sources, not evidence that every instruction was
 checked or approved. If technical source verification is unavailable, leave the unresolved
