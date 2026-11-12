@@ -8,11 +8,10 @@ const repoRoot = resolve(__dirname, '..');
 const packPath = resolve(repoRoot, 'js', 'data', 'entertainment-pack.json');
 
 const TARGET = 1000;
-const VERSION = '2026-09-19-1.2';
+const VERSION = '2026-11-12-1.3';
 const SOURCE = 'Original gROW Ocean generated entertainment (combinatorial word-bank), 2026-09-19 — wholesome; no third-party text reproduced.';
 
 const prefixByCategory = {
-  jokes: 'gen-joke-',
   wyr: 'gen-wyr-',
   conversation: 'gen-conv-',
   challenges: 'gen-chal-'
@@ -28,105 +27,9 @@ function pick(list, n) {
   return list[n % list.length];
 }
 
-function tuple(n, lists) {
-  const picked = [];
-  let cursor = n;
-  for (const list of lists) {
-    picked.push(pick(list, cursor));
-    cursor = Math.floor(cursor / list.length);
-  }
-  return picked;
-}
-
 function item(id, category, prompt, extra = {}) {
   return { id, category, prompt, source: SOURCE, ...extra };
 }
-
-const seaCharacters = [
-  'oar', 'teaspoon', 'sea snail', 'moonlit buoy', 'wetsock', 'compass', 'packet of biscuits', 'storm cloud',
-  'lifejacket', 'water bottle', 'rowing seat', 'sleepy gull', 'friendly crab', 'thermos', 'porridge pot', 'lucky hat',
-  'deck brush', 'solar panel', 'tiny starfish', 'weather window', 'dry bag', 'snack locker', 'wave', 'anchor',
-  'navigation light', 'rain jacket', 'flask', 'cabin door', 'tidy rope', 'galley spoon'
-];
-const everydayCharacters = [
-  'toast rack', 'wellie boot', 'library card', 'pencil', 'sofa cushion', 'kettle', 'teacup', 'garden gnome',
-  'marmalade jar', 'umbrella', 'shopping list', 'postbox', 'cardigan', 'lamp shade', 'bicycle bell', 'picnic blanket',
-  'button', 'washing line', 'jam spoon', 'doormat', 'pepper mill', 'sock drawer', 'radio', 'notebook', 'biscuit tin',
-  'bookmark', 'watering can', 'train ticket', 'lunchbox', 'woolly scarf'
-];
-const moods = [
-  'cheerful', 'dramatic', 'bashful', 'ambitious', 'tidy', 'sleepy', 'sparkly', 'cautious', 'optimistic', 'windswept',
-  'peckish', 'polite', 'brave', 'chatty', 'glowing', 'fizzy', 'patient', 'snug', 'determined', 'sunny', 'gentle',
-  'curious', 'buoyant', 'dapper', 'salty', 'jolly', 'moonlit', 'merry', 'bouncy', 'plucky'
-];
-const places = [
-  'galley', 'cockpit', 'cabin', 'finish line', 'tea shop', 'village fete', 'harbour', 'book club', 'moonbeam',
-  'snack locker', 'weather briefing', 'pillow fort', 'garden path', 'rowing lane', 'cloud parade', 'compost heap',
-  'breakfast table', 'rain shower', 'starboard side', 'postcard rack', 'sunrise', 'launderette', 'bakery queue',
-  'little library', 'blanket pile', 'beach hut', 'map drawer', 'daydream', 'night watch', 'pantry'
-];
-const tinyProblems = [
-  'kept drifting into compliments', 'could only count in biscuits', 'insisted every wave was waving back',
-  'packed optimism in the wrong dry bag', 'mistook the moon for a reading lamp', 'kept doing victory laps round the mug',
-  'wanted a standing ovation from the tea towels', 'was too buoyant for a sit-down meeting', 'kept naming the clouds after puddings',
-  'filed the tide under “things that come back”', 'could not find its indoor voice in the wind', 'wanted to alphabetise the horizon',
-  'forgot whether port was a side or a pudding', 'kept offering morale support to the toaster', 'brought a spreadsheet to a splash fight',
-  'was convinced the compass needed cheering up', 'tried to put a bookmark in the sunset', 'said every plan needed a biscuit annex',
-  'kept saluting passing flying fish', 'thought a squall was a very enthusiastic shower', 'wanted to polish the stars',
-  'kept calling the oars “long-handled optimism”', 'was saving its best sparkle for St Lucia', 'wanted a duvet day for the anchor',
-  'kept measuring distance in cups of tea', 'insisted the snack bag had leadership potential', 'tried to high-five the horizon',
-  'said the rota needed more confetti', 'wanted to put the wind on speakerphone', 'was knitting a scarf for the mast'
-];
-const punchReasons = [
-  'it wanted to make a splash without causing a scene', 'it heard morale rises faster when it is well stirred',
-  'it was practising for a current affair', 'it believed every good crossing deserves a little extra buoyancy',
-  'it wanted to prove it could pull its own wake', 'it had a stern word with itself and felt much better',
-  'it was looking for a port in every storm', 'it wanted to row-mance the horizon', 'it had a tide schedule and a can-do attitude',
-  'it was determined to keep things oar-ganised', 'it wanted to turn a rough patch into a laugh patch',
-  'it was shore there would be snacks', 'it liked its plans with a little latitude', 'it wanted to be knotty but nice',
-  'it thought the best route was via giggle bay', 'it needed a wave of encouragement', 'it was trying to stay current',
-  'it preferred its drama with a side of custard', 'it knew every long day needs a short chuckle', 'it had heard St Lucia appreciates punctual punchlines'
-];
-const names = [
-  'Rowena', 'Shelly', 'Biscuit', 'Starry', 'Oarly', 'Tidey', 'Mabel', 'Sunny', 'Pebble', 'Skippy', 'Flo', 'Nora',
-  'Dottie', 'Coco', 'Poppy', 'Misty', 'Ripple', 'Mango', 'Pickle', 'Winnie', 'Luna', 'Nettle', 'Sprout', 'Pearl',
-  'Crumbs', 'Tilly', 'Beryl', 'Dot', 'Fizz', 'Marina'
-];
-const riddleSubjects = [
-  ['a compass', 'point north, make circles, and settle arguments, but I never take a step'],
-  ['a wave', 'lift spirits, carry moonlight, and arrive in sets, but I never join a gym'],
-  ['an oar', 'pull water, tap rhythm, and help dreams move west, but I never ask for applause'],
-  ['a kettle', 'sing softly, warm hands, and improve most plans, but I never write the shopping list'],
-  ['a star', 'guide night watch, sparkle quietly, and make the sky feel friendly, but I never need batteries'],
-  ['a biscuit tin', 'raise morale, hide crumbs, and cause negotiations, but I never row a stroke'],
-  ['a dry sock', 'feel luxurious, boost morale, and start tiny celebrations, but I never make a speech'],
-  ['a postcard', 'carry a place, hold a memory, and fit in a pocket, but I never need a passport'],
-  ['a tea towel', 'dry mugs, wave in triumph, and moonlight as a flag, but I never demand a uniform'],
-  ['a sunrise', 'change the colour of everything, restart hope, and arrive without knocking, but I never oversleep'],
-  ['a snack bag', 'rustle with promise, settle debates, and vanish mysteriously, but I never admits to crumbs'],
-  ['a moonbeam', 'silver the water, visit quietly, and flatter every ripple, but I never gets wet']
-];
-const knockWords = [
-  ['Oar', 'Oar you ready for another brilliant day?'], ['Buoy', 'Buoy, am I glad to see your smile!'],
-  ['Tide', 'Tide and tested: you are doing amazingly.'], ['Knot', 'Knot bad for two legends in a rowing boat.'],
-  ['Star', 'Star quality, even on night watch.'], ['Tea', 'Tea-rific effort, keep brewing courage.'],
-  ['Moor', 'Moor cheering, less worrying.'], ['Shell', 'Shell we celebrate with imaginary cake?'],
-  ['Row', 'Row nice of you to answer.'], ['Wave', 'Wave hello to another mile done.'],
-  ['Snack', 'Snack to the plan: tiny bites, big progress.'], ['Port', 'Port of call: somewhere sunny and proud.'],
-  ['Sunny', 'Sunny days are stored in your grin.'], ['Crumb', 'Crumb on, that was a good one.'],
-  ['Splash', 'Splash decision: laugh first, row second.'], ['Moon', 'Moon the merrier on night watch.'],
-  ['Cosy', 'Cosy does it, one stroke at a time.'], ['Gull', 'Gull power ahead.'], ['Mango', 'Mango and get it!'],
-  ['Paddle', 'Paddle do nicely, even if you are rowing.']
-];
-const compliments = [
-  'a portable sunshine committee', 'a two-person courage factory', 'the Atlantic’s politest power duo',
-  'a floating festival of grit', 'a snack-powered navigation miracle', 'the rowing equivalent of a warm cuppa',
-  'a pair of wave-whispering wonders', 'a westbound sparkle convoy', 'a tiny boat with enormous backbone',
-  'a morale lighthouse with oars', 'a duet of determination', 'the sea’s favourite double act',
-  'a biscuit-fuelled bravery engine', 'a floating masterclass in keep-going', 'a horizon-chasing grin machine',
-  'a kindness-powered crossing crew', 'a pair of champions with waterproof humour', 'a boatload of brilliant',
-  'the current leaders in current leadership', 'a two-woman tide of tenacity'
-];
 
 const wyrOptions = [
   'have magically dry socks for every night watch', 'receive one perfectly hot mug of tea at sunrise',
@@ -237,35 +140,6 @@ const challengeSettings = [
   'as a menu special', 'for a secret crew handbook', 'as a bedtime story for a buoy', 'as a cheerful radio jingle'
 ];
 
-function makeJoke(id, seq) {
-  const family = seq % 6;
-  const n = Math.floor(seq / 6);
-  if (family === 0) {
-    const [a, b, place] = tuple(n, [moods, seaCharacters, places]);
-    return item(id, 'jokes', `Why did the ${a} ${b} visit the ${place}?`, { answer: `Because ${pick(punchReasons, n)}.` });
-  }
-  if (family === 1) {
-    const [a, b, problem] = tuple(n, [moods, everydayCharacters, tinyProblems]);
-    return item(id, 'jokes', `What do you call a ${a} ${b} that ${problem}?`, { answer: `${pick(compliments, n)} with excellent timing.` });
-  }
-  if (family === 2) {
-    const [subject, clue] = pick(riddleSubjects, n);
-    const extra = pick(['I am useful on calm days and hilarious in a wobble.', 'I improve when shared with a grin.', 'I am small enough for the boat but big enough for morale.', 'I work best when everyone believes in me.'], Math.floor(n / riddleSubjects.length));
-    return item(id, 'jokes', `Riddle: I can ${clue}. ${extra} What am I?`, { answer: subject });
-  }
-  if (family === 3) {
-    const [word, answer] = pick(knockWords, n);
-    const place = pick(places, Math.floor(n / knockWords.length));
-    return item(id, 'jokes', `Knock knock.\nWho’s there?\n${word}.\n${word} who?`, { answer: `${answer} (Best delivered from the ${place}.)` });
-  }
-  if (family === 4) {
-    const [a, b, c] = tuple(n, [seaCharacters, moods, places]);
-    return item(id, 'jokes', `The ${a} started a ${b} club in the ${c}; membership is open, but you have to bring your own enthusiasm.`);
-  }
-  const [a, b, c] = tuple(n, [everydayCharacters, seaCharacters, moods]);
-  return item(id, 'jokes', `I asked the ${a} for rowing advice. It pointed at the ${b} and said, “Stay ${c}, and try not to make it weird.”`);
-}
-
 function makeWyr(id, seq) {
   const n = seq - 1;
   const family = n % 8;
@@ -318,7 +192,6 @@ function makeChallenge(id, seq) {
 }
 
 const makers = {
-  jokes: makeJoke,
   wyr: makeWyr,
   conversation: makeConversation,
   challenges: makeChallenge
@@ -358,7 +231,7 @@ for (const category of categoriesToTopUp) {
   }
 }
 
-pack.version = VERSION;
+if (additions.length) pack.version = VERSION;
 pack.items.push(...additions);
 validatePack(pack);
 
@@ -368,8 +241,9 @@ for (const category of categoriesToTopUp) {
     throw new Error(`${category} count is ${afterCounts[category]}, expected ${TARGET}`);
   }
 }
-if (afterCounts.trivia !== beforeCounts.trivia || afterCounts.games !== beforeCounts.games) {
-  throw new Error('Trivia or games counts changed unexpectedly');
+if (afterCounts.trivia !== beforeCounts.trivia || afterCounts.games !== beforeCounts.games ||
+    afterCounts.jokes !== beforeCounts.jokes) {
+  throw new Error('Trivia, games or curated jokes counts changed unexpectedly');
 }
 
 writeFileSync(packPath, `${JSON.stringify(pack, null, 2)}\n`);

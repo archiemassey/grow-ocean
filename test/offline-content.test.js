@@ -28,7 +28,7 @@ test('all precached files exist, including content, rules and PDF', async () => 
   for (const file of entries) await access(new URL(file, root));
   for (const expected of ['./js/data/entertainment-pack.json', './js/entertainment.js', './js/rules.js',
     './js/safety.js', './js/data/rules-data.js', './js/shift-state.js', './js/navigation.js',
-    './js/views/boat.js', './' + RULES_DOCUMENT.file])
+    './js/views/boat.js', './references/joke-sources.txt', './' + RULES_DOCUMENT.file])
     assert.ok(entries.includes(expected), expected);
   const build = await readFile(new URL('tools/build-www.mjs', root), 'utf8');
   assert.ok(build.includes("'references'"));

@@ -1,0 +1,338 @@
+CURATED JOKE SOURCES AND REUSE NOTICE
+Curation and retrieval date: 2026-11-12
+Content version: 2026-11-12-jokes-2
+Total: 437 reviewed jokes from six pinned 2021/2022 collections.
+The first 202 records and their IDs/citations are preserved exactly.
+
+PRIMARY COLLECTION: KarlJoke community collection (238 selected)
+Repository: https://github.com/eklavyadev/karljoke
+Pinned commit: bd406981ec9511e816d8818a69f4c00bc38baa04
+Commit date: 2021-09-29T17:28:11Z
+Commit evidence:
+https://github.com/eklavyadev/karljoke/commit/bd406981ec9511e816d8818a69f4c00bc38baa04
+Pinned joke source:
+https://github.com/eklavyadev/karljoke/blob/bd406981ec9511e816d8818a69f4c00bc38baa04/source/jokes.json
+Pinned raw data:
+https://raw.githubusercontent.com/eklavyadev/karljoke/bd406981ec9511e816d8818a69f4c00bc38baa04/source/jokes.json
+Pinned licence:
+https://github.com/eklavyadev/karljoke/blob/bd406981ec9511e816d8818a69f4c00bc38baa04/LICENSE
+Pinned raw licence:
+https://raw.githubusercontent.com/eklavyadev/karljoke/bd406981ec9511e816d8818a69f4c00bc38baa04/LICENSE
+Pinned README / origin and contribution instructions:
+https://github.com/eklavyadev/karljoke/blob/bd406981ec9511e816d8818a69f4c00bc38baa04/README.md
+Example historical community contribution (merged 2021-09-30):
+https://github.com/eklavyadev/karljoke/pull/1
+
+ORIGIN AND ATTRIBUTION
+The pinned README describes KarlJoke as a free, open-source dad-joke API
+inspired by https://github.com/15Dkatz/official_joke_api. It explains the
+alternative service in terms of unavailable service / unaccepted pull
+requests upstream. Its Contributing section welcomes submissions and gives
+the jokes.json record structure. It lists Eklavya Chandra as the project
+author; the explicit MIT notice names Eklavya as copyright holder.
+
+The pinned 2021/2022 snapshots provide historical evidence of collections
+predating the modern generative-AI joke boom. Most sources explicitly invite
+community submissions; petershank/jokes describes itself simply as a
+collection. These facts do not prove the individual original author of each joke.
+No guarantee of independently verified human authorship, original
+authorship by the repository maintainer, or clearance of every possible
+third-party claim is made. The explicit repository licences, with no separate
+restrictive data licence found, are the stated basis for reuse. A repository
+licence cannot independently clear a contributor's third-party infringement.
+The source-specific origin evidence and full notices are reproduced below.
+No joke-article scraping was used.
+
+CURATION
+Output: js/data/curated-jokes.json
+All 379 original KarlJoke setup/punchline pairs were read during initial
+curation. For this expansion every included additional complete joke was
+read individually, including both fields of setup/punchline records.
+437 jokes were selected in total: KarlJoke 238, Official Joke API 12,
+JokeAPI 63, Yes Interactive 91, Mike McBride 13, petershank 20.
+
+Selection prioritised coherence, variety and clean broad adult humour.
+Explicit, sexual, degrading, gory, violent, suicide, racist, religious or
+political targeting, incomplete and weaker entries, exact duplicates and
+manually identified near-duplicate variants were omitted. Secular holiday
+references, mild bathroom humour, nonviolent fictional crime puns and
+familiar fictional characters may occur; these are not children's-only jokes.
+
+The setup and punchline strings were copied unchanged, not generated or
+rewritten. Genuine one-liners retain their complete original text as prompt
+without an invented answer. Upstream spelling, punctuation, whitespace and
+occasional minor imperfections remain. For petershank's dated entries,
+literal Q:/A: field labels and separate date annotations are omitted, not
+joke wording. Its knock-knock dialogue uses the source's existing final
+answer line; no artificial wording or punchline was added.
+
+Every included entry identifies its original numeric ID, one-based array
+position or source line (as explicitly labelled), with a pinned line citation.
+KarlJoke has a repeated ID 189; neither ambiguous record was selected.
+Official Joke API has no record IDs in the pinned data; its positions are
+our stable references into that exact snapshot, not invented upstream IDs.
+McBride one-liners are decoded original JavaScript string literals; source
+line numbers count newline characters, not Unicode paragraph separators.
+
+Categories (one best-fitting category per joke):
+animals (86) - animal-centred jokes
+food (66) - food, drink and cooking
+everyday (137) - daily life, family, work, sports, books and situations
+wordplay (80) - general puns without a stronger subject
+knock-knock (6) - complete knock-knock format; format takes precedence
+science-tech (62) - science, space, maths and technology
+
+The historical sources contain few complete, accessible knock-knock jokes;
+this category deliberately has fewer entries than the others rather than
+adding weak material or generating replacements. The final JSON records
+the exact selected total and per-category counts in provenance.
+
+Validation checked preservation of the original 202 records, unique output
+IDs, normalized setup, whole-joke and nonempty punchline
+uniqueness (case, whitespace and punctuation ignored), nonempty coverage
+of all six categories, and exact setup/punchline equality with the pinned
+upstream records. Near-duplicate screening also involved manual reading;
+mechanical normalization alone cannot establish semantic uniqueness.
+Humour and suitability are subjective; this is editorial curation, not an
+assurance that every reader will enjoy every joke.
+
+RESEARCH FRONTIER / WHY THIS IS NOT 1000
+The requested target was about 1000; this release contains 437, not 1000.
+The six reviewed sources overlap heavily. Additional entries were rejected
+for suitability, coherence, repetition or highly specialist material, rather
+than treating a repository's advertised size as a usable-joke count.
+
+kylecs/jokes-dataset-json: verified repository, README, all.json, format.py
+and scrape.py tree, but no licence file or repository licence; excluded.
+https://github.com/kylecs/jokes-dataset-json
+rdegges/dad_jokes: the suggested repository returned GitHub HTTP 404.
+Search-engine assertions that these are MIT collections were not trusted.
+
+Large scraped aggregations such as taivop/joke-dataset and the Short Jokes
+dataset were not used: a code licence or dataset-host metadata does not
+establish rights to redistribute the scraped joke texts. Suggested joke
+article collections were not scraped. Older Project Gutenberg conundrum
+books were investigated but not included: many entries are archaic,
+derogatory, obscure or riddles rather than suitable modern jokes, and the
+site explicitly requires non-US users to check local copyright law.
+Other inspected small collections largely duplicated the selected bank or
+were overwhelmingly specialist programming jokes. We did not manufacture,
+rewrite, clone or count weak variants merely to hit the numerical target.
+
+This is the achieved research frontier, not a claim that no other suitable
+licensed source exists. Reaching 1000 requires additional verified sources
+or permission from their authors, followed by full review and deduplication.
+
+KARLJOKE: FULL ORIGINAL MIT NOTICE
+
+MIT License
+
+Copyright (c) 2021 Eklavya
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+ADDITIONAL PINNED SOURCES AND FULL NOTICES
+
+========================================================================
+15Dkatz/official_joke_api (12 selected)
+Pinned commit: 4a6c65b9f966d279e4583f76796e5029765e3098
+Snapshot date: 2022-12-31
+Licence: MIT
+Source: https://github.com/15Dkatz/official_joke_api/blob/4a6c65b9f966d279e4583f76796e5029765e3098/jokes/index.json
+Raw source: https://raw.githubusercontent.com/15Dkatz/official_joke_api/4a6c65b9f966d279e4583f76796e5029765e3098/jokes/index.json
+Licence evidence: https://github.com/15Dkatz/official_joke_api/blob/4a6c65b9f966d279e4583f76796e5029765e3098/LICENCE
+Raw licence: https://raw.githubusercontent.com/15Dkatz/official_joke_api/4a6c65b9f966d279e4583f76796e5029765e3098/LICENCE
+Origin evidence: https://github.com/15Dkatz/official_joke_api/blob/4a6c65b9f966d279e4583f76796e5029765e3098/README.md
+
+The pinned README says: 'The majority of these jokes were contributed by joke-loving coders around the world!' It invites contributions to this data file. This is a contribution collection, not a licence claim about scraped commercial joke articles.
+
+FULL ORIGINAL NOTICE
+
+MIT License
+
+Copyright (c) 2022 David Katz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+========================================================================
+Sv443/JokeAPI (63 selected)
+Pinned commit: f2c757a20bdc385edcf57b811ec8cc1a72899432
+Snapshot date: 2022-08-15
+Licence: MIT
+Source: https://github.com/Sv443/JokeAPI/blob/f2c757a20bdc385edcf57b811ec8cc1a72899432/data/jokes/regular/jokes-en.json
+Raw source: https://raw.githubusercontent.com/Sv443/JokeAPI/f2c757a20bdc385edcf57b811ec8cc1a72899432/data/jokes/regular/jokes-en.json
+Licence evidence: https://github.com/Sv443/JokeAPI/blob/f2c757a20bdc385edcf57b811ec8cc1a72899432/LICENSE.txt
+Raw licence: https://raw.githubusercontent.com/Sv443/JokeAPI/f2c757a20bdc385edcf57b811ec8cc1a72899432/LICENSE.txt
+Origin evidence: https://github.com/Sv443/JokeAPI/blob/f2c757a20bdc385edcf57b811ec8cc1a72899432/.github/Contributing.md
+
+The pinned contributing guide describes manual joke submission through the API website/form, programmatic submission through the submit endpoint, and direct joke-file edits through pull requests. The pinned repository's actual LICENSE.txt is MIT, not a search engine's inferred data licence. We reviewed selected complete records, not just their safety flags; some unflagged records were unsuitable.
+
+FULL ORIGINAL NOTICE
+
+MIT License
+
+Copyright (c) 2018-2021 Sven Fehler & The Sv443 Network
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+========================================================================
+yesinteractive/dadjokes (91 selected)
+Pinned commit: ee5305f3c684530d76520234117aa78f906183dc
+Snapshot date: 2021-11-11
+Licence: MIT
+Source: https://github.com/yesinteractive/dadjokes/blob/ee5305f3c684530d76520234117aa78f906183dc/controllers/jokes.txt
+Raw source: https://raw.githubusercontent.com/yesinteractive/dadjokes/ee5305f3c684530d76520234117aa78f906183dc/controllers/jokes.txt
+Licence evidence: https://github.com/yesinteractive/dadjokes/blob/ee5305f3c684530d76520234117aa78f906183dc/LICENSE
+Raw licence: https://raw.githubusercontent.com/yesinteractive/dadjokes/ee5305f3c684530d76520234117aa78f906183dc/LICENSE
+Origin evidence: https://github.com/yesinteractive/dadjokes/blob/ee5305f3c684530d76520234117aa78f906183dc/readme.md
+
+The pinned README invites readers to 'add your own jokes' and links directly to controllers/jokes.txt. The source stores existing opener/punchline pairs separated by <>; that structural delimiter is not joke wording. Spaces on each side are preserved. One malformed line without a delimiter was not used.
+
+FULL ORIGINAL NOTICE
+
+MIT License
+
+Copyright (c) 2020 Yes Interactive, LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+========================================================================
+mikemcbride/dad-jokes (13 selected)
+Pinned commit: 44cefbeda5744687bd9954f4102c01d339743a13
+Snapshot date: 2022-10-05
+Licence: MIT
+Source: https://github.com/mikemcbride/dad-jokes/blob/44cefbeda5744687bd9954f4102c01d339743a13/jokes.js
+Raw source: https://raw.githubusercontent.com/mikemcbride/dad-jokes/44cefbeda5744687bd9954f4102c01d339743a13/jokes.js
+Licence evidence: https://github.com/mikemcbride/dad-jokes/blob/44cefbeda5744687bd9954f4102c01d339743a13/LICENSE
+Raw licence: https://raw.githubusercontent.com/mikemcbride/dad-jokes/44cefbeda5744687bd9954f4102c01d339743a13/LICENSE
+Origin evidence: https://github.com/mikemcbride/dad-jokes/blob/44cefbeda5744687bd9954f4102c01d339743a13/README.md
+
+The pinned README states that the jokes list is a file that 'can be used wherever' and says 'PRs welcome if you've got a good dad joke!' Each selected original string is kept whole as a prompt, without manufacturing an answer.
+
+FULL ORIGINAL NOTICE
+
+MIT License
+
+Copyright (c) 2018 Mike McBride
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+========================================================================
+petershank/jokes (20 selected)
+Pinned commit: 4fd5b05c2f8e6587327a83448effa4dad1fc262e
+Snapshot date: 2022-04-21
+Licence: Unlicense
+Source: https://github.com/petershank/jokes/blob/4fd5b05c2f8e6587327a83448effa4dad1fc262e/jokes.txt
+Raw source: https://raw.githubusercontent.com/petershank/jokes/4fd5b05c2f8e6587327a83448effa4dad1fc262e/jokes.txt
+Licence evidence: https://github.com/petershank/jokes/blob/4fd5b05c2f8e6587327a83448effa4dad1fc262e/LICENSE
+Raw licence: https://raw.githubusercontent.com/petershank/jokes/4fd5b05c2f8e6587327a83448effa4dad1fc262e/LICENSE
+Origin evidence: https://github.com/petershank/jokes/blob/4fd5b05c2f8e6587327a83448effa4dad1fc262e/README.md
+
+The pinned README calls this 'A collection of jokes.' The repository consists of joke text, a short README and its Unlicense dedication; no code-vs-data licence split was found. We do not claim a documented community-submission process here. Q:/A: field labels and separate date annotations are omitted; the actual text is unchanged.
+
+FULL ORIGINAL NOTICE
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <https://unlicense.org>

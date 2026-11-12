@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v30** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v31** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v30** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v31** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -83,7 +83,7 @@ Entertainment. Log forms, recordings, settings and entertainment no-repeat histo
 | 3 | **Event reminders** | Triggered safety prompts (CLIP ON, shift-change 10-min warning, run water-maker, grab-bag check). | Triggered notification |
 | 4 | **Checklists** | Grab-bag, pre-shift safety, medical inventory, weekly maintenance, daily nutrition. Ticks saved on device with progress bars. | Checklist / Log |
 | 5 | **Log (+ voice notes)** | Shift/sleep log, watch handover, medical log, and a **voice journal** for messages home. Records audio with the phone mic — works offline. | Log / Voice journaling |
-| 6 | **Morale & Media** | One consistent entertainment player for jokes/riddles, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, a note pointing to the native Apple Music / Podcasts apps, and journal/live-data links. Awe/perspective is on Home. | Media + Games |
+| 6 | **Morale & Media** | One consistent entertainment player for sourced jokes with a joke-type picker, Would You Rather, trivia, games, conversation and challenges. Saved no-repeat progress, automatic answers, optional automatic next items; **white noise**, a note pointing to the native Apple Music / Podcasts apps, and journal/live-data links. Awe/perspective is on Home. | Media + Games |
 | 7 | **Knot guide** | Fourteen offline animated knots with written steps, selectable storyboards and safety cautions. | Visual guide |
 
 Plus a **Home dashboard** with a big **shift timer** (10-min amber warning, swap & restart)
@@ -351,16 +351,29 @@ edits live on the device, not in this file.
 
 ### Manual content publishing — no SharePoint backend
 
-The bundled release contains **6,082 items**: **2,005 trivia**, **1,000 jokes/riddles**,
-**1,000 Would You Rather prompts**, **77 playable games**, **1,000 conversation prompts**
-and **1,000 challenges**. (A legacy 44-day plan may remain in the content pack but is no
-longer surfaced in the UI.)
-The four topped-up categories are grown to exactly **1,000 each** by
-`tools/generate-morale-content.mjs` — a **regenerable** top-up generator that appends only as
-many original, wholesome, non-copyright, British-English items as needed (prefixing generated
-IDs `gen-joke-` / `gen-wyr-` / `gen-conv-` / `gen-chal-`), dedupes per category, bumps the pack
-`version`, then validates. Re-running it is idempotent: it tops up to 1,000 without duplicating
-existing content. Trivia is left as-is; games are unchanged.
+Release **v31** replaces the entire generated/editorial joke bank with **437 reviewed jokes**
+from six historical collections: KarlJoke, Official Joke API, JokeAPI, Yes Interactive,
+Mike McBride and Petershank. The snapshots date from **2021 and 2022** and carry MIT
+or Unlicense reuse notices. Historical publication and community contributions support
+their provenance, but individual authors and human authorship are not independently verified.
+The original 202 selections and IDs are preserved. The selected setups, punchlines and
+complete one-liners are copied unchanged,
+not rewritten or padded with generated jokes. `js/data/curated-jokes.json` is the canonical
+reviewed selection; each joke records its source and type. Pinned upstream references,
+curation notes and full reuse notices are in `references/joke-sources.txt`, also available offline
+from the player's **Joke collection credits & licence** link.
+
+The requested expansion to about 1,000 yielded 437 distinct, suitable, reusable jokes;
+this smaller selection was approved rather than padding it with generated or unlicensed material.
+
+The pack now contains **5,519 items**. The other categories are unchanged: **2,005 trivia**, **1,000 Would You Rather prompts**,
+**77 playable games**, **1,000 conversation prompts** and **1,000 challenges**.
+(A legacy 44-day plan may remain in the content pack but is no longer surfaced in the UI.)
+Only Would You Rather, conversation and challenges are topped up to **1,000 each** by
+`tools/generate-morale-content.mjs`. It appends original word-bank prompts with IDs
+`gen-wyr-` / `gen-conv-` / `gen-chal-`, deduplicates per category and validates.
+It never generates jokes or changes the curated selection, trivia or games.
+Re-running it without additions preserves both the content and its release version.
 
 SharePoint is **only the crew's review/upload library**. This Copilot session or a maintainer
 manually curates approved material into the static app. There is no SharePoint authentication,
@@ -371,7 +384,10 @@ content exports are curated separately. The unrelated `artifacts/` workbook is n
 `js/data/entertainment-pack.json` uses `schemaVersion: 1`, a release `version`, and an `items`
 array. Each item has a permanent `id`, `category` (`jokes`, `wyr`, `trivia`, `games`,
 `conversation`, `challenges`), plain-text `prompt` and `source`. Optional fields are `answer`,
-`instructions` and `topic`; trivia requires an answer and games require complete instructions.
+`instructions`, `topic` and `jokeType`; trivia requires an answer and games require complete instructions.
+Published jokes require one of the `JOKE_TYPES` keys in `js/entertainment.js`.
+Setup/punchline jokes keep the answer separate; genuine one-liners keep their complete
+wording in the prompt without an invented answer.
 Do not reuse IDs for different content. Pack text is rendered as text, never executable HTML.
 An optional `schedule` of 44 `{ day, title, note, source }` records may still ship inside a
 pack, but v18 **no longer surfaces it as a UI disclosure** — it was an inert display that
@@ -390,14 +406,22 @@ read the latest stored progress atomically, so updated tabs in the same browser 
 draw the same unseen ID concurrently. Already-open pre-v8 tabs must be reloaded; their old
 non-atomic code cannot provide this guarantee. Storage failures do not advance a draw.
 There is no automatic repeat cycle: only an explicit category reset permits new repeated draws.
+Within Jokes, choose **All jokes**, **Animals**, **Food & drink**, **Everyday life**,
+**Puns & wordplay**, **Knock-knock**, or **Science & technology**. Counts and unseen draws
+follow the selected type. All types share the existing joke history, so a joke seen in
+Animals cannot be drawn again in All jokes. Changing type stops Auto and clears any
+out-of-type prompt/answer. **Reset all jokes** explicitly resets every joke type together;
+it does not reset other entertainment categories. Retired generated joke IDs remain in
+saved history, but no longer appear in the deck.
 Progress is local to each device/browser profile and is lost
 if site data is cleared; it is not included in wiki exports. Offline read-aloud depends on an
 installed device voice: test it before departure.
 
 ### Entertainment: automatic answers, optional Auto
 
-The entertainment player is first on Morale. A single category selector and the same content
-panel show the prompt, game instructions, answer and countdown in every category. The primary
+The entertainment player is first on Morale. The category selector (plus a joke-type selector
+when Jokes is selected) and the same content panel show the prompt, game instructions, answer
+and countdown in every category. The primary
 controls are always **Next** and **Auto On / Auto Off**. Next always draws an unseen item.
 Answers reveal after a short timer even with Auto off; there is no Reveal Answer button.
 The mobile player uses large, spacious prompt typography and a separate reserved answer area:
@@ -595,7 +619,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v30 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v31 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork
@@ -610,8 +634,8 @@ process. The build validates the pack and PDF hash before copying `js/` and `ref
 into `www/`. New content assets must also be listed in `service-worker.js`.
 Publish the shell and worker together as one release; never change assets under an unchanged
 cache version. Regression tests exercise fresh precaching, failed installs, exact-version
-offline loading, update UI confirmation, all 125 published jokes through restarts/upgrades
-and concurrent draws. Mock lifecycle tests do not replace a real-device online-upgrade and
+offline loading, update UI confirmation, every published joke through restarts/upgrades,
+joke-type filtering and concurrent draws. Mock lifecycle tests do not replace a real-device online-upgrade and
 offline-launch check on the target phone/browser.
 Injected-clock/speech tests also cover hands-free prompt→countdown→answer→next sequencing,
 pause/resume, stopped/stale callbacks, in-flight saves, errors and exhaustion.
@@ -625,8 +649,12 @@ iOS voice support or reliable locked-screen audio.
 The original app seeds and newly written two-person instructions/prompts are retained in
 `js/data/entertainment-base.json`. To compose them with a reviewed supplement using the same
 schema, run `node tools/publish-entertainment.mjs <reviewed-supplement.json>`; exact duplicate
-prompts are skipped, base IDs are retained, and the output is the built-in pack. This is a
+prompts are skipped, non-joke base IDs are retained, and the output is the built-in pack. This is a
 maintainer operation, not an in-app import.
+Jokes in the base or supplement are ignored: publishing always uses the complete reviewed
+`curated-jokes.json` selection instead. The build rejects a published joke bank that differs
+from this selection. To update jokes, review the upstream wording, reuse rights and types,
+update this selection and its credits, then republish and bump the app release.
 The tool also accepts the content agent's v1.1 `payload.json` (attributed trivia/joke rows).
 An optional second input, `original-library-export.json`, supplies the other original categories
 and Daily Packs as plain JSON. For this release the inputs were

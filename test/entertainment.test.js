@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
-  CATEGORIES, validatePack, nextItem, reconcileProgress, resetProgress, presentation, createDeck
+  CATEGORIES, JOKE_TYPES, validatePack, nextItem, reconcileProgress, resetProgress, presentation, createDeck
 } from '../js/entertainment.js';
 
 const item = (id, category = 'jokes', extra = {}) => ({ id, category, prompt: id, source: 'Test fixture', ...extra });
@@ -27,12 +27,29 @@ const memory = () => {
 
 test('published content pack has valid stable IDs, provenance and all six categories', async () => {
   const content = validatePack(JSON.parse(await readFile(new URL('../js/data/entertainment-pack.json', import.meta.url))));
-  const minimums = { trivia: 2000, jokes: 120, wyr: 160, games: 64, conversation: 110, challenges: 64 };
+  const minimums = { trivia: 2000, jokes: 437, wyr: 160, games: 64, conversation: 110, challenges: 64 };
   for (const category of Object.keys(CATEGORIES))
     assert.ok(content.items.filter(item => item.category === category).length >= minimums[category], category);
   assert.equal(content.schedule.length, 44);
   const normalized = content.items.map(item => item.category + ':' + item.prompt.toLowerCase().replace(/\s+/g, ' ').trim());
   assert.equal(new Set(normalized).size, normalized.length, 'duplicate prompts within a category');
+});
+
+test('published jokes are exactly the reviewed sourced collection, with a selectable type for every joke', async () => {
+  const content = validatePack(JSON.parse(await readFile(new URL('../js/data/entertainment-pack.json', import.meta.url))));
+  const curated = validatePack(JSON.parse(await readFile(new URL('../js/data/curated-jokes.json', import.meta.url))));
+  const jokes = content.items.filter(item => item.category === 'jokes');
+  assert.deepEqual(jokes, curated.items, 'publishing must not retain generated or legacy editorial jokes');
+  const setups = new Set();
+  for (const joke of jokes) {
+    assert.ok(Object.hasOwn(JOKE_TYPES, joke.jokeType), joke.id);
+    assert.match(joke.source, /https?:\/\/\S+/, joke.id);
+    const setup = joke.prompt.normalize('NFKC').toLowerCase().replace(/[\p{P}\p{Z}\s]/gu, '');
+    assert.ok(!setups.has(setup), `duplicate setup differing only in punctuation or spacing: ${joke.id}`);
+    setups.add(setup);
+  }
+  for (const type of Object.keys(JOKE_TYPES))
+    assert.ok(jokes.some(item => item.jokeType === type), type);
 });
 
 test('validation rejects malformed headers, IDs, categories, missing provenance and incomplete games/trivia', () => {
@@ -41,7 +58,9 @@ test('validation rejects malformed headers, IDs, categories, missing provenance 
     pack([item('a'), item('b', 'jokes', { prompt: ' A ' })]),
     pack([item('a', 'jokes', { source: '' })]), pack([item('a', 'jokes', { prompt: 42 })]),
     pack([item('a', 'trivia')]), pack([item('a', 'games')]),
-    pack([item('a', 'jokes', { answer: {} })])]) assert.throws(() => validatePack(bad));
+    pack([item('a', 'jokes', { answer: {} })]),
+    pack([item('a', 'jokes', { jokeType: 'invented' })]),
+    pack([item('a', 'wyr', { jokeType: 'animals' })])]) assert.throws(() => validatePack(bad));
 });
 
 test('draws every ID exactly once, then gracefully exhausts without changing state', () => {
@@ -130,6 +149,58 @@ test('failed storage writes do not advance the deck or discard progress', async 
   storage.getSetting = async () => { throw new Error('Unavailable'); };
   await assert.rejects(deck.select('trivia'));
   assert.equal(deck.snapshot().category, 'jokes');
+});
+
+test('joke types filter draws and progress without repeating jokes when switching to all or reopening', async () => {
+  const content = pack([
+    item('cat', 'jokes', { jokeType: 'animals', answer: 'Cat answer' }),
+    item('dog', 'jokes', { jokeType: 'animals', answer: 'Dog answer' }),
+    item('cake', 'jokes', { jokeType: 'food', answer: 'Cake answer' })
+  ]);
+  const storage = memory();
+  const deck = createDeck(content, storage, () => 0);
+  assert.equal((await deck.select('jokes', 'animals')).total, 2);
+  assert.equal((await deck.next()).item.id, 'cat');
+  deck.reveal();
+  const food = await deck.select('jokes', 'food');
+  assert.equal(food.item, null, 'a previous type must not leak its prompt or answer');
+  assert.equal(food.answer, '');
+  assert.equal(food.seen, 0);
+  assert.equal((await deck.next()).item.id, 'cake');
+  assert.equal(deck.snapshot().exhausted, true);
+  const all = await deck.select('jokes');
+  assert.equal(all.seen, 2);
+  assert.equal(all.total, 3);
+  assert.equal((await deck.next()).item.id, 'dog');
+  const reopened = createDeck(content, storage);
+  const animals = await reopened.select('jokes', 'animals');
+  assert.equal(animals.seen, 2);
+  assert.equal(animals.exhausted, true);
+  assert.equal((await reopened.next({ freshOnly: true })), null);
+  assert.equal((await reopened.select('jokes', 'wordplay')).total, 0);
+  await assert.rejects(reopened.select('jokes', 'unknown'));
+  await assert.rejects(reopened.select('trivia', 'animals'));
+  assert.equal(reopened.snapshot().jokeType, 'wordplay', 'invalid selection does not change state');
+});
+
+test('filtered tabs share atomic joke history and an explicit reset resets every joke type, not other categories', async () => {
+  const content = pack([
+    item('cat', 'jokes', { jokeType: 'animals' }),
+    item('cake', 'jokes', { jokeType: 'food' }),
+    item('choice', 'wyr')
+  ]);
+  const storage = memory();
+  const filtered = createDeck(content, storage, () => 0);
+  const all = createDeck(content, storage, () => 0);
+  await filtered.select('wyr');
+  await filtered.next();
+  await Promise.all([filtered.select('jokes', 'animals'), all.select('jokes')]);
+  const results = await Promise.all([filtered.next(), all.next()]);
+  assert.deepEqual(results.map(result => result.item.id), ['cat', 'cake']);
+  await filtered.reset();
+  assert.equal((await all.select('jokes')).seen, 0);
+  assert.equal(all.snapshot().cycle, 2);
+  assert.equal((await all.select('wyr')).seen, 1);
 });
 
 test('a 2,000-item deck remains repeat-free across daily-style restarts and an app update', async () => {

@@ -6,6 +6,7 @@ import { CATEGORIES, validatePack } from '../js/entertainment.js';
 
 if (!process.argv[2]) throw new Error('Usage: node tools/publish-entertainment.mjs <reviewed-supplement.json> [original-library-export.json]');
 const base = validatePack(JSON.parse(await readFile(new URL('../js/data/entertainment-base.json', import.meta.url), 'utf8')));
+const jokes = validatePack(JSON.parse(await readFile(new URL('../js/data/curated-jokes.json', import.meta.url), 'utf8')));
 const input = await readFile(resolve(process.argv[2]), 'utf8');
 let supplement = JSON.parse(input);
 if (!supplement.schemaVersion && Array.isArray(supplement.trivia) && Array.isArray(supplement.jokes) &&
@@ -77,7 +78,8 @@ if (process.argv[3]) {
 }
 const prompts = new Set();
 let duplicatePrompts = 0;
-const items = [...base.items, ...supplement.items].filter(item => {
+const items = [...base.items.filter(item => item.category !== 'jokes'),
+  ...supplement.items.filter(item => item.category !== 'jokes'), ...jokes.items].filter(item => {
   const key = item.category + ':' + item.prompt.toLowerCase().replace(/\s+/g, ' ').trim();
   if (prompts.has(key)) { duplicatePrompts++; return false; }
   prompts.add(key);
@@ -85,10 +87,11 @@ const items = [...base.items, ...supplement.items].filter(item => {
 });
 const pack = validatePack({
   schemaVersion: 1,
-  version: supplement.version,
+  version: `${supplement.version}-${jokes.version}`,
   provenance: {
     base: base.provenance,
     supplement: supplement.provenance || 'Reviewed supplement; see each item source.',
+    jokes: jokes.provenance,
     note: 'Manually curated static app content. No SharePoint sync or protected-workbook import.'
   },
   ...(supplement.schedule ? { schedule: supplement.schedule } : {}),

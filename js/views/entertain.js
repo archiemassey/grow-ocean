@@ -6,7 +6,7 @@
 import { h, go, toast, stopSpeaking } from '../app.js';
 import { CONTENT } from '../data/content.js';
 import { db } from '../db.js';
-import { CATEGORIES, createDeck } from '../entertainment.js';
+import { CATEGORIES, JOKE_TYPES, createDeck } from '../entertainment.js';
 import { HANDS_FREE_CATEGORIES, createHandsFreePlayer, createSpeechReader } from '../hands-free.js';
 import { createVoiceSettings, readPreference, savePreference } from '../speech.js';
 
@@ -68,6 +68,15 @@ async function gamesCard(signal) {
     const selector = h('select', { id: 'entertainment-category', 'aria-label': 'Entertainment category' },
       Object.entries(CATEGORIES).map(([id, label]) => h('option', { value: id },
         `${label} (${pack.items.filter(item => item.category === id).length})`)));
+    const jokeSelector = h('select', { id: 'joke-type', 'aria-label': 'Joke type' }, [
+      h('option', { value: 'all' }, 'All jokes'),
+      ...Object.entries(JOKE_TYPES).map(([id, label]) => h('option', { value: id },
+        `${label} (${pack.items.filter(item => item.category === 'jokes' && item.jokeType === id).length})`))
+    ]);
+    const jokeFilter = h('div', { class: 'player-joke-filter' }, [
+      h('label', { class: 'field', for: 'joke-type' }, 'Choose your joke type'), jokeSelector,
+      h('p', { class: 'hint' }, 'Community-collected jokes. Changing type does not repeat jokes already seen.')
+    ]);
     const progress = h('p', { class: 'hint', role: 'status', 'aria-live': 'polite' });
     const position = h('p', { class: 'hint player-position' });
     const prompt = h('p', { class: 'player-prompt', 'aria-live': 'polite', 'aria-atomic': 'true' });
@@ -79,7 +88,9 @@ async function gamesCard(signal) {
     const next = h('button', { class: 'btn secondary', 'aria-label': 'Next unseen item',
       onclick: () => act(() => deck.next({ freshOnly: true }), true) }, 'Next');
     const reset = h('button', { class: 'btn ghost', onclick: () => {
-      if (window.confirm('Start a new cycle for this category? Previously seen items may repeat.'))
+      if (window.confirm(deck.snapshot().category === 'jokes'
+        ? 'Start a new cycle for all jokes, across every joke type? Previously seen jokes may repeat.'
+        : 'Start a new cycle for this category? Previously seen items may repeat.'))
         act(() => deck.reset());
     } }, 'Reset this category');
     let busy = false, disposed = false, lifecycle = 0;
@@ -156,6 +167,9 @@ async function gamesCard(signal) {
     audio.addEventListener('change', changeSettings);
     function draw(state) {
       if (disposed) return;
+      jokeFilter.hidden = state.category !== 'jokes';
+      if (state.category === 'jokes') jokeSelector.value = state.jokeType;
+      reset.textContent = state.category === 'jokes' ? 'Reset all jokes' : 'Reset this category';
       prompt.textContent = state.total ? state.prompt : 'No items published in this category yet. Choose another category.';
       instructions.textContent = state.instructions;
       instructions.hidden = !state.instructions;
@@ -193,7 +207,7 @@ async function gamesCard(signal) {
       stopSpeaking();
       answer.hidden = true;
       source.textContent = '';
-      [selector, next, start, reset].forEach(control => control.disabled = true);
+      [selector, jokeSelector, next, start, reset].forEach(control => control.disabled = true);
       try {
         await player.settled();
         if (!disposed && !document.hidden && token === lifecycle) {
@@ -203,15 +217,21 @@ async function gamesCard(signal) {
       }
       catch { toast('Could not save progress on this device. Please try again.'); }
       finally {
-        busy = false; selector.disabled = false;
+        busy = false; selector.disabled = false; jokeSelector.disabled = false;
         selector.value = deck.snapshot().category;
         if (!disposed) draw(deck.snapshot());
       }
     }
-    selector.addEventListener('change', () => act(() => deck.select(selector.value)));
+    const selectCategory = () => {
+      const category = selector.value;
+      const type = category === 'jokes' ? jokeSelector.value : 'all';
+      return act(() => deck.select(category, type));
+    };
+    selector.addEventListener('change', selectCategory);
+    jokeSelector.addEventListener('change', selectCategory);
     card.append(
       h('div', { class: 'player-category' }, [
-        h('label', { class: 'field', for: 'entertainment-category' }, 'Choose your category'), selector
+        h('label', { class: 'field', for: 'entertainment-category' }, 'Choose your category'), selector, jokeFilter
       ]),
       h('div', { class: 'player-content' }, [
         position, prompt, instructions,
@@ -233,8 +253,9 @@ async function gamesCard(signal) {
         voiceSettings.element,
         h('label', { class: 'field', for: 'hands-free-pace' }, 'Thinking / next-item pauses'), pace,
         h('p', { class: 'hint' }, 'Answers appear automatically, even with Auto off. Normal pauses: jokes 3s, trivia 10s, conversation/choices 20s; 3s after an answer. Auto moves on after reading finishes. Next skips ahead and keeps Auto going. Games and challenges stay at your pace.'),
-        h('p', { class: 'hint' }, 'Leaving or locking the screen stops speech and turns Auto off. Returning shows answers silently; tap Next or Auto to read aloud again. Changing category, voice or timing also turns Auto off. Audio trouble falls back to on-screen answers.'),
+        h('p', { class: 'hint' }, 'Leaving or locking the screen stops speech and turns Auto off. Returning shows answers silently; tap Next or Auto to read aloud again. Changing category, joke type, voice or timing also turns Auto off. Audio trouble falls back to on-screen answers.'),
         progress, reset, source,
+        h('a', { href: new URL('../../references/joke-sources.txt', import.meta.url).href }, 'Joke collection credits & licence'),
         h('p', { class: 'hint' }, `Content ${pack.version} · ${pack.items.length.toLocaleString()} offline items. Progress stays on this device; only an explicit reset permits repeated draws.`)
       ])
     );

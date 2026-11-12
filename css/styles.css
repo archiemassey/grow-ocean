@@ -258,6 +258,7 @@ body{
 .player-category{margin:20px 0 0}
 .player-category label.field{font-size:12px;font-weight:600;margin:0 0 7px;color:var(--muted)}
 .player-category select{min-height:56px;font-weight:650;border-color:var(--teal);background:var(--foam)}
+.player-joke-filter{margin-top:16px}
 .player-content{padding:22px 0 16px;overflow-wrap:anywhere}
 .player-position{margin:0 0 14px;font-variant-numeric:tabular-nums}
 .player-prompt{font-size:clamp(22px,5.6vw,28px);font-weight:650;line-height:1.35;letter-spacing:-.02em;margin:0;min-height:3.9em}

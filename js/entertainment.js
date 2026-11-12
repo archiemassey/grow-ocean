@@ -1,7 +1,16 @@
 /* Pure content validation and progress logic. Stable IDs survive pack upgrades. */
 export const CATEGORIES = Object.freeze({
-  jokes: 'Jokes & riddles', wyr: 'Would you rather?', trivia: 'Trivia',
+  jokes: 'Jokes', wyr: 'Would you rather?', trivia: 'Trivia',
   games: 'Games', conversation: 'Conversation', challenges: 'Challenges'
+});
+
+export const JOKE_TYPES = Object.freeze({
+  animals: 'Animals',
+  food: 'Food & drink',
+  everyday: 'Everyday life',
+  wordplay: 'Puns & wordplay',
+  'knock-knock': 'Knock-knock',
+  'science-tech': 'Science & technology'
 });
 
 export function validatePack(pack) {
@@ -15,6 +24,9 @@ export function validatePack(pack) {
         ids.has(item.id)) throw new Error('Invalid or duplicate entertainment ID');
     ids.add(item.id);
     if (!Object.hasOwn(CATEGORIES, item.category)) throw new Error(`Invalid category: ${item.id}`);
+    if (item.jokeType !== undefined &&
+        (item.category !== 'jokes' || !Object.hasOwn(JOKE_TYPES, item.jokeType)))
+      throw new Error(`Invalid joke type: ${item.id}`);
     for (const key of ['prompt', 'source']) {
       if (typeof item[key] !== 'string' || !item[key].trim() || item[key].length > 10000)
         throw new Error(`Invalid ${key}: ${item.id}`);
@@ -81,14 +93,19 @@ export function presentation(item, revealed = false) {
 
 export function createDeck(pack, storage, random = Math.random) {
   validatePack(pack);
-  let category = 'jokes', state, current = null, revealed = false;
-  const items = () => pack.items.filter(item => item.category === category);
+  let category = 'jokes', jokeType = 'all', state, current = null, revealed = false;
+  const categoryItems = () => pack.items.filter(item => item.category === category);
+  const items = () => categoryItems().filter(item =>
+    category !== 'jokes' || jokeType === 'all' || item.jokeType === jokeType);
   const key = () => 'entertainment-progress-v1:' + category;
   return {
-    async select(value) {
+    async select(value, type = 'all') {
       if (!Object.hasOwn(CATEGORIES, value)) throw new Error('Unknown category');
+      if (type !== 'all' && (value !== 'jokes' || !Object.hasOwn(JOKE_TYPES, type)))
+        throw new Error('Unknown joke type');
       const saved = await storage.getSetting('entertainment-progress-v1:' + value, null);
       category = value;
+      jokeType = type;
       state = reconcileProgress(items(), saved);
       current = items().find(item => item.id === state.currentId) || null;
       revealed = false;
@@ -107,7 +124,7 @@ export function createDeck(pack, storage, random = Math.random) {
       return freshOnly && !drawn ? null : this.snapshot();
     },
     async reset() {
-      const next = await storage.updateSetting(key(), saved => resetProgress(items(), saved));
+      const next = await storage.updateSetting(key(), saved => resetProgress(categoryItems(), saved));
       state = next; current = null; revealed = false;
       return this.snapshot();
     },
@@ -116,7 +133,7 @@ export function createDeck(pack, storage, random = Math.random) {
       const seen = new Set(state?.seen || []);
       const count = items().filter(item => seen.has(item.id)).length;
       return {
-        ...presentation(current, revealed), category, item: current,
+        ...presentation(current, revealed), category, jokeType, item: current,
         seen: count, total: items().length,
         cycle: state?.cycle || 1, exhausted: count === items().length
       };

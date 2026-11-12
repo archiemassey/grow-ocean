@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
-import { CATEGORIES, createDeck } from '../js/entertainment.js';
+import { CATEGORIES, JOKE_TYPES, createDeck } from '../js/entertainment.js';
 import { HANDS_FREE_CATEGORIES, createHandsFreePlayer, createSpeechReader } from '../js/hands-free.js';
 import { createVoiceSettings, readPreference, savePreference } from '../js/speech.js';
 
@@ -63,8 +63,8 @@ test('a loaded entertainment card replaces its own loading placeholder', async (
 test('the category UI distinguishes restored items from Next unseen item and labels the content release', async () => {
     const pack = {
       schemaVersion: 1, version: 'route-fixture', items: [
-        { id: 'first', category: 'jokes', prompt: 'First joke', answer: 'First answer', source: 'Fixture' },
-        { id: 'second', category: 'jokes', prompt: 'Second joke', source: 'Fixture' },
+        { id: 'first', category: 'jokes', jokeType: 'animals', prompt: 'First joke', answer: 'First answer', source: 'Fixture' },
+        { id: 'second', category: 'jokes', jokeType: 'food', prompt: 'Second joke', source: 'Fixture' },
         { id: 'choice', category: 'wyr', prompt: 'Choice', source: 'Fixture' },
         { id: 'game', category: 'games', prompt: 'Play together', source: 'Fixture', instructions: 'Take turns until both finish.' }
       ]
@@ -98,9 +98,9 @@ test('the category UI distinguishes restored items from Next unseen item and lab
       return node;
     }
     const gamesSource = source.slice(source.indexOf('async function gamesCard('), source.indexOf('function mediaCard()'))
-      .replace('import.meta.url', JSON.stringify('https://example.test/js/views/entertain.js'));
+      .replaceAll('import.meta.url', JSON.stringify('https://example.test/js/views/entertain.js'));
     const render = runInNewContext(gamesSource + '\ngamesCard;', {
-      h, CATEGORIES, createDeck: (content, storage) => createDeck(content, storage, () => 0),
+      h, CATEGORIES, JOKE_TYPES, createDeck: (content, storage) => createDeck(content, storage, () => 0),
       HANDS_FREE_CATEGORIES, createHandsFreePlayer: options => createHandsFreePlayer({ ...options, timers }), createSpeechReader,
       createVoiceSettings, readPreference, savePreference,
       db: {
@@ -143,15 +143,28 @@ test('the category UI distinguishes restored items from Next unseen item and lab
     assert.match(progress.textContent, /saved current item/);
     assert.match(progress.textContent, /^1 of 2 seen/);
     assert.ok(nodes.some(node => node.textContent === 'First joke'));
+    const jokeSelector = nodes.find(node => node.id === 'joke-type');
+    const jokeFilter = nodes.find(node => node.children.includes(jokeSelector));
+    assert.equal(jokeFilter.hidden, false);
+    assert.ok(jokeSelector.children.some(node => node.textContent === 'Animals (1)'));
+    jokeSelector.value = 'food';
+    await jokeSelector.events.change();
+    assert.match(progress.textContent, /^0 of 1 seen/);
+    assert.equal(measure.textContent, '', 'changing joke type clears the previous answer');
     await next.onclick();
     assert.ok(nodes.some(node => node.textContent === 'Second joke'));
     assert.equal(next.disabled, true);
     assert.match(progress.textContent, /All seen. Reset/);
+    jokeSelector.value = 'all';
+    await jokeSelector.events.change();
+    assert.match(progress.textContent, /^2 of 2 seen/);
+    assert.equal(next.disabled, true, 'switching back to all cannot repeat a joke');
     const primary = nodes.find(node => node.class === 'player-primary');
     assert.equal(nodes.some(node => node.class === 'player-secondary'), false);
     const controls = [...primary.children];
     selector.value = 'games';
     await selector.events.change();
+    assert.equal(jokeFilter.hidden, true, 'only jokes show the type filter');
     assert.equal(primary.children[1].disabled, true, 'games stay manual in the same Auto slot');
     await next.onclick();
     assert.ok(nodes.some(node => node.textContent === 'Take turns until both finish.'));
@@ -164,6 +177,16 @@ test('the category UI distinguishes restored items from Next unseen item and lab
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(start.textContent, 'Auto On');
     assert.equal(start['aria-pressed'], 'true');
+    selector.value = 'jokes';
+    await selector.events.change();
+    assert.equal(start.textContent, 'Auto Off', 'changing category stops Auto');
+    jokeSelector.value = 'animals';
+    await jokeSelector.events.change();
+    assert.equal(start.textContent, 'Auto Off', 'changing joke type keeps Auto off');
+    selector.value = 'wyr';
+    await selector.events.change();
+    start.onclick();
+    await new Promise(resolve => setImmediate(resolve));
     document.hidden = true;
     document.dispatchEvent(new Event('visibilitychange'));
     assert.equal(start.textContent, 'Auto Off');

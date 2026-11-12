@@ -1,11 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
 import { validatePack } from '../js/entertainment.js';
 import { RULES_DOCUMENT } from '../js/rules.js';
 import { PROCEDURES_DOCUMENT } from '../js/procedures.js';
 
 const root = new URL('../', import.meta.url);
 const pack = validatePack(JSON.parse(await readFile(new URL('js/data/entertainment-pack.json', root), 'utf8')));
+const curated = validatePack(JSON.parse(await readFile(new URL('js/data/curated-jokes.json', root), 'utf8')));
+if (!curated.items.every(item => item.category === 'jokes' && item.jokeType) ||
+    !isDeepStrictEqual(pack.items.filter(item => item.category === 'jokes'), curated.items))
+  throw new Error('Published jokes differ from the reviewed, categorised source collection. Republish before building.');
 const pdf = await readFile(new URL(RULES_DOCUMENT.file, root));
 if (createHash('sha256').update(pdf).digest('hex') !== RULES_DOCUMENT.sha256)
   throw new Error('Rules PDF differs from the reviewed searchable text. Review and re-extract before publishing.');
