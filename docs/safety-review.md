@@ -113,7 +113,7 @@ yacht-only button controls, LED fault codes and automatic-flushing routines are 
 - Shutdown: the call repeatedly says "on the clunk"; manual section 5.3.1 (PDF p.32)
   explicitly says avoid the beat and wait about one second. Per the crew's direction,
   the daily rowing instructions select the summary's stop-on-clunk method; the difference
-  remains recorded on the sources page rather than as a competing daily routine.
+  remains recorded here rather than as a competing daily routine.
 - Flushing: the manual's recommended automatic flush assumes a freshwater pressure supply,
   carbon filter and flushing circuit. No "never flush during the crossing" rule is established
   by the supplied call. The app does not infer a universal no-flushing rule; it omits the
@@ -133,7 +133,8 @@ yacht-only button controls, LED fault codes and automatic-flushing routines are 
 - The summary's reset table says close depressurization, leave reset open and then close
   reset gradually. This appears to reverse the controls described in the call's restart/
   air-purge demonstration. Manual section 5.4 closes reset before restart (PDF p.35).
-  No summary-derived valve sequence is adopted; the app highlights the discrepancy.
+  No summary-derived valve sequence is adopted; the app requires positive identification
+  of the controls and confirmation of the reset sequence with Mactra.
 - The summary's "pump and motor in separate compartments" is not adopted: the call
   distinguishes the hydraulic water-maker unit from the electric pump/motor assembly.
   Likewise the 5-micron cartridge protects the membrane; the intake mesh protects the pump.
@@ -152,6 +153,20 @@ The public manual explicitly restricts copying/reuse. The app links to it online
 than redistributing its bytes or diagrams; protected videos and passwords are not shipped.
 Crew edits remain editable and survive upgrades; reset/export/import retain existing behavior.
 This source record does not close the water-maker review.
+
+### Plain-English revision - 12 November 2026 (v30)
+
+At the user's request, the guide now gives direct operating instructions without
+commentary about its compilation, call timestamps or source precedence. The source order,
+conflicts and review limits remain recorded above. The former sources topic keeps its
+existing ID but now contains equipment checks, support details and online manual/training
+links. Brief manual page references remain beside relevant instructions.
+
+This is an editorial revision, not a new operating procedure. It retains the voltage
+limits, pressure/cycle observations, stop-on-clunk instruction, once-through preservation,
+product-specific dose checks, drinking-water checks and isolation requirements. The reset
+warning now tells the reader to identify both controls and ask Mactra to confirm the sequence,
+without discussing the erroneous source table. No new reset sequence is supplied.
 
 ## Sources and verification limits
 

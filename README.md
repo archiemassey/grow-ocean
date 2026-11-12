@@ -22,7 +22,7 @@ notes, checklist ticks, reminder settings, wiki edits and entertainment progress
 
 Home starts with the compact **This shift** thought, then the shift timer and actions.
 Expand **About & updates** at the bottom for
-**App release grow-ocean-v29** and **Check for updates**. It stays collapsed by default; there
+**App release grow-ocean-v30** and **Check for updates**. It stays collapsed by default; there
 is no timed layout jump. An actual update-ready notice remains visible above the screen.
 Morale → Entertainment player → **Playback settings, progress & source** also shows the
 content pack release. Connect on land, check for updates and wait for the
@@ -34,7 +34,7 @@ automatically reloads a screen. Test a subsequent launch in aeroplane mode befor
 and cannot show the new update banner. While online, save your work, reopen/reload the app
 and leave it open for the complete offline download (including the rules PDF). Then reload
 once more: the newly activated worker serves the new shell and all its fresh modules.
-Look for **grow-ocean-v29** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
+Look for **grow-ocean-v30** in Home's About disclosure and the four Home / Boat / Log / Entertainment tabs.
 If the download was interrupted, reconnect and repeat; do not uninstall, reset categories
 or clear browser/site storage to update. Saved logs, voice notes, crew edits and seen IDs
 remain in IndexedDB. Old random-button releases did not record joke history, so their
@@ -137,7 +137,9 @@ Practise with an instructor and follow the boat's approved methods for critical 
 ### Water maker guide (Boat → Water maker guide, `#/wiki/watermaker`)
 
 Release **v29** adds five searchable, read-aloud Wiki pages for the **Schenker ZEN 30**:
-overview, daily use, fault checks, care/spares/finish, and sources/equipment differences.
+overview, daily use, fault checks, care/spares/finish, and equipment/help.
+Release **v30** rewrites them in plain English, with direct instructions and no commentary
+about how the guide was compiled. Equipment checks, safety warnings and online references remain.
 The original summaries combine manufacturer manual **30Z12/24.B.2021**, Mactra's written
 race-spares guidance, the crew-supplied imperfect training-call transcript and the speaker's
 summary received on 11 November 2026. They are not a verified transcript of the videos or Mactra-approved procedures.
@@ -150,7 +152,7 @@ and unpressurised product-water collection. Daily use follows the summary's 12 V
 for its 12 V setup, approximate 6-8 bar working range, initial output discard and
 **stop on a clunk** instruction. Finish-line preservation follows its once-through method,
 not the yacht manual's recirculation cycle. Yacht-controller button/flash-code instructions
-are excluded; the sources page records the differences without presenting competing routines.
+are excluded; `docs/safety-review.md` records the differences without presenting competing routines.
 
 Rowing additions also cover intake pollution/air, filter O-rings, compatible emergency-set
 preparation and keeping bucket feed separate from brine discharge. The summary's apparent
@@ -593,7 +595,7 @@ encode uses the vendored public-domain `js/vendor/qrcode.js`; scanning uses the 
 Apache-2.0 `js/vendor/jsqr.js`. A “Share as file” backup and schedule-based wake-up alarms
 are also provided. There is deliberately **no autonomous push** between phones.
 
-The v29 worker precaches every `js/**` module with the shell — including `theme.js`,
+The v30 worker precaches every `js/**` module with the shell — including `theme.js`,
 `star-math.js`, `breathe-math.js`, `views/stars.js`, `views/breathe.js`, and the new
 `stint-log.js` and `data/encouragement.js`, which earlier
 releases omitted (a latent bug that broke the star guide, screen modes and breathwork

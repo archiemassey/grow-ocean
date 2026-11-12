@@ -118,27 +118,39 @@ test('water maker topics resolve offline, preserve crew notes and round-trip thr
   await resetArticle('watermaker-run');
 });
 
-test('water maker follows the Call Summary, uses compatible manual gaps and retains safety boundaries', async () => {
+test('water maker gives direct instructions without editorial source commentary', () => {
+  for (const article of WATERMAKER_ARTICLES) {
+    const text = [article.title, article.summary, article.body].join(' ');
+    assert.doesNotMatch(text, /call summary|the call\b|transcript|primary source|source order|for traceability|crew has selected|summary appears/i);
+  }
+});
+
+test('water maker retains rowing procedures and safety boundaries in plain English', async () => {
   const overview = (await getArticle('watermaker')).body;
   const run = (await getArticle('watermaker-run')).body;
   const care = (await getArticle('watermaker-care')).body;
   const faults = (await getArticle('watermaker-faults')).body;
-  const sources = (await getArticle('watermaker-sources')).body;
-  assert.match(overview, /Call Summary is the primary rowing guidance/);
+  const help = (await getArticle('watermaker-sources')).body;
+  assert.match(overview, /simple pressure-switch\/relay controller/);
+  assert.match(overview, /unpressurised container/);
   assert.match(run, /Stop on a clunk/);
   assert.match(run, /at least 12 volts/);
   assert.match(run, /6-8 bar/);
   assert.match(run, /first output to waste for a minute or two/);
   assert.doesNotMatch(run, /wait about one second|6\.5-7\.5 bar/);
-  assert.match(run, /not a\s+24 V machine/);
+  assert.match(run, /limit does not apply to a 24 V unit/);
   assert.match(run, /Do not dilute salty startup water/);
+  assert.match(run, /Only collect drinking water once it passes the water-quality checks/);
   assert.match(care, /through\s+<strong>once<\/strong>/);
   assert.match(care, /exact treatment and pack size/);
   assert.match(care, /80-100 running hours/);
-  assert.match(sources, /manual fills compatible gaps/);
+  assert.match(care, /Do not recirculate it/);
+  assert.match(care, /Confirm the dose before mixing/);
+  assert.match(care, /Keep preservative out of drinking-water storage/);
+  assert.match(help, /tel:\+441934517288/);
   assert.match(faults, /Do not adjust the pressure switch/);
-  assert.match(faults, /summary appears to swap the reset and depressurization/);
-  assert.match(faults, /manual closes the reset valve before restart/);
+  assert.match(faults, /reset valve and pressure-release control are different controls/);
+  assert.match(faults, /Ask Mactra to identify them and confirm the\s+reset sequence/);
   assert.doesNotMatch(faults, /2 flashes|Flashing buttons/);
   assert.match(faults, /Isolate electrical power and\s+release pressure/);
   assert.match(faults, /brine discharge outside the\s+feed bucket/);
